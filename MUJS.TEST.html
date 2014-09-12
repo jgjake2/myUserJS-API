@@ -1,0 +1,51 @@
+<html>
+<head>
+	<script src="/API/MUJS.js"></script>
+</head>
+<body>
+foo!
+<script>
+	function test(){
+		MUJS.UPDATE.set('host', 'http://test2.myuserjs.org');
+		MUJS.UPDATE.set('script.username', 'jgjake2');
+		MUJS.UPDATE.set('script.script_name', 'Cracked.com_Enhancer');
+		MUJS.UPDATE.set('get_type', 'metajs.js');
+		MUJS.UPDATE.set('DOMTiming', true);
+		
+		function testCallback(result, msg){
+			if(typeof result === "undefined"){
+				console.log(msg);
+			} else {
+				console.log(result);
+			}
+		}
+		
+		var opts = {
+			callback: testCallback,
+			get_type: 'data.js',
+			args: {
+				//'pageLoadTime': 1234,
+				//'scriptLoadTime': 567
+			}
+		};
+		
+		console.log(MUJS.UPDATE.getDOMTiming());
+		
+		console.log(MUJS.UPDATE.getUpdateURL(opts));
+		
+		//MUJS.UPDATE.getUpdateData(opts);
+		MUJS.ERROR.send({
+			'args': {'scriptError': '2'}
+		});
+	}
+	// Delay 1
+	setTimeout(test, 100);
+	
+	// Delay 2
+	var c = 0;
+	for(var i = 0; i < 1000; i++){
+		c++;
+	}
+	
+</script>
+</body>
