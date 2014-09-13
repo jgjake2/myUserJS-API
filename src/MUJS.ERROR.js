@@ -1,4 +1,6 @@
-
+/**
+ * ERROR
+ */
 MUJS['ERROR'] = {};
 
 MUJS['ERROR']['send'] = function(opts){
@@ -24,3 +26,6 @@ MUJS['ERROR']['send'] = function(opts){
 	
 	MUJS['UPDATE']['getUpdateData'](opts);
 };
+/**
+ * END ERROR
+ */
