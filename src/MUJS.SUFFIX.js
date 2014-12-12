@@ -1,1 +1,0 @@
-})(unsafeWindow['MUJS']);
