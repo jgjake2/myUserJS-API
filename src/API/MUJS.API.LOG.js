@@ -1,6 +1,7 @@
 // +@display_name  Log
 // +@replace  MUJS.API.LOG
 // +@history (0.0.9) History begins.
+// +@history (0.0.13) Fixed output to the Web Console using GM_log.
 
 	var OUTPUT_TYPES = {
 		'ERROR':	{level: 1,	value: 'error'	},
@@ -51,11 +52,16 @@
 	}
 
 	function getWC(){
+		/*
+		if(GM_log){
+			if(isWebConsole(GM_log)) return GM_log;
+		}
+		*/
 		if(isWebConsole(unsafeWindow.window.console)) return unsafeWindow.window.console;
 		if(isWebConsole(window.console)) return window.console;
 		
 		return undefined;
-	}	
+	}
 
 	function MUJS_Log(fb_ptr, c2_ptr, wc_ptr){
 		var tmp_fb_ptr = (isFirebug(fb_ptr) ? fb_ptr : undefined);
@@ -103,6 +109,12 @@
 				
 				if(typeof this.WebConsole_ptr !== "undefined" && typeof this.WebConsole_ptr[command] !== "undefined")
 					this.WebConsole_ptr[command].apply(this.WebConsole_ptr, safeArgs);
+				else if(typeof GM_log !== "undefined" && isWebConsole(GM_log) && ['debug', 'log', 'info', 'warning', 'error'].indexOf(command.toLowerCase()) != -1){
+					// Cannot use function.apply on GM_log
+					if(args.length == 1) GM_log(args[0]);
+					else if(args.length == 2) GM_log(args[0], args[1]);
+					else if(args.length == 3) GM_log(args[0], args[1], args[2]);
+				}
 				}catch(e){
 					console.log('ConsoleCommand Error! getUpdateData: ', e.name, e.fileName, e.lineNumber + ':' + e.columnNumber);
 					console.log(e);
@@ -211,7 +223,7 @@
 		'Log',
 		'Info',
 		'Warning',
-		'Error'
+		//'Error'
 	];
 
 	MUJS.API.fn.MUJS_Log = new MUJS_Log(getFB(), getC2(), getWC());

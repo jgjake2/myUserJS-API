@@ -4,12 +4,16 @@
 // @author           jgjake2
 // @homepage         http://myuserjs.org/
 // @include          *
-// @version          0.0.11
+// @version          0.0.13
 // @grant            unsafeWindow
 // @grant            GM_info
 // @grant            GM_log
+// @grant            GM_addStyle
 // @grant            GM_getMetadata
+// @grant            GM_installScript
 // @grant            GM_xmlhttpRequest
+// @grant            GM_getResourceURL
+// @grant            GM_getResourceText
 // @grant            GM_registerMenuCommand
 // @unwrap
 // @run-at document-start
@@ -17,6 +21,20 @@
 
 if(typeof unsafeWindow === "undefined") unsafeWindow = window;
 MUJS = function(arg1, arg2){return MUJS.init.apply(MUJS, Array.prototype.slice.call(arguments, 0));};
+Object.defineProperties(MUJS, {
+	"version": {configurable:false,get:function() { return '0.0.13'; }},
+	"build_time": {configurable:false,get:function() { return '1418442129000'; }},
+	"fn": {value: MUJS.__proto__},
+	"API": {value: function(){
+		return MUJS.API.EvalCommand.apply(MUJS.API, Array.prototype.slice.call(arguments, 0));
+	}}
+});
+/*
+MUJS.__defineGetter__("version", function() { return '0.0.13'; });
+MUJS.__defineGetter__("build_time", function() { return '1418442129000'; });*/
+//MUJS['fn']=MUJS.__proto__;
+//MUJS['API']=new function(){this['fn']=this.__proto__;};
+MUJS['API']['fn']=MUJS['API'].__proto__;
 
 (function(MUJS, $){
 	var mujsAPILoadStart = -1;
@@ -24,10 +42,7 @@ MUJS = function(arg1, arg2){return MUJS.init.apply(MUJS, Array.prototype.slice.c
 	if(typeof unsafeWindow.performance !== "undefined" && typeof unsafeWindow.performance.timing !== "undefined")
 		mujsAPILoadStart = unsafeWindow.performance.now();
 		
-	MUJS.__defineGetter__("version", function() { return '0.0.11'; });
-	MUJS.__defineGetter__("build_time", function() { return '1418405339000'; });
-	MUJS['fn']=MUJS.__proto__;
-	MUJS.API=new function(){this['fn']=this.__proto__;};
+
 	
 	MUJS.fn.init = function(){
 		var args = Array.prototype.slice.call(arguments, 0);
@@ -44,7 +59,7 @@ MUJS = function(arg1, arg2){return MUJS.init.apply(MUJS, Array.prototype.slice.c
 					
 				} else if(typeof args[0] === "object") {
 					// GM_info object
-					if(typeof args[0]['ginfo'] !== "undefined"){
+					if(typeof args[0]['GM_info'] !== "undefined" || typeof args[0]['ginfo'] !== "undefined"){
 						return MUJS.setScriptInfo.apply(MUJS, args);
 					}
 				
@@ -56,6 +71,7 @@ MUJS = function(arg1, arg2){return MUJS.init.apply(MUJS, Array.prototype.slice.c
 	}
 		
 	if(console) console.log('Loading MUJS API v' + MUJS.version + ' - ' + (new Date(parseInt(MUJS.build_time))).toString());
+	//if(console) console.log('GM_info', GM_info);
 	
 	
 	var URLBuilder = function(input){
@@ -133,7 +149,7 @@ MUJS = function(arg1, arg2){return MUJS.init.apply(MUJS, Array.prototype.slice.c
 
 	var mCloneInto = this.mCloneInto = function(obj, scope, args){
 		if(typeof cloneInto !== "undefined"){
-			cloneInto(obj, scope, args);
+			return cloneInto(obj, scope, args);
 		} else {
 			/*
 			var tName = 'tClonedObject';
@@ -430,6 +446,20 @@ MUJS = function(arg1, arg2){return MUJS.init.apply(MUJS, Array.prototype.slice.c
 	/***********************************
 	 ** Get Script Info
 	 **********************************/
+	MUJS.fn.getScriptURLInfo = function(str){
+		var patt = /myuserjs\.org\/script\/([^\/]+)\/([^\s]+)\.(user|meta|metajs|data)\.js/i;
+		
+		if(patt.test(str)){
+			var matches = patt.exec(str);
+			return {
+				username: matches[1],
+				script_name: matches[2],
+				get_type: matches[3]
+			};
+		}
+		return false;
+	}
+
 	MUJS.fn.setScriptInfo = function(data){
 		var callerScriptInfo;
 		var output = {};
@@ -450,35 +480,75 @@ MUJS = function(arg1, arg2){return MUJS.init.apply(MUJS, Array.prototype.slice.c
 		};
 		
 		try{
+			var tGM_info;
 			
-			if(typeof data.ginfo !== "undefined"){
-				if(typeof data.ginfo.script !== "undefined"){
-					for(var key in data.ginfo.script){
-						if(typeof output[key] === "undefined") output[key] = data.ginfo.script[key];
+			if(typeof data.GM_info !== "undefined")
+				tGM_info = data.GM_info;
+			else if(typeof data.ginfo !== "undefined")
+				tGM_info = data.ginfo;
+			
+			if(typeof tGM_info !== "undefined"){
+				if(typeof tGM_info.script !== "undefined"){
+					for(var key in tGM_info.script){
+						if(typeof output[key] === "undefined") output[key] = tGM_info.script[key];
 					}
 				}
 				
-				if(typeof data.ginfo.uuid !== "undefined"){
-					output['gmUUID'] = data.ginfo.uuid;
-				} else if(typeof data.ginfo.script.uuid !== "undefined"){
-					output['gmUUID'] = data.ginfo.script.uuid;
+				if(typeof tGM_info.uuid !== "undefined"){
+					output['gmUUID'] = tGM_info.uuid;
+				} else if(typeof tGM_info.script.uuid !== "undefined"){
+					output['gmUUID'] = tGM_info.script.uuid;
 				}
 				
-				if(typeof GM_info.scriptHandler !== "undefined"){
-					if(GM_info.scriptHandler.toLowerCase() == 'tampermonkey'){
+				if(typeof tGM_info.scriptHandler !== "undefined"){
+					if(tGM_info.scriptHandler.toLowerCase() == 'tampermonkey'){
 						output.script_handler = 'Tampermonkey';
-						output.script_handler_version = GM_info.version;
-					} else if(GM_info.scriptHandler.toLowerCase() == 'greasemonkey'){
+						output.script_handler_version = tGM_info.version;
+					} else if(tGM_info.scriptHandler.toLowerCase() == 'greasemonkey'){
 						output.script_handler = 'Greasemonkey';
-						output.script_handler_version = GM_info.version;
+						output.script_handler_version = tGM_info.version;
 					}
 				} else if(data.has_GM_info){
 					output.script_handler = 'Greasemonkey';
-					output.script_handler_version = GM_info.version;
+					output.script_handler_version = tGM_info.version;
 				} else if(data.has_GM_getMetadata){
 					output.script_handler = 'Scriptish';
 				}
+				
+				var pMetaData = MUJS.API.ParseMetaData(tGM_info.scriptMetaStr);
+				
+				//console.log('pMetaData', pMetaData);
+				
+				var urlInfo;
+				if(
+					(typeof pMetaData['downloadURL'] !== "undefined" && (urlInfo = MUJS.getScriptURLInfo(pMetaData['downloadURL'])))
+					|| (typeof pMetaData['updateURL'] !== "undefined" && (urlInfo = MUJS.getScriptURLInfo(pMetaData['updateURL'])))
+					|| (typeof pMetaData['MUJSdownloadURL'] !== "undefined" && (urlInfo = MUJS.getScriptURLInfo(pMetaData['MUJSdownloadURL'])))
+					|| (typeof pMetaData['MUJSupdateURL'] !== "undefined" && (urlInfo = MUJS.getScriptURLInfo(pMetaData['MUJSupdateURL'])))
+				){
+					//console.log('urlInfo', urlInfo);
+					MUJS('set', 'script.username', urlInfo.username);
+					MUJS('set', 'script.script_name', urlInfo.script_name);
+					if(['meta', 'metajs', 'data'].indexOf(urlInfo.get_type.toLowerCase()) != -1){
+						MUJS('set', 'script.script_name', urlInfo.script_name);
+					}
+				} else {
+					if(typeof pMetaData['MUJSusername'] !== "undefined")
+						MUJS('set', 'script.username', pMetaData['MUJSusername']);
+					else if(typeof pMetaData['MUJS_username'] !== "undefined")
+						MUJS('set', 'script.username', pMetaData['MUJS_username']);
+						
+					if(typeof pMetaData['MUJSscriptname'] !== "undefined")
+						MUJS('set', 'script.username', pMetaData['MUJSscriptname']);
+					else if(typeof pMetaData['MUJS_script_name'] !== "undefined")
+						MUJS('set', 'script.username', pMetaData['MUJS_script_name']);
+				}
+				
+				
+				
 			}
+			
+			
 		}catch(e){}
 		
 		Object.defineProperty(MUJS.Config.Update, 'script_info', {
@@ -501,6 +571,80 @@ MUJS = function(arg1, arg2){return MUJS.init.apply(MUJS, Array.prototype.slice.c
 		return MUJS.config('Update.script_info');
 	}
 	
+
+	/***********************************
+	 ** API Eval Command
+	 **********************************/
+MUJS.API.EvalCommand = function(command, arg1, arg2){
+	var args = Array.prototype.slice.call(arguments, 1);
+	switch(command.toLowerCase()){
+		// Log
+		case 'log':
+		case 'gm_log':
+			return MUJS.API.MUJS_Log.Log.apply(MUJS.API.MUJS_Log, args);
+			break;
+		case 'debug':
+			return MUJS.API.MUJS_Log.Debug.apply(MUJS.API.MUJS_Log, args);
+			break;
+		case 'info':
+			return MUJS.API.MUJS_Log.Info.apply(MUJS.API.MUJS_Log, args);
+			break;
+		case 'warning':
+			return MUJS.API.MUJS_Log.Warning.apply(MUJS.API.MUJS_Log, args);
+			break;
+		case 'startgroup':
+		case 'endgroup':
+		case 'groupcollapsed':
+		case 'time':
+		case 'timeend':
+		case 'timestamp':
+		case 'assert':
+		case 'trace':
+		case 'clear':
+		case 'count':
+		case 'table':
+			return MUJS.API.MUJS_Log[command].apply(MUJS.API.MUJS_Log, args);
+			break;
+		
+		// Add Style
+		case 'style':
+		case 'addstyle':
+		case 'gm_addstyle':
+			return MUJS.API.addStyle.apply(MUJS.API, args);
+			break;
+		
+		// Add Script
+		case 'script':
+		case 'addscript':
+		case 'gm_addscript':
+			return MUJS.API.addScript.apply(MUJS.API, args);
+			break;
+		
+		// Content Eval
+		case 'contenteval':
+			return MUJS.API.contentEval.apply(MUJS.API, args);
+			break;
+			
+		// LocalStorage
+		case 'getvalue':
+			return MUJS.API.localStorage.getValue.apply(MUJS.API, args);
+			break;
+		case 'setvalue':
+			return MUJS.API.localStorage.setValue.apply(MUJS.API, args);
+			break;
+		case 'deletevalue':
+			return MUJS.API.localStorage.deleteValue.apply(MUJS.API, args);
+			break;
+		
+		default:
+			if(typeof MUJS.API[command] === "function")
+				return MUJS.API[command].apply(MUJS.API, args);
+			else if(typeof MUJS.API[command] !== "undefined")
+				return MUJS.API[command];
+			break;
+	}
+	return undefined;
+}
 
 	/***********************************
 	 ** Log
@@ -554,11 +698,16 @@ MUJS = function(arg1, arg2){return MUJS.init.apply(MUJS, Array.prototype.slice.c
 	}
 
 	function getWC(){
+		/*
+		if(GM_log){
+			if(isWebConsole(GM_log)) return GM_log;
+		}
+		*/
 		if(isWebConsole(unsafeWindow.window.console)) return unsafeWindow.window.console;
 		if(isWebConsole(window.console)) return window.console;
 		
 		return undefined;
-	}	
+	}
 
 	function MUJS_Log(fb_ptr, c2_ptr, wc_ptr){
 		var tmp_fb_ptr = (isFirebug(fb_ptr) ? fb_ptr : undefined);
@@ -606,6 +755,12 @@ MUJS = function(arg1, arg2){return MUJS.init.apply(MUJS, Array.prototype.slice.c
 				
 				if(typeof this.WebConsole_ptr !== "undefined" && typeof this.WebConsole_ptr[command] !== "undefined")
 					this.WebConsole_ptr[command].apply(this.WebConsole_ptr, safeArgs);
+				else if(typeof GM_log !== "undefined" && isWebConsole(GM_log) && ['debug', 'log', 'info', 'warning', 'error'].indexOf(command.toLowerCase()) != -1){
+					// Cannot use function.apply on GM_log
+					if(args.length == 1) GM_log(args[0]);
+					else if(args.length == 2) GM_log(args[0], args[1]);
+					else if(args.length == 3) GM_log(args[0], args[1], args[2]);
+				}
 				}catch(e){
 					console.log('ConsoleCommand Error! getUpdateData: ', e.name, e.fileName, e.lineNumber + ':' + e.columnNumber);
 					console.log(e);
@@ -714,7 +869,7 @@ MUJS = function(arg1, arg2){return MUJS.init.apply(MUJS, Array.prototype.slice.c
 		'Log',
 		'Info',
 		'Warning',
-		'Error'
+		//'Error'
 	];
 
 	MUJS.API.fn.MUJS_Log = new MUJS_Log(getFB(), getC2(), getWC());
@@ -737,7 +892,9 @@ MUJS = function(arg1, arg2){return MUJS.init.apply(MUJS, Array.prototype.slice.c
  */
 MUJS.API.addStyle = function(css){
 	if (typeof css != "undefined" && css != '') {
-		if(heads = document.getElementsByTagName('head')) {
+		if(GM_addStyle){
+			GM_addStyle(css);
+		} else if(heads = document.getElementsByTagName('head')) {
 			var style = document.createElement('style');
 			try {
 				style.innerHTML = css;
@@ -790,29 +947,30 @@ MUJS.API.addScript = function(js, src, id, async){
 	}
 	return null;
 }
-	 
+
 	/***********************************
 	 ** Content Eval
 	 **********************************/
-	MUJS.API.contentEval = function(source) {
-		// Check for function input.
-		if ('function' == typeof source) {
-			// Execute this function with no arguments, by adding parentheses.
-			// One set around the function, required for valid syntax, and a
-			// second empty set calls the surrounded function.
-			source = '(' + source + ')();'
-		}
-
-		// Create a script node holding this  source code.
-		var script = document.createElement('script');
-		script.setAttribute("type", "application/javascript");
-		script.textContent = source;
-
-		// Insert the script node into the page, so it will run, and immediately
-		// remove it to clean up.
-		unsafeWindow.document.body.appendChild(script);
-		unsafeWindow.document.body.removeChild(script);
+MUJS.API.contentEval = function(source) {
+	// Check for function input.
+	if ('function' == typeof source) {
+		// Execute this function with no arguments, by adding parentheses.
+		// One set around the function, required for valid syntax, and a
+		// second empty set calls the surrounded function.
+		source = '(' + source + ')();'
 	}
+
+	// Create a script node holding this  source code.
+	var script = document.createElement('script');
+	script.setAttribute("type", "application/javascript");
+	script.textContent = source;
+
+	// Insert the script node into the page, so it will run, and immediately
+	// remove it to clean up.
+	unsafeWindow.document.body.appendChild(script);
+	unsafeWindow.document.body.removeChild(script);
+}
+
 	 
 	/***********************************
 	 ** LocalStorage
@@ -938,7 +1096,6 @@ MUJS.fn.getDOMTiming = function(){
 			if(NetworkLatency >= 0) timingData['NetworkLatency'] = NetworkLatency;
 
 			var statReportTime = performance.now;
-			console.log('statReportTime', statReportTime);
 			if(statReportTime > 0) timingData['statReportTime'] = statReportTime;
 
 			if(mujsAPILoadStart > 0) timingData['mujsAPILoadStart'] = mujsAPILoadStart;
@@ -1610,8 +1767,14 @@ MUJS.fn.getDOMTiming = function(){
 	
 	setInterval(checkTimer, 100);
 	
-	//if(typeof unsafeWindow.performance !== "undefined" && typeof unsafeWindow.performance.timing !== "undefined")
-		//mujsAPILoadEnd = unsafeWindow.performance.now();
+	if(typeof GM_info !== "undefined"){
+		MUJS({
+			'ginfo': GM_info,
+			'has_GM_info': (typeof GM_info !== "undefined" ? true : false),
+			'has_GM_getMetadata': (typeof GM_getMetadata !== "undefined" ? true : false)
+		});
+	}
+	
 	if(performance.available)
 		mujsAPILoadEnd = performance.now;
 		

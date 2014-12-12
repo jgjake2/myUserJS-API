@@ -1,6 +1,7 @@
 // +@display_name  Add Style
 // +@replace  MUJS.API.ADDSTYLE
 // +@history (0.0.9) History begins.
+// +@history (0.0.13) Added GM_addStyle if it exists.
 
 /**
  * Adds given css to the the page.
@@ -9,7 +10,9 @@
  */
 MUJS.API.addStyle = function(css){
 	if (typeof css != "undefined" && css != '') {
-		if(heads = document.getElementsByTagName('head')) {
+		if(GM_addStyle){
+			GM_addStyle(css);
+		} else if(heads = document.getElementsByTagName('head')) {
 			var style = document.createElement('style');
 			try {
 				style.innerHTML = css;

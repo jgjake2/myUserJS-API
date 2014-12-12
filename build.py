@@ -32,7 +32,7 @@ parser.add_argument('-d', '-debug', default=False, action='store_true', help='en
 parser.add_argument('-b', '-beta', default=False, action='store_true', help='build beta')
 parser.add_argument('-r', '-release', default=False, action='store_true', help='build release')
 
-#build.py -v 0.0.11 -cp "C:\Users\Spud\AppData\Roaming\Mozilla\Firefox\Profiles\hatqckbp.Dev\gm_scripts\Anti-Pagination\MUJS.js"
+#build.py -v 0.0.12 -cp "C:\Users\Spud\AppData\Roaming\Mozilla\Firefox\Profiles\hatqckbp.Dev\gm_scripts\Anti-Pagination\MUJS-1.js"
 args = parser.parse_args()
 print(args.v)
 

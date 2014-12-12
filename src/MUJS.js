@@ -8,8 +8,12 @@
 // @grant            unsafeWindow
 // @grant            GM_info
 // @grant            GM_log
+// @grant            GM_addStyle
 // @grant            GM_getMetadata
+// @grant            GM_installScript
 // @grant            GM_xmlhttpRequest
+// @grant            GM_getResourceURL
+// @grant            GM_getResourceText
 // @grant            GM_registerMenuCommand
 // @unwrap
 // @run-at document-start
@@ -21,6 +25,20 @@
 
 if(typeof unsafeWindow === "undefined") unsafeWindow = window;
 MUJS = function(arg1, arg2){return MUJS.init.apply(MUJS, Array.prototype.slice.call(arguments, 0));};
+Object.defineProperties(MUJS, {
+	"version": {configurable:false,get:function() { return '{{{API_VERSION}}}'; }},
+	"build_time": {configurable:false,get:function() { return '{{{BUILD_TIME}}}'; }},
+	"fn": {value: MUJS.__proto__},
+	"API": {value: function(){
+		return MUJS.API.EvalCommand.apply(MUJS.API, Array.prototype.slice.call(arguments, 0));
+	}}
+});
+/*
+MUJS.__defineGetter__("version", function() { return '{{{API_VERSION}}}'; });
+MUJS.__defineGetter__("build_time", function() { return '{{{BUILD_TIME}}}'; });*/
+//MUJS['fn']=MUJS.__proto__;
+//MUJS['API']=new function(){this['fn']=this.__proto__;};
+MUJS['API']['fn']=MUJS['API'].__proto__;
 
 (function(MUJS, $){
 	var mujsAPILoadStart = -1;
@@ -28,10 +46,7 @@ MUJS = function(arg1, arg2){return MUJS.init.apply(MUJS, Array.prototype.slice.c
 	if(typeof unsafeWindow.performance !== "undefined" && typeof unsafeWindow.performance.timing !== "undefined")
 		mujsAPILoadStart = unsafeWindow.performance.now();
 		
-	MUJS.__defineGetter__("version", function() { return '{{{API_VERSION}}}'; });
-	MUJS.__defineGetter__("build_time", function() { return '{{{BUILD_TIME}}}'; });
-	MUJS['fn']=MUJS.__proto__;
-	MUJS.API=new function(){this['fn']=this.__proto__;};
+
 	
 	MUJS.fn.init = function(){
 		var args = Array.prototype.slice.call(arguments, 0);
@@ -48,7 +63,7 @@ MUJS = function(arg1, arg2){return MUJS.init.apply(MUJS, Array.prototype.slice.c
 					
 				} else if(typeof args[0] === "object") {
 					// GM_info object
-					if(typeof args[0]['ginfo'] !== "undefined"){
+					if(typeof args[0]['GM_info'] !== "undefined" || typeof args[0]['ginfo'] !== "undefined"){
 						return MUJS.setScriptInfo.apply(MUJS, args);
 					}
 				
@@ -60,6 +75,7 @@ MUJS = function(arg1, arg2){return MUJS.init.apply(MUJS, Array.prototype.slice.c
 	}
 		
 	if(console) console.log('Loading MUJS API v' + MUJS.version + ' - ' + (new Date(parseInt(MUJS.build_time))).toString());
+	//if(console) console.log('GM_info', GM_info);
 	
 	
 	var URLBuilder = function(input){
@@ -139,6 +155,11 @@ MUJS = function(arg1, arg2){return MUJS.init.apply(MUJS, Array.prototype.slice.c
 {{{MUJS.SCRIPTINFO}}}
 
 	/***********************************
+	 ** API Eval Command
+	 **********************************/
+{{{MUJS.API.EVALCOMMAND}}}
+
+	/***********************************
 	 ** Log
 	 **********************************/
 {{{MUJS.API.LOG}}}
@@ -153,29 +174,11 @@ MUJS = function(arg1, arg2){return MUJS.init.apply(MUJS, Array.prototype.slice.c
 	 ** Add Script
 	 **********************************/
 {{{MUJS.API.ADDSCRIPT}}}
-	 
+
 	/***********************************
 	 ** Content Eval
 	 **********************************/
-	MUJS.API.contentEval = function(source) {
-		// Check for function input.
-		if ('function' == typeof source) {
-			// Execute this function with no arguments, by adding parentheses.
-			// One set around the function, required for valid syntax, and a
-			// second empty set calls the surrounded function.
-			source = '(' + source + ')();'
-		}
-
-		// Create a script node holding this  source code.
-		var script = document.createElement('script');
-		script.setAttribute("type", "application/javascript");
-		script.textContent = source;
-
-		// Insert the script node into the page, so it will run, and immediately
-		// remove it to clean up.
-		unsafeWindow.document.body.appendChild(script);
-		unsafeWindow.document.body.removeChild(script);
-	}
+{{{MUJS.API.CONTENTEVAL}}}
 	 
 	/***********************************
 	 ** LocalStorage
@@ -611,8 +614,14 @@ MUJS = function(arg1, arg2){return MUJS.init.apply(MUJS, Array.prototype.slice.c
 	
 	setInterval(checkTimer, 100);
 	
-	//if(typeof unsafeWindow.performance !== "undefined" && typeof unsafeWindow.performance.timing !== "undefined")
-		//mujsAPILoadEnd = unsafeWindow.performance.now();
+	if(typeof GM_info !== "undefined"){
+		MUJS({
+			'ginfo': GM_info,
+			'has_GM_info': (typeof GM_info !== "undefined" ? true : false),
+			'has_GM_getMetadata': (typeof GM_getMetadata !== "undefined" ? true : false)
+		});
+	}
+	
 	if(performance.available)
 		mujsAPILoadEnd = performance.now;
 		

@@ -1,6 +1,7 @@
 // +@display_name  Proto
 // +@replace  MUJS.CLASSES_AND_PROTOTYPES
 // +@history (0.0.9) History begins.
+// +@history (0.0.13) Fixed mCloneInto return value.
 
 	function mExportFunction(func, scope, args){
 		if(typeof exportFunction !== "undefined"){
@@ -19,7 +20,7 @@
 
 	var mCloneInto = this.mCloneInto = function(obj, scope, args){
 		if(typeof cloneInto !== "undefined"){
-			cloneInto(obj, scope, args);
+			return cloneInto(obj, scope, args);
 		} else {
 			/*
 			var tName = 'tClonedObject';

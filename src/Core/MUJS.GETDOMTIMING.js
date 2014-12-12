@@ -23,7 +23,6 @@ MUJS.fn.getDOMTiming = function(){
 			if(NetworkLatency >= 0) timingData['NetworkLatency'] = NetworkLatency;
 
 			var statReportTime = performance.now;
-			console.log('statReportTime', statReportTime);
 			if(statReportTime > 0) timingData['statReportTime'] = statReportTime;
 
 			if(mujsAPILoadStart > 0) timingData['mujsAPILoadStart'] = mujsAPILoadStart;
