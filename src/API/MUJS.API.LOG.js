@@ -2,13 +2,55 @@
 // +@replace  MUJS.API.LOG
 // +@history (0.0.9) History begins.
 // +@history (0.0.13) Fixed output to the Web Console using GM_log.
+// +@history (0.0.14) Removed "Debug" from list of functions mapped to MUJS.
+// +@history (0.0.14) Minor fixes / improvements.
+
+	/*
+	var oldConsole = console;
+	var oldConsoleFunctions = {};
+	var maskConsoleFunctions = ['debug', 'log', 'info', 'warning', 'error'];
+	
+	var beforeLogFunction = function(fName, args, data){
+		var e = new Error();
+		//oldConsoleFunctions.log.apply(oldConsole, [fName, args]);
+		var tStack = MUJS.parseStack(e.stack);
+		var lastFunctionCall;
+		var excludePatt = /(beforeLogFunction|oldConsole)/i;
+		for(var i = 0; i < tStack.length; i++){
+			if(!excludePatt.test(tStack[i].functionName)){
+				lastFunctionCall = tStack[i];
+				break;
+			}
+		}
+		
+		if(typeof lastFunctionCall !== "undefined" && (/MUJS(?:\-\d+)\.js/i).test(lastFunctionCall.fileName)){
+			//oldConsoleFunctions.log.apply(oldConsole, ['pass', lastFunctionCall]);
+		} else {
+			MUJS.log.endGroup('MUJS API');
+		}
+	}
+	
+	for(var i = 0; i < maskConsoleFunctions.length; i++){
+		oldConsoleFunctions[maskConsoleFunctions[i]] = oldConsole[maskConsoleFunctions[i]];
+		oldConsole[maskConsoleFunctions[i]] = new (function(fName){
+			var funName = fName + '';
+			var f = function(){
+				//GM_log('foo bar' + funName);
+				beforeLogFunction(funName, Array.prototype.slice.call(arguments, 0), {});
+				oldConsoleFunctions[funName].apply(oldConsole, arguments);
+			}
+			return f;
+		})(maskConsoleFunctions[i])
+	}
+	*/
 
 	var OUTPUT_TYPES = {
-		'ERROR':	{level: 1,	value: 'error'	},
-		'WARNING':	{level: 2,	value: 'warn'	},
-		'INFO':		{level: 3,	value: 'info'	},
-		'LOG':		{level: 4,	value: 'log'	},
-		'DEBUG':	{level: 5,	value: 'debug'	}
+		'ERROR':     {level: 1,	value: 'error'     },
+		'EXCEPTION': {level: 1,	value: 'exception' },
+		'WARNING':   {level: 2,	value: 'warn'      },
+		'INFO':      {level: 3,	value: 'info'      },
+		'LOG':       {level: 4,	value: 'log'       },
+		'DEBUG':     {level: 5,	value: 'debug'     }
 	}
 
 	function isFirebug(ptr){
@@ -31,8 +73,8 @@
 	}
 
 	function getFB(){
-		if(isFirebug(this.console)) return this.console;
 		if(isFirebug(console)) return console;
+		if(isFirebug(this.console)) return this.console;
 		if(isFirebug(window.console)) return window.console;
 		if(isFirebug(unsafeWindow.console)) return unsafeWindow.console;
 		if(isFirebug(unsafeWindow.window.console)) return unsafeWindow.window.console;
@@ -109,11 +151,12 @@
 				
 				if(typeof this.WebConsole_ptr !== "undefined" && typeof this.WebConsole_ptr[command] !== "undefined")
 					this.WebConsole_ptr[command].apply(this.WebConsole_ptr, safeArgs);
-				else if(typeof GM_log !== "undefined" && isWebConsole(GM_log) && ['debug', 'log', 'info', 'warning', 'error'].indexOf(command.toLowerCase()) != -1){
+				else if(typeof GM_log !== "undefined" && MUJS('get', 'API.log.GM_log') && ['debug', 'log', 'info', 'warning', 'error', 'exception'].indexOf(command.toLowerCase()) != -1){
 					// Cannot use function.apply on GM_log
-					if(args.length == 1) GM_log(args[0]);
-					else if(args.length == 2) GM_log(args[0], args[1]);
-					else if(args.length == 3) GM_log(args[0], args[1], args[2]);
+					// Greasemonkey can only handle one argument
+					if(args.length == 0) GM_log('');
+					else if(args.length == 1) GM_log(args[0]);
+					else GM_log(args.join(','));
 				}
 				}catch(e){
 					console.log('ConsoleCommand Error! getUpdateData: ', e.name, e.fileName, e.lineNumber + ':' + e.columnNumber);
@@ -128,8 +171,10 @@
 			},
 			
 			'Error': function(category, x){
-				this['outputMessage'].apply(this, [OUTPUT_TYPES['ERROR'], "C.CE Error (" + category + ") - " +  x.name + ' - ' + x.message + ' in file <' + x.fileName + '> on line ' + x.lineNumber]);
+				this['outputMessage'].apply(this, [OUTPUT_TYPES['ERROR'], "C.CE Error (" + category + ") - " +  x.name + ' - ' + x.message + ' in file <' + x.fileName + '> on line ' + x.lineNumber, x]);
 			},
+			
+			'Exception': function(e){this['outputMessage'].apply(this, [OUTPUT_TYPES['EXCEPTION']].concat(Array.prototype.slice.call(arguments, 0)));},
 			
 			'logError': this['Error'],
 			
@@ -139,7 +184,9 @@
 			
 			'Log': function(str){this['outputMessage'].apply(this, [OUTPUT_TYPES['LOG']].concat(Array.prototype.slice.call(arguments, 0)));},
 			
-			'Debug': function(str){this['outputMessage'](OUTPUT_TYPES['DEBUG'], str);},
+			'Debug': function(str){this['outputMessage'].apply(this, [OUTPUT_TYPES['DEBUG']].concat(Array.prototype.slice.call(arguments, 0)));},
+			
+			//'Debug': function(str){this['outputMessage'](OUTPUT_TYPES['DEBUG'], str);},
 			
 			'table': function(data){this.ConsoleCommand('table', Array.prototype.slice.call(arguments, 0));},
 			
@@ -179,10 +226,8 @@
 			},
 			
 			'assert': function(expression, obj){
-				var args = Array.prototype.slice.call(arguments, 0);
-				args.unshift('assert');
 				if(MUJS.config('API.log.disabled_functions').indexOf('assert') == -1)
-					this.ConsoleCommand.apply(this, args);
+					this.ConsoleCommand.apply(this, ['assert'].concat(Array.prototype.slice.call(arguments, 0)));
 			},
 			
 			'trace': function(){
@@ -196,17 +241,13 @@
 			},
 			
 			'profile': function(name){
-				var args = Array.prototype.slice.call(arguments, 0);
-				args.unshift('profile');
 				if(MUJS.config('API.log.disabled_functions').indexOf('profile') == -1 && MUJS.config('API.log.disabled_functions').indexOf('profileEnd') == -1)
-					this.ConsoleCommand.apply(this, args);
+					this.ConsoleCommand.apply(this, ['profile'].concat(Array.prototype.slice.call(arguments, 0)));
 			},
 			
 			'profileEnd': function(){
-				var args = Array.prototype.slice.call(arguments, 0);
-				args.unshift('profileEnd');
 				if(MUJS.config('API.log.disabled_functions').indexOf('profile') == -1 && MUJS.config('API.log.disabled_functions').indexOf('profileEnd') == -1)
-					this.ConsoleCommand.apply(this, args);
+					this.ConsoleCommand.apply(this, ['profileEnd'].concat(Array.prototype.slice.call(arguments, 0)));
 			}
 			
 		}

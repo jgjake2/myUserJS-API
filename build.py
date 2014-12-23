@@ -22,7 +22,13 @@ import time
 from datetime import datetime
 import calendar
 
+import shlex, subprocess
+#from subprocess import Popen
+
+
 print('Start')
+
+#jsdoc_location = r"F:\\Software\\jsdoc"
 
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('-v', '-version', default='-1', nargs='?', help='version')
@@ -31,8 +37,10 @@ parser.add_argument('-m', '-min', default=False, action='store_true', help='mini
 parser.add_argument('-d', '-debug', default=False, action='store_true', help='enable debug mode')
 parser.add_argument('-b', '-beta', default=False, action='store_true', help='build beta')
 parser.add_argument('-r', '-release', default=False, action='store_true', help='build release')
+parser.add_argument('-doc', '-document', default='', nargs='?', help='generate doc with given JSDoc dir')
 
-#build.py -v 0.0.12 -cp "C:\Users\Spud\AppData\Roaming\Mozilla\Firefox\Profiles\hatqckbp.Dev\gm_scripts\Anti-Pagination\MUJS-1.js"
+#build.py -v 0.0.14 -cp "C:\Users\Spud\AppData\Roaming\Mozilla\Firefox\Profiles\hatqckbp.Dev\gm_scripts\Anti-Pagination\MUJS-1.js" -doc "F:\Software\jsdoc"
+
 args = parser.parse_args()
 print(args.v)
 
@@ -107,6 +115,53 @@ def compressString(content, level='WHITESPACE_ONLY', language='ECMASCRIPT5'):
       raise Exception('response status was: ' + r.status)
     return r.read().decode('utf-8')
 
+def fixCDATACSS(subject):
+    matches = list(re.finditer(r"(\<\>\<\!\[CDATACSS\[((?:.*?[\r\n]*)+)\]\]\>\<\/\>)", subject, re.MULTILINE + re.IGNORECASE))
+    matches.reverse()
+    for m in matches:
+        sanatized = m.group(2)
+        # Remove comments
+        commentBlockMatches = list(re.finditer(r"((?:\/\*((?:.*?[\r\n]*)+)\*\/)|(?:\/\/.*?$))", sanatized, re.MULTILINE + re.IGNORECASE))
+        commentBlockMatches.reverse()
+        for cbm in commentBlockMatches:
+            sanatized = sanatized[0:cbm.span()[0]] + sanatized[cbm.span()[1]:]
+        
+        #sanatized = re.sub(r"[\r\n]", "", sanatized, 0, re.MULTILINE + re.IGNORECASE)
+        #sanatized = re.sub(r"\s+", " ", sanatized, 0, re.MULTILINE + re.IGNORECASE)
+        sanatized = re.sub(r"(?:\t|\r|\n|\s{2,})+", " ", sanatized, 0, re.MULTILINE + re.IGNORECASE).strip()
+        sanatized = re.sub(r"(?:\s*(?P<char>\,|\{|\}|\;|\:)\s*)", r"\g<char>", sanatized, 0, re.MULTILINE + re.IGNORECASE).strip()
+        #(?:\s*(?<char>\,)\s*|\s*(?<char>\{)\s*|\s*(?<char>\})\s*|\s*(?<char>\;)\s*)
+        sanatized = re.sub(r"'", "\\'", sanatized, 0, re.MULTILINE + re.IGNORECASE)
+        subject = subject[0:m.span()[0]] + "'" + sanatized + "'" + subject[m.span()[1]:]
+        
+    return subject
+    
+def fixCDATA(subject):
+    matches = list(re.finditer(r"(\<\>\<\!\[CDATA\[((?:.*?[\r\n]*)+)\]\]\>\<\/\>)", subject, re.MULTILINE + re.IGNORECASE))
+    matches.reverse()
+    for m in matches:
+        sanatized = m.group(2)
+        sanatized = re.sub(r"\n", "\\\n", sanatized, 0, re.MULTILINE + re.IGNORECASE)
+        sanatized = re.sub(r"'", "\\'", sanatized, 0, re.MULTILINE + re.IGNORECASE)
+        subject = subject[0:m.span()[0]] + "'" + sanatized + "'" + subject[m.span()[1]:]
+        
+    return subject
+   
+def generateOutput(subject, replacementMap):
+    for name, val in replacementMap.items():
+        subject = subject.replace('{{{'+name+'}}}', val)
+
+    subject = removeConditionalBlocks("DEBUG_ONLY", subject, not args.d)
+    subject = removeConditionalBlocks("RELEASE_ONLY", subject, not args.r)
+    
+    
+    
+
+    subject = fixCDATACSS(subject)
+    subject = fixCDATA(subject)
+    
+    return subject
+   
 fInfo = {}
 onlyfiles = [ f for f in listdir('./src/Core') if isfile(join('./src/Core',f)) ]
 for fileName in onlyfiles:
@@ -218,7 +273,7 @@ historyStr = "# MUJS API History\n"
 
 for vNum in histKeys:
     tVersionStr = "Version "+vNum#.ljust(7 + (maxVersionLen - len(vNum)), " ")
-    historyStr+="\n## "+tVersionStr+"\n"
+    historyStr+="\n#### "+tVersionStr+"\n"
     for tVal in historyList2[vNum]:
         historyStr+="* "+tVal+"\n"
         #historyStr+="// @history          "+tVersionStr+tVal+"\n"
@@ -227,17 +282,30 @@ print(historyStr)
 
 d = datetime.utcnow()
 unixtime = 1000 * time.mktime(d.utctimetuple())
-output=(tFile.replace('{{{API_VERSION}}}', args.v).replace('{{{BUILD_TIME}}}', str(int(unixtime))))
+#subject = subject.replace('{{{API_VERSION}}}', args.v)
+#subject = subject.replace('{{{BUILD_TIME}}}', str(int(unixtime)))
 
-output = removeConditionalBlocks("DEBUG_ONLY", output, not args.d)
-output = removeConditionalBlocks("RELEASE_ONLY", output, not args.r)
+replaceMap = {
+    'API_VERSION': args.v,
+    'BUILD_TIME': str(int(unixtime)),
+    'BUILD_TYPE': 'beta',
+    'DEBUG': ('true' if args.d == True else 'false')
+    
+}
+
+if(args.r == True):
+    replaceMap['BUILD_TYPE'] = 'release'
+
+output = generateOutput(tFile, replaceMap)
     
 metaBlock = getMetaBlock(output)
 
 #print('metaBlock: ', metaBlock)
 minStr = ''
 if(args.m == True):
-    minStr = compressString(output, 'WHITESPACE_ONLY', 'ECMASCRIPT5')
+    #minStr = compressString(output, 'WHITESPACE_ONLY', 'ECMASCRIPT5')
+    minStr = compressString(output, 'SIMPLE_OPTIMIZATIONS', 'ECMASCRIPT5')
+    #minStr = compressString(output, 'ADVANCED_OPTIMIZATIONS', 'ECMASCRIPT5')
     minStr = metaBlock + minStr
 #
 # OUTPUT
@@ -273,5 +341,24 @@ if(args.r == True):
     
 if(args.cp != ''):
     shutil.copyfile('./bin/MUJS.js', args.cp)
+    
+#jsdoc "F:\Projects\myuserjs\API\bin\MUJS.js" -c "F:\Projects\myuserjs\API\conf.json" -d "F:\Projects\myuserjs\API\bin\doc" -u "F:\Projects\myuserjs\API\src\tutorials"
+#jsdoc "F:\Projects\myuserjs\API\bin\MUJS.js" -c "F:\Projects\myuserjs\API\conf.json" -d "F:\Projects\myuserjs\API\bin\doc"
+if(args.doc != ''):
+    curDir = os.path.dirname(os.path.abspath(__file__))
+    confPath = os.path.join(curDir, 'conf.json')
+    mujsPath = os.path.join(curDir, 'bin', 'MUJS.js')
+    outputPath = os.path.join(curDir, 'bin', 'doc')
+    tutorialsPath = os.path.join(curDir, 'src', 'tutorials')
+    
+    shutil.rmtree(outputPath)
+    os.makedirs(outputPath)
+    #cwd=jsdoc_location
+    #cwd=os.path.join(args.doc, '')
+    p = subprocess.Popen([os.path.join(args.doc, "jsdoc.cmd"), mujsPath, '-c', confPath, '-d', outputPath, '-u', tutorialsPath, '-l'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = p.communicate()
+    print('stdout', stdout)
+    print('stderr', stderr)
+    
     
 print('Done')

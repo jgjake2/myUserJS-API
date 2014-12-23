@@ -46,7 +46,7 @@
 	
 		var defaultFilter = function(message, url, linenumber, colNumber, eObj, stackInfo){
 			try{
-				if(MUJS.config('Update.script_info.userscript_file_name') == stackInfo[0].fileName){
+				if(MUJS.config('script.script_info.userscript_file_name') == stackInfo[0].fileName){
 					console.log('Error is from userscript!');
 					
 					switch(eObj.name){
@@ -159,28 +159,10 @@
 				stack: tStack
 			};
 			
-			return MUJS['ERROR']['catchError'](e.message, e.fileName, e.lineNumber, e.columnNumber, data, MUJS['ERROR'].parseStack(tStack));
+			return MUJS['ERROR']['catchError'](e.message, e.fileName, e.lineNumber, e.columnNumber, data, MUJS.parseStack(tStack));
 		}
 		
-		this.parseStack = function(stackText){
-			var o = [];
-			var anonFunctionPatt = /\@((?:https?\:\/\/)?[^\s\:]+).*?([^\:\s]*)?\:(\d+)(?:\:(\d+))?\s*$/gi;
-			var stackPatt = /([^\s]*)\@file\:\/\/\/([^\s]+?(?:\/([^\/]+?\.(user\.js|js|json|php)))?):(\d+)(?:\:(\d+))?/gi;
-			var match;
-			while ((match = stackPatt.exec(stackText)) != null) {
-				var tmp = {
-					functionName: match[1],
-					fullFileName: match[2],
-					fileName: match[3],
-					fileExt: match[4],
-					lineNumber: match[5],
-					columnNumber: match[6]
-				};
-				o.push(tmp);
-			}
-			return o;
-			
-		}
+
 	}
 	
 	//console.log('EVALERROR', MUJS['ERROR'].getCode('ERROR_NAME.EVALERROR'));
@@ -191,7 +173,7 @@
 		console.log('MUJSListenError', message, url, linenumber, colNumber);
 		//console.log('MUJSListenError data', data);
 		//setTimeout(function(message, url, linenumber, colNumber, data){
-			var tData = MUJS['ERROR']['parseStack'](data.stack);
+			var tData = MUJS.parseStack(data.stack);
 			if(tData.length > 0)
 				return MUJS['ERROR']['catchError'](message, url, linenumber, colNumber, data, tData);
 		//}, 1, message, url, linenumber, colNumber, data);

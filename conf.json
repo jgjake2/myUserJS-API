@@ -1,0 +1,28 @@
+{
+	"opts": {
+		"template": "templates/jaguarjs"
+	},
+	"templates": {
+		"cleverLinks": true,
+		"monospaceLinks": true,
+		"default": {
+			"outputSourceFiles" : false
+		},
+		"applicationName": "myUserJS API",
+		"disqus": "",
+		"googleAnalytics": "",
+		"openGraph": {
+			"title": "myUserJS API",
+			"type": "website",
+			"image": "",
+			"site_name": "myUserJS.org",
+			"url": ""
+		},
+		"meta": {
+			"title": "",
+			"description": "",
+			"keyword": ""
+		},
+		"linenums": false
+	}
+}

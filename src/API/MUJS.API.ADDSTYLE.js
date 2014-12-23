@@ -10,7 +10,7 @@
  */
 MUJS.API.addStyle = function(css){
 	if (typeof css != "undefined" && css != '') {
-		if(GM_addStyle){
+		if(typeof GM_addStyle !== "undefined"){
 			GM_addStyle(css);
 		} else if(heads = document.getElementsByTagName('head')) {
 			var style = document.createElement('style');

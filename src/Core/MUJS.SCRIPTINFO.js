@@ -1,9 +1,10 @@
 // +@display_name  Script Info
 // +@replace  MUJS.SCRIPTINFO
 // +@history (0.0.9) History begins.
+// +@history (0.0.14) Fixed GM_info cloning process.
 
 	MUJS.fn.getScriptURLInfo = function(str){
-		var patt = /myuserjs\.org\/script\/([^\/]+)\/([^\s]+)\.(user|meta|metajs|data)\.js/i;
+		var patt = /myuserjs\.org\/script\/([^\/]+)\/([^\s]+)(?:\.(user|meta|metajs|data)\.js){1}?/i;
 		
 		if(patt.test(str)){
 			var matches = patt.exec(str);
@@ -15,35 +16,71 @@
 		}
 		return false;
 	}
-
-	MUJS.fn.setScriptInfo = function(data){
+	
+	MUJS.gotScriptFileInfo = false;
+	
+	MUJS.fn.getScriptFileInfo = function(){
 		var callerScriptInfo;
 		var output = {};
-		try{var genErrorVariable = genErrorFunction(genErrorArg);} catch(e){
-			//console.log(e.stack);
-			var tStack = MUJS.ERROR.parseStack(e.stack.toString());
-			//console.log('tStack', tStack);
-			if(tStack.length > 0){
-				for(var i = tStack.length - 1; i >= 0; i--){
-					if(tStack[i].fileName != '' && tStack[i].fileExt.toLowerCase() == 'user.js'){
-						callerScriptInfo = tStack[i];
-						output.userscript_file_name = callerScriptInfo.fileName;
-						output.userscript_file_path = callerScriptInfo.fullFileName;
-						break;
-					}
+		
+		if(MUJS.gotScriptFileInfo)
+			return MUJS('script.script_file_info');
+		var e = new Error();
+		//console.log(e.stack);
+		if(e.stack.indexOf('.user.js') == -1)
+			return undefined;
+		var tStack = MUJS.parseStack(e.stack.toString());
+		if(tStack.length > 0){
+			for(var i = tStack.length - 1; i >= 0; i--){
+				if(tStack[i].fileName != '' && tStack[i].fileExt.toLowerCase() == 'user.js'){
+					callerScriptInfo = tStack[i];
+					output.userscript_file_name = callerScriptInfo.fileName;
+					output.userscript_file_path = callerScriptInfo.fullFileName;
+					MUJS.gotScriptFileInfo = true;
+					MUJS('set', 'script.script_file_info', output);
+					MUJS.API('info', 'Userscript File Name: ' + callerScriptInfo.fullFileName);
+					return output;
+					break;
 				}
 			}
-		};
+		}
+		return undefined;
+	}
+
+	MUJS.fn.setScriptInfo = function(data){
+		var callerScriptInfo = MUJS.getScriptFileInfo();
+		var output = {};
+		if(typeof callerScriptInfo !== "undefined")
+			output = merge(output, callerScriptInfo);
+		
+		
 		
 		try{
 			var tGM_info;
+			var tScriptMetaStr;
+			var pMetaData;
 			
-			if(typeof data.GM_info !== "undefined")
-				tGM_info = data.GM_info;
-			else if(typeof data.ginfo !== "undefined")
-				tGM_info = data.ginfo;
+			
+			
+			if(typeof data === "object"){
+				tGM_info = getFirstValidKeyValue(data, ['GM_info', 'gm_info', 'ginfo']);
+				if(typeof tGM_info !== "undefined"){
+					tScriptMetaStr = tGM_info.scriptMetaStr;
+				}
+			} else if(typeof data === "string"){
+				tScriptMetaStr = data;
+			}
+			if(typeof tScriptMetaStr !== "undefined"){
+				pMetaData = MUJS.API.ParseMetaData(tGM_info.scriptMetaStr);
+				
+				for(var key in pMetaData){
+					if(typeof output[key] === "undefined") output[key] = pMetaData[key];
+				}
+			}
 			
 			if(typeof tGM_info !== "undefined"){
+				//console.log(tGM_info);
+				
 				if(typeof tGM_info.script !== "undefined"){
 					for(var key in tGM_info.script){
 						if(typeof output[key] === "undefined") output[key] = tGM_info.script[key];
@@ -71,33 +108,27 @@
 					output.script_handler = 'Scriptish';
 				}
 				
-				var pMetaData = MUJS.API.ParseMetaData(tGM_info.scriptMetaStr);
-				
+			}
+			
+			if(typeof pMetaData !== "undefined"){	
 				//console.log('pMetaData', pMetaData);
 				
 				var urlInfo;
-				if(
-					(typeof pMetaData['downloadURL'] !== "undefined" && (urlInfo = MUJS.getScriptURLInfo(pMetaData['downloadURL'])))
-					|| (typeof pMetaData['updateURL'] !== "undefined" && (urlInfo = MUJS.getScriptURLInfo(pMetaData['updateURL'])))
-					|| (typeof pMetaData['MUJSdownloadURL'] !== "undefined" && (urlInfo = MUJS.getScriptURLInfo(pMetaData['MUJSdownloadURL'])))
-					|| (typeof pMetaData['MUJSupdateURL'] !== "undefined" && (urlInfo = MUJS.getScriptURLInfo(pMetaData['MUJSupdateURL'])))
-				){
-					//console.log('urlInfo', urlInfo);
+				var key = getFirstValidKey(pMetaData, ['downloadURL', 'updateURL', 'MUJSdownloadURL', 'MUJSupdateURL'], function(k, val){return MUJS.getScriptURLInfo(val);});
+				if(typeof key !== "undefined" && (urlInfo = MUJS.getScriptURLInfo(pMetaData[key]))){
+					console.log('urlInfo', urlInfo);
 					MUJS('set', 'script.username', urlInfo.username);
 					MUJS('set', 'script.script_name', urlInfo.script_name);
 					if(['meta', 'metajs', 'data'].indexOf(urlInfo.get_type.toLowerCase()) != -1){
-						MUJS('set', 'script.script_name', urlInfo.script_name);
+						MUJS('set', 'script.get_type', urlInfo.get_type.toLowerCase());
 					}
 				} else {
-					if(typeof pMetaData['MUJSusername'] !== "undefined")
-						MUJS('set', 'script.username', pMetaData['MUJSusername']);
-					else if(typeof pMetaData['MUJS_username'] !== "undefined")
-						MUJS('set', 'script.username', pMetaData['MUJS_username']);
+					var tmp;
+					if((tmp = getFirstValidKeyValue(pMetaData, ['MUJSusername', 'MUJS_username'])))
+						MUJS('set', 'script.username', tmp);
 						
-					if(typeof pMetaData['MUJSscriptname'] !== "undefined")
-						MUJS('set', 'script.username', pMetaData['MUJSscriptname']);
-					else if(typeof pMetaData['MUJS_script_name'] !== "undefined")
-						MUJS('set', 'script.username', pMetaData['MUJS_script_name']);
+					if((tmp = getFirstValidKeyValue(pMetaData, ['MUJSscriptname', 'MUJS_script_name'])))
+						MUJS('set', 'script.script_name', tmp);
 				}
 				
 				
@@ -107,23 +138,20 @@
 			
 		}catch(e){}
 		
-		Object.defineProperty(MUJS.Config.Update, 'script_info', {
+		Object.defineProperty(MUJS.Config.script, 'script_info', {
 			value: Object.freeze(output),
 			writable: false,
 			enumerable: true,
 			configurable: false
 		});
 		
-		//console.log('stored script_info', MUJS.Config.Update.script_info);
-		//console.log('stored script_info2', MUJS.config('Update.script_info'));
-		
 		return Object.freeze(output);
 	};
 	
 	MUJS.fn.getScriptInfo = function(data){
-		if(typeof MUJS.config('Update.script_info') === "undefined"){
-			MUJS.setScriptInfo(data);
+		if(typeof MUJS.config('script.script_info') === "undefined"){
+			return MUJS.setScriptInfo(data);
 		}
-		return MUJS.config('Update.script_info');
+		return MUJS.config('script.script_info');
 	}
 	
