@@ -2,10 +2,12 @@
 cls
 setlocal enabledelayedexpansion
 
+:: Use this batch file to set default arguments that can be overridden by command line params
+
 set paramIndex=0
 set paramValue=EMPTY
 
-set JMOD_VERSION=0.0.16
+set JMOD_VERSION=0.0.17
 set COPY_OUTPUT_TO=C:\Users\Spud\AppData\Roaming\Mozilla\Firefox\Profiles\hatqckbp.Dev\gm_scripts\Anti-Pagination\MUJS.js
 set JSDOC_DIR=F:\Software\jsdoc
 
@@ -76,7 +78,6 @@ goto ENDPRGM
 	for /L %%i in (1,1,%argCount%) do (
 		set /A x = %%i + 1
 		call set y=%%argVec[!x!]%%
-		REM echo %%i - !x! - "!argVec[%%i]!" - "!y!"
 		IF /I "%~1" EQU "!argVec[%%i]!" (set %~2=%%i&set %~3=!y!&goto:isInArgs_End)
 	)
 :isInArgs_End
