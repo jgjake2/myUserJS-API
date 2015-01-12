@@ -1,6 +1,6 @@
 jMod
 ========
-[Click Here For Full Documentation](http://doc.myuserjs.org/)<br />
+**[Click Here For Full Documentation](http://doc.myuserjs.org/)**<br />
 [Settings Demo](http://myuserjs.org/API/Demo/settings.html)
 
 jMod is a library of useful tools for userscript authors with features ranging from popup notifications, to a full settings dialog generator.
@@ -36,7 +36,7 @@ jMod can be loaded as a required script in your meta block, or as a script eleme
 One of jMod's most useful features is handling loading events for you. When run at "document-start", scripts actually execute before the DOM exists. This prevents you from interacting with the document until it is created. jMod takes care of this for you.
 
 ```javascript
-jMod.CSS = 'custom css'; // Added to CSS stack until DOM exist
+jMod.CSS = 'custom css'; // Added to CSS stack until DOM exists
 
 // Start DOM interactions
 function onDOMReadyCB(){
@@ -61,6 +61,29 @@ function loadCB(){
 	console.log('loadCB');
 }
 jMod.load = loadCB;
+```
+
+The following four methods are all functionally equivalent:
+```javascript
+// Execute function when jMod is fully loaded and CSS is added
+jMod.onReady = function(){
+	console.log('onReady');
+}
+```
+```javascript
+jMod(function(){
+	console.log('onReady');
+});
+```
+```javascript
+jMod('onReady', function(){
+	console.log('onReady');
+});
+```
+```javascript
+jMod.Events.addListener('onReady', function(){
+	console.log('onReady');
+}, true);
 ```
 
 <div align="center">
