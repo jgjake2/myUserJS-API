@@ -1,6 +1,6 @@
-myUserJS API
+jMod
 =========
 
-[Click Here For Documentation](http://myuserjs.org/API/)
+[Click Here For Documentation](http://doc.myuserjs.org/)
 
 

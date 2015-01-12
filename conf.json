@@ -8,20 +8,20 @@
 		"default": {
 			"outputSourceFiles" : false
 		},
-		"applicationName": "myUserJS API",
+		"applicationName": "jMod Documentation",
 		"disqus": "",
-		"googleAnalytics": "",
+		"googleAnalytics": "UA-53159106-2",
 		"openGraph": {
-			"title": "myUserJS API",
+			"title": "jMod Documentation",
 			"type": "website",
 			"image": "",
 			"site_name": "myUserJS.org",
 			"url": ""
 		},
 		"meta": {
-			"title": "",
-			"description": "",
-			"keyword": ""
+			"title": "jMod Documentation",
+			"description": "jMod Documentation",
+			"keyword": "jMod,myUserJS,userscript,script,javascript"
 		},
 		"linenums": false
 	}

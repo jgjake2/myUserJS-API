@@ -1,48 +1,144 @@
-# MUJS API History
+jMod History
+============
 
-#### Version 0.0.14
-* (Element)       History begins.
-* (Initialize)    History begins.
-* (Modal)         History begins.
-* (Script Info)   Fixed GM_info cloning process.
-* (Events)        Changed to MUJS.Events.
-* (Events)        Added more DOM events.
-* (main)          Started documentation overhaul
-* (main)          Automated initialization for things like script_name and username by parsing the given metablock
-* (Proto)         Added URLBuilder Class.
-* (Date)          History begins.
-* (Log)           Removed "Debug" from list of functions mapped to MUJS.
-* (Log)           Minor fixes / improvements.
-* (Notifications) History begins.
-* (Update)        History begins.
-* (Update)        Changed MUJS.UPDATE to MUJS.Update.
-* (Update)        Fixed bug that caused callbacks to fire twice.
+## Version 0.0.16
+* **Add Script**
+    * Minor improvements.
+* **Config**
+    * Users can now set configuration from meta block, or from script tag.
+* **Core**
+    * Major renaming to reduce min size.
+    * Renamed jMod and changed css namespce to .jmod-na.
+* **DOMTiming**
+    * renamed variables and added jModReady
+* **Log**
+    * Consolidated similar functions.
+    * Added dir and dirxml functions.
+* **Script Info**
+    * Moved into a "jMod.ScriptInfo" function.
+* **URLBuilder**
+    * History begins.
+* **Versions**
+    * History begins.
+* **_call**
+    * History begins.
 
-#### Version 0.0.13
-* (Log)           Fixed output to the Web Console using GM_log.
-* (Proto)         Fixed mCloneInto return value.
-* (Content Eval)  History begins.
-* (Eval Command)  History begins.
-* (Add Style)     Added GM_addStyle if it exists.
+## Version 0.0.15
+* **Config**
+    * Fixed jMod.Config properties being added twice.
+* **Core**
+    * Added GM_Storage for cross-domain storage.
+    * Created preprocessor macros.
+    * Added more debugging information.
+    * Updated requirements to be more flexible.
+    * Removed ref to jMod.fn (\_\_proto\_\_ is depreciated).
+* **Element**
+    * Added documentation.
+    * Created jMod.Element namespace and function.
+* **Events**
+    * Fixed addListener bug, preventing
+    * Removed ref to jMod.fn (\_\_proto\_\_ is depreciated).
+* **GM_Storage**
+    * History begins.
+* **Initialize**
+    * Speed improvements.
+* **LocalStorage**
+    * Removed ref to jMod.fn (\_\_proto\_\_ is depreciated).
+* **Log**
+    * Removed ref to jMod.fn (\_\_proto\_\_ is depreciated).
+* **Modal**
+    * Removed ref to jMod.fn (\_\_proto\_\_ is depreciated).
+    * Created a backdrop for each Modal instead of one for all modals.
+* **Notifications**
+    * Removed ref to jMod.fn (\_\_proto\_\_ is depreciated).
+* **Proto**
+    * Added jMod.Extend.
+* **Script Info**
+    * Removed ref to jMod.fn (\_\_proto\_\_ is depreciated).
+* **SendMessage**
+    * History begins.
+* **Settings**
+    * History begins.
+* **Tooltip**
+    * History begins.
+    * History begins.
+* **Update**
+    * Removed ref to jMod.fn (\_\_proto\_\_ is depreciated).
+    * Updated to use jMod.SendMessage
 
-#### Version 0.0.11
-* (main)          Added XMLHttpRequest for update checks / stat collecting
-* (main)          Enabled function calls through MUJS() function
-* (Config)        Added XMLHttpRequest.
+## Version 0.0.14
+* **Core**
+    * Started documentation overhaul
+    * Automated initialization for things like script_name and username by parsing the given metablock
+* **Date**
+    * History begins.
+* **Element**
+    * History begins.
+* **Events**
+    * Changed to jMod.Events.
+    * Added more DOM events.
+* **Initialize**
+    * History begins.
+* **Log**
+    * Removed "Debug" from list of functions mapped to jMod.
+    * Minor fixes / improvements.
+* **Modal**
+    * History begins.
+* **Notifications**
+    * History begins.
+* **Proto**
+    * Added URLBuilder Class.
+    * Updated URLBuilder so instanceof can be used.
+* **Script Info**
+    * Fixed GM_info cloning process.
+* **Update**
+    * History begins.
+    * Changed jMod.UPDATE to jMod.Update.
+    * Fixed bug that caused callbacks to fire twice.
 
-#### Version 0.0.10
-* (main)          Speed / safety improvements
+## Version 0.0.13
+* **Add Style**
+    * Added GM_addStyle if it exists.
+* **Content Eval**
+    * History begins.
+* **Log**
+    * Fixed output to the Web Console using GM_log.
+* **Proto**
+    * Fixed mCloneInto return value.
 
-#### Version 0.0.9
-* (Parse Meta)    History begins.
-* (LocalStorage)  History begins.
-* (Error)         History begins.
-* (Log)           History begins.
-* (main)          History begins.
-* (Proto)         History begins.
-* (Events)        History begins.
-* (DOMTiming)     History begins.
-* (Config)        History begins.
-* (Script Info)   History begins.
-* (Add Style)     History begins.
-* (Add Script)    History begins.
+## Version 0.0.11
+* **Config**
+    * Added XMLHttpRequest.
+* **Core**
+    * Added XMLHttpRequest for update checks / stat collecting
+    * Enabled function calls through jMod() function
+
+## Version 0.0.10
+* **Core**
+    * Speed / safety improvements
+
+## Version 0.0.9
+* **Add Script**
+    * History begins.
+* **Add Style**
+    * History begins.
+* **Config**
+    * History begins.
+* **Core**
+    * History begins.
+* **DOMTiming**
+    * History begins.
+* **Error**
+    * History begins.
+* **Events**
+    * History begins.
+* **LocalStorage**
+    * History begins.
+* **Log**
+    * History begins.
+* **Parse Meta**
+    * History begins.
+* **Proto**
+    * History begins.
+* **Script Info**
+    * History begins.
