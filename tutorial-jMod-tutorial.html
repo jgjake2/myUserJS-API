@@ -716,6 +716,8 @@ Under construction
 								<dl>
 									<dt><a href="#settings_pref_types">Pref Types</a></dt>
 									<dd></dd>
+									<dt><a href="#settings_example">Settings Example</a></dt>
+									<dd></dd>
 								</dl>
 							</li>
 						</ul>
@@ -938,16 +940,22 @@ jMod.load = loadCB;
 						<td>2</td>
 						<td class="name"><code>onReady</code></td>
 						<td class="type"><span class="param-type">none</span></td>
-						<td class="description last">Fires as soon as all the jMod resources are added. This includes anything added using <code>jMod.CSS = 'custom css';</code></td>
+						<td class="description last">Fires as soon as all the jMod resources are added and initialized. This includes anything added using <code>jMod.CSS = 'custom css';</code> which stores values until the DOM is available.</td>
 					</tr>
 					<tr>
 						<td>3</td>
 						<td class="name"><code>onPageReady</code></td>
 						<td class="type"><span class="param-type">none</span></td>
-						<td class="description last">Fires when <b>document.readyState</b> is complete and all performance values are available.</td>
+						<td class="description last">Fires when <b>document.readyState</b> is complete.</td>
 					</tr>
 					<tr>
-						<td>4</td>
+						<td>4*</td>
+						<td class="name"><code>onPerformanceReady</code></td>
+						<td class="type"><span class="param-type">none</span></td>
+						<td class="description last">Fires when ALL the window's <b>performance</b> values are available. This is when you should make your update requests, and report stats to the server.</td>
+					</tr>
+					<tr>
+						<td>4*</td>
 						<td class="name"><code>load</code></td>
 						<td class="type"><span class="param-type">event</span></td>
 						<td class="description last">Fires when the window's <b>load</b> event fires.</td>
@@ -978,7 +986,13 @@ jMod.load = loadCB;
 					</tr>
 				</tbody>
 			</table>
-			<small>* Fire order is unpredictable</small>
+			<small>* Fire order can be unpredictable</small>
+			</p>
+			<p>
+			<figure style="text-align:center;max-width:100%;">
+				<img src="http://myuserjs.org/img/jMod/jMod_Events_Log.png">
+				<figcaption>jMod events logged using firebug</figcaption>
+			</figure>
 			</p>
 		</div>
 	</dd>
@@ -994,10 +1008,63 @@ jMod.load = loadCB;
 	</dt>
 	<dd>
 		<div class="description">
-			<p>jMod has a powerful settings dialog generator built in, no need to write one yourself anymore! The following example utilizes every feature jMod Settings has to offer:</p>
-<code><pre>jMod.onPageReady = function(){
-	jMod.Settings({
-		title: 'Test Title',
+			<p>jMod has a powerful settings dialog generator built in, no need to write one yourself anymore!</p>
+			<p>
+				<h3 class="subsection-title" id="settings_pref_types">Preference Types</h3>
+				<table class="params tutorial">
+					<thead>
+					<tr>
+						<th style="width:100px;">Name</th>
+						<th style="width:200px;">Preference Features</th>
+						<th class="last">Description</th>
+					</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td class=""><code>input</code></td>
+							<td class="type"><span class="param-type">tooltip, icon</span></td>
+							<td class="description last"></td>
+						</tr>
+						<tr>
+							<td class=""><code>textarea</code></td>
+							<td class="type"><span class="param-type">tooltip, icon</span></td>
+							<td class="description last"></td>
+						</tr>
+						<tr>
+							<td class=""><code>select</code></td>
+							<td class="type"><span class="param-type">tooltip</span></td>
+							<td class="description last"></td>
+						</tr>
+						<tr>
+							<td class=""><code>range</code></td>
+							<td class="type"><span class="param-type">tooltip</span></td>
+							<td class="description last"></td>
+						</tr>
+						<tr>
+							<td class=""><code>checkbox</code></td>
+							<td class="type"><span class="param-type">label tooltip, checkbox tooltips</span></td>
+							<td class="description last"></td>
+						</tr>
+						<tr>
+							<td class=""><code>radio</code></td>
+							<td class="type"><span class="param-type">label tooltip, radio tooltips</span></td>
+							<td class="description last"></td>
+						</tr>
+						<tr>
+							<td class=""><code>toggle</code></td>
+							<td class="type"><span class="param-type">label tooltip, toggle tooltips</span></td>
+							<td class="description last"></td>
+						</tr>
+					</tbody>
+				</table>
+			</p>
+			
+			<h3 class="subsection-title" id="settings_example">Settings Example</h3>
+			<p>The following example utilizes most of the features jMod Settings has to offer:</p>
+<code><pre>var SettingsTest = function(){
+	console.log('jMod.Settings Test');
+	var SettingOptions = {
+		title: 'Example Title',
 		settings: [
 			{
 				name: 'Setting 1',
@@ -1167,6 +1234,17 @@ jMod.load = loadCB;
 				'default': 'val1,val3'
 			},
 			{
+				name: 'Depend Checkbox',
+				description: 'Depend on Value of Checkboxes',
+				tab: 'Tab Name 1',
+				section: 'Other2',
+				type: 'input',
+				'default': 'Depend Checkbox',
+				depend: {
+					'Checkboxes': ['val1', 'val4']
+				}
+			},
+			{
 				name: 'Radio',
 				tab: 'Tab Name 1',
 				tooltip: {
@@ -1229,8 +1307,6 @@ jMod.load = loadCB;
 				'default': 'Depend 2',
 				depend: {
 					'Radio': function(prefEl, data, radioValue){
-						//console.log(data.name + ': ', prefEl);
-						//console.log('radioValue: ', radioValue);
 						if(radioValue == 'val1')
 							return true;
 						return false;
@@ -1264,6 +1340,7 @@ jMod.load = loadCB;
 			},
 		],
 		tabs: [
+			// (optional) Additional Custom tab
 			{
 				name: 'About',
 				innerHTML: [
@@ -1277,6 +1354,7 @@ jMod.load = loadCB;
 					}
 				]
 			},
+			// (optional) Adding information about a tab referenced by a setting
 			{
 				name: 'Tab Name 1',
 				displayName: 'Tab 1 displayName',
@@ -1288,23 +1366,35 @@ jMod.load = loadCB;
 				}
 			}
 		],
+		// (optional) Change the order of the tabs. Tabs left out will be added after in the order they are referenced by your settings
 		tabOrder: ['About', 'Tab Name 1'],
+		// (optional) Set the active tab
 		activeTab: 'Tab Name 1',
+		// (optional) callback that fires before the settings dialog closes
 		onBeforeHide: function(e){
 			console.log('Settings on before hide');
 		}
-	});
+	};
+	
+	jMod.Settings(SettingOptions);
+	
 	
 	setTimeout(function(){
+		// Show the settings dialog
+		console.log('Show jMod Settings');
 		jMod.Settings.show();
-		
 		console.log('Setting 1 Value: ', jMod.Settings.get('Setting 1'));
-		
 		console.log('Setting 1 Default: ', jMod.Settings.getDefault('Setting 1'));
-		
-		
 	},100);
-}</pre></code>
+		
+	//setTimeout(function(){
+		//var settingsNav = document.querySelector('.jMod-settings .nav-tabs');
+		// Switch to Tab #1 in the settings dialog
+		//jMod.Tabs.show(settingsNav, 1);
+	//},2000);
+};
+
+jMod.onReady = SettingsTest;</pre></code>
 		</div>
 	</dd>
 </dl>
@@ -1316,7 +1406,7 @@ jMod.load = loadCB;
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha11</a> on Sat Jan 10 2015 12:15:01 GMT-0600 (CST)
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha11</a> on Mon Jan 12 2015 06:11:19 GMT-0600 (CST)
         </footer>
     </div>
 </div>

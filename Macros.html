@@ -890,7 +890,7 @@
             
             
             
-            <td class="description last"><span class="macro-argument-count">1 Argument(s)</span> _undefined!==typeof a</td>
+            <td class="description last"><span class="macro-argument-count">1 Argument(s)</span> _undefined!=typeof a</td>
         </tr>
 	
 	
@@ -928,7 +928,7 @@
         
 
     
-    <pre class="prettyprint"><code>EXISTS&#40;obj&#41; //result: _undefined!==typeof obj</code></pre>
+    <pre class="prettyprint"><code>EXISTS&#40;obj&#41; //result: _undefined!=typeof obj</code></pre>
     
 
     
@@ -1323,7 +1323,7 @@
             
             
             
-            <td class="description last"><span class="macro-argument-count">1 Argument(s)</span> _undefined!==typeof a?b:c</td>
+            <td class="description last"><span class="macro-argument-count">1 Argument(s)</span> _undefined!=typeof a?b:c</td>
         </tr>
 	
 	
@@ -1361,7 +1361,7 @@
         
 
     
-    <pre class="prettyprint"><code>IFEXISTS&#40;obj,true,false&#41; //result: _undefined!==typeof obj?true:false</code></pre>
+    <pre class="prettyprint"><code>IFEXISTS&#40;obj,true,false&#41; //result: _undefined!=typeof obj?true:false</code></pre>
     
 
     
@@ -1604,7 +1604,7 @@
             
             
             
-            <td class="description last"><span class="macro-argument-count">1 Argument(s)</span> _undefined===typeof a</td>
+            <td class="description last"><span class="macro-argument-count">1 Argument(s)</span> _undefined==typeof a</td>
         </tr>
 	
 	
@@ -1642,7 +1642,7 @@
         
 
     
-    <pre class="prettyprint"><code>NOTEXISTS&#40;obj&#41; //result: _undefined===typeof obj</code></pre>
+    <pre class="prettyprint"><code>NOTEXISTS&#40;obj&#41; //result: _undefined==typeof obj</code></pre>
     
 
     
@@ -1710,7 +1710,7 @@
             
             
             
-            <td class="description last"><span class="macro-argument-count">1 Argument</span> _undefined!==typeof a[b]</td>
+            <td class="description last"><span class="macro-argument-count">1 Argument</span> _undefined!=typeof a[b]</td>
         </tr>
 	
 	
@@ -1733,7 +1733,7 @@
             
             
             
-            <td class="description last"><span class="macro-argument-count">2 Arguments</span> _undefined!==typeof a[b]&&_undefined!==typeof a[c]</td>
+            <td class="description last"><span class="macro-argument-count">2 Arguments</span> _undefined!=typeof a[b]&&_undefined!=typeof a[c]</td>
         </tr>
 	
 	
@@ -1756,7 +1756,7 @@
             
             
             
-            <td class="description last"><span class="macro-argument-count">3 Arguments</span> _undefined!==typeof a[b]&&_undefined!==typeof a[c]&&_undefined!==typeof a[d]</td>
+            <td class="description last"><span class="macro-argument-count">3 Arguments</span> _undefined!=typeof a[b]&&_undefined!=typeof a[c]&&_undefined!=typeof a[d]</td>
         </tr>
 	
 	
@@ -1779,7 +1779,7 @@
             
             
             
-            <td class="description last"><span class="macro-argument-count">4 Arguments</span> _undefined!==typeof a[b]&&_undefined!==typeof a[c]&&_undefined!==typeof a[d]&&_undefined!==typeof a[e]</td>
+            <td class="description last"><span class="macro-argument-count">4 Arguments</span> _undefined!=typeof a[b]&&_undefined!=typeof a[c]&&_undefined!=typeof a[d]&&_undefined!=typeof a[e]</td>
         </tr>
 	
 	
@@ -1817,7 +1817,7 @@
         
 
     
-    <pre class="prettyprint"><code>PROPDEFINED&#40;obj,"foo"&#41; //result: _undefined!==typeof obj["foo"]PROPDEFINED&#40;obj,"foo","bar"&#41; //result: _undefined!==typeof obj["foo"]&&_undefined!==typeof obj["bar"]PROPDEFINED&#40;obj,"foo","bar","taco"&#41; //result: _undefined!==typeof obj["foo"]&&_undefined!==typeof obj["bar"]&&_undefined!==typeof obj["taco"]PROPDEFINED&#40;obj,"foo","bar","taco","bell"&#41; //result: _undefined!==typeof obj["foo"]&&_undefined!==typeof obj["bar"]&&_undefined!==typeof obj["taco"]&&_undefined!==typeof obj["bell"]</code></pre>
+    <pre class="prettyprint"><code>PROPDEFINED&#40;obj,"foo"&#41; //result: _undefined!=typeof obj["foo"]PROPDEFINED&#40;obj,"foo","bar"&#41; //result: _undefined!=typeof obj["foo"]&&_undefined!=typeof obj["bar"]PROPDEFINED&#40;obj,"foo","bar","taco"&#41; //result: _undefined!=typeof obj["foo"]&&_undefined!=typeof obj["bar"]&&_undefined!=typeof obj["taco"]PROPDEFINED&#40;obj,"foo","bar","taco","bell"&#41; //result: _undefined!=typeof obj["foo"]&&_undefined!=typeof obj["bar"]&&_undefined!=typeof obj["taco"]&&_undefined!=typeof obj["bell"]</code></pre>
     
 
     
@@ -1885,7 +1885,7 @@
             
             
             
-            <td class="description last"><span class="macro-argument-count">2 Arguments</span> _undefined!==typeof a[b]&&_undefined!==typeof a[b][c]</td>
+            <td class="description last"><span class="macro-argument-count">2 Arguments</span> _undefined!=typeof a[b]&&_undefined!=typeof a[b][c]</td>
         </tr>
 	
 	
@@ -1908,7 +1908,7 @@
             
             
             
-            <td class="description last"><span class="macro-argument-count">3 Arguments</span> _undefined!==typeof a[b]&&_undefined!==typeof a[b][c]&&_undefined!==typeof a[b][c][d]</td>
+            <td class="description last"><span class="macro-argument-count">3 Arguments</span> _undefined!=typeof a[b]&&_undefined!=typeof a[b][c]&&_undefined!=typeof a[b][c][d]</td>
         </tr>
 	
 	
@@ -1931,7 +1931,7 @@
             
             
             
-            <td class="description last"><span class="macro-argument-count">4 Arguments</span> _undefined!==typeof a[b]&&_undefined!==typeof a[b][c]&&_undefined!==typeof a[b][c][d]&&_undefined!==typeof a[b][c][d][e]</td>
+            <td class="description last"><span class="macro-argument-count">4 Arguments</span> _undefined!=typeof a[b]&&_undefined!=typeof a[b][c]&&_undefined!=typeof a[b][c][d]&&_undefined!=typeof a[b][c][d][e]</td>
         </tr>
 	
 	
@@ -1969,7 +1969,7 @@
         
 
     
-    <pre class="prettyprint"><code>PROPTREEDEFINED&#40;obj,"foo","bar"&#41; //result: _undefined!==typeof obj["foo"]&&_undefined!==typeof obj["foo"]["bar"]PROPTREEDEFINED&#40;obj,"foo","bar","taco"&#41; //result: _undefined!==typeof obj["foo"]&&_undefined!==typeof obj["foo"]["bar"]&&_undefined!==typeof obj["foo"]["bar"]["taco"]PROPTREEDEFINED&#40;obj,"foo","bar","taco","bell"&#41; //result: _undefined!==typeof obj["foo"]&&_undefined!==typeof obj["foo"]["bar"]&&_undefined!==typeof obj["foo"]["bar"]["taco"]&&_undefined!==typeof obj["foo"]["bar"]["taco"]["bell"]</code></pre>
+    <pre class="prettyprint"><code>PROPTREEDEFINED&#40;obj,"foo","bar"&#41; //result: _undefined!=typeof obj["foo"]&&_undefined!=typeof obj["foo"]["bar"]PROPTREEDEFINED&#40;obj,"foo","bar","taco"&#41; //result: _undefined!=typeof obj["foo"]&&_undefined!=typeof obj["foo"]["bar"]&&_undefined!=typeof obj["foo"]["bar"]["taco"]PROPTREEDEFINED&#40;obj,"foo","bar","taco","bell"&#41; //result: _undefined!=typeof obj["foo"]&&_undefined!=typeof obj["foo"]["bar"]&&_undefined!=typeof obj["foo"]["bar"]["taco"]&&_undefined!=typeof obj["foo"]["bar"]["taco"]["bell"]</code></pre>
     
 
     
@@ -1994,7 +1994,7 @@
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha11</a> on Sat Jan 10 2015 12:15:01 GMT-0600 (CST)
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha11</a> on Mon Jan 12 2015 06:11:19 GMT-0600 (CST)
         </footer>
     </div>
 </div>
