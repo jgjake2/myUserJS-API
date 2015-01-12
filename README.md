@@ -43,14 +43,14 @@ jMod.load = loadCB;
 *[Full List of jMod Events](http://doc.myuserjs.org/tutorial-jMod-tutorial.html#standard_events_table)*
 <div align="center">
 	<a href="http://myuserjs.org/img/jMod/jMod_Events_Log.png">
-		<img width="80%" align="center" src="http://myuserjs.org/img/jMod/jMod_Events_Log.png" alt="jMod Settings Example">
+		<img width="80%" align="center" src="http://myuserjs.org/img/jMod/jMod_Events_Log.png" alt="jMod Event Log">
 	</a>
 	<div align="center">jMod Event Log</div>
 </div>
 
 <br /><br />
 <div align="center">
-	<a href="http://myuserjs.org/img/jMod/jMod_Events_Log.png">
+	<a href="http://myuserjs.org/img/jMod/jMod_Settings_Example.png">
 		<img src="http://myuserjs.org/img/jMod/jMod_Settings_Example.png" alt="jMod Settings Example" width="80%" align="center">
 	</a>
 	<div align="center">jMod Settings Example</div>
