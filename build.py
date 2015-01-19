@@ -155,6 +155,8 @@ metaBlock = getMetaBlock(output)
 #
 # OUTPUT
 #
+
+# Write uncompressed jMod output (with comments) to "./bin/jMod.full.js"
 print('Write Output')
 with open ('./bin/jMod.full.js', "w") as myfile:
     myfile.write(output)
@@ -182,34 +184,37 @@ beautyCArgs = [
     'sequences=false',
     'negate_iife=false'
     ]
-#beautyStr = compile([r'F:\Projects\myuserjs\API\bin\jMod.full.js'], ['-b', '--comments', r"/[\s=\/][@U]/", '-c ' + ','.join(beautyCArgs), '-m', '--screw-ie', '-o','bin/jMod.js']).decode("utf-8")
-beautyStr = metaBlock + compile([r'F:\Projects\myuserjs\API\bin\jMod.full.js'], ['-b', '-c', ','.join(beautyCArgs), '--screw-ie']).decode("utf-8")
+#beautyStr = compile([r'./bin/jMod.full.js'], ['-b', '--comments', r"/[\s=\/][@U]/", '-c ' + ','.join(beautyCArgs), '-m', '--screw-ie', '-o','bin/jMod.js']).decode("utf-8")
+beautyStr = metaBlock + compile([r'./bin/jMod.full.js'], ['-b', '-c', ','.join(beautyCArgs), '--screw-ie']).decode("utf-8")
+# Write uncompressed jMod output (without comments) to "./bin/jMod.full.js"
 with open ('./bin/jMod.js', "w") as myfile:
     myfile.write(beautyStr)
-    
-minStr = ''
+
 minCArgs = [
     'unused=false',
     'warnings=false',
-    #'dead_code=false',
+    'dead_code=false',
     'unsafe=true'
     ]
+# Minify to "./bin/jMod.min.js" if "-m" argument is present
 if(args.m == True):
     print('Minify')
-    minStr = metaBlock + compile([r'F:\Projects\myuserjs\API\bin\jMod.js'], ['-c ' + ','.join(minCArgs), '-m', 'sort', '-r', '$', '--screw-ie']).decode("utf-8")
+    minStr = metaBlock + compile([r'./bin/jMod.js'], ['-c ' + ','.join(minCArgs), '-m', 'sort', '-r', '$', '--screw-ie']).decode("utf-8")
     with open ('./bin/jMod.min.js', "w") as myfile:
         myfile.write(minStr)
         
-    minStr2 = metaBlock + compile([r'F:\Projects\myuserjs\API\bin\jMod.js'], ['-b beautify=true', '-c ' + ','.join(minCArgs), '-m', 'sort', '-r', '$', '--screw-ie']).decode("utf-8")
+    minExpandedStr = metaBlock + compile([r'./bin/jMod.js'], ['-b beautify=true', '-c ' + ','.join(minCArgs), '-m', 'sort', '-r', '$', '--screw-ie']).decode("utf-8")
+    # Write expanded version to "./bin/jMod.min.expanded.js"
     with open ('./bin/jMod.min.expanded.js', "w") as myfile:
-        myfile.write(minStr2)
-    
+        myfile.write(minExpandedStr)
+   
+# Generate documentation if "-doc" argument is present
 if(args.doc != ''):
     print('Generating JSDoc')
     curDir = os.path.dirname(os.path.abspath(__file__))
     confPath = os.path.join(curDir, 'conf.json')
     mujsPath = os.path.join(curDir, 'bin', 'jMod.full.js')
-    mujsReadmePath = os.path.join(curDir, 'bin', 'README.md')
+    mujsReadmePath = os.path.join(curDir, 'bin', 'README.md') # This readme is used to generate the doc's index page
     outputPath = os.path.join(curDir, 'bin', 'doc')
     tutorialsPath = os.path.join(curDir, 'src', 'tutorials')
     
@@ -219,8 +224,6 @@ if(args.doc != ''):
     if os.listdir(outputPath) != []:
         shutil.rmtree(outputPath)
         os.makedirs(outputPath)
-    #cwd=jsdoc_location
-    #cwd=os.path.join(args.doc, '')
     #p = subprocess.Popen([os.path.join(args.doc, "jsdoc.cmd"), mujsPath, '-c', confPath, '-d', outputPath, '-u', tutorialsPath, '-l'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     p = subprocess.Popen([os.path.join(args.doc, "jsdoc.cmd"), '-c', confPath, '-d', outputPath, '-u', tutorialsPath, '-l', mujsPath, mujsReadmePath], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
@@ -228,8 +231,8 @@ if(args.doc != ''):
     print('Doc Err:', stderr)
 
 
+# Output history file
 print('Write History')
-    
 with open ('./bin/History.md', "w") as myfile:
     myfile.write(result['history'])
 
@@ -239,6 +242,7 @@ if not os.path.exists('./jMod/' + args.v):
 if not os.path.exists('./jMod/current'):
     os.makedirs('./jMod/current')
 
+# Copy to version folder if "-b" or "-r" arguments are present
 if(args.b == True or args.r == True):        
     shutil.copyfile('./bin/jMod.full.js', './jMod/' + args.v + '/jMod.full.js')
     shutil.copyfile('./bin/jMod.js', './jMod/' + args.v + '/jMod.js')
@@ -247,6 +251,7 @@ if(args.b == True or args.r == True):
         shutil.copyfile('./bin/jMod.min.js', './jMod/' + args.v + '/jMod.min.js')
         shutil.copyfile('./bin/jMod.min.expanded.js', './jMod/' + args.v + '/jMod.min.expanded.js')
 
+# Copy to current folder if "-r" argument is present
 if(args.r == True):
     shutil.copyfile('./bin/jMod.full.js', './jMod/current/jMod.full.js')
     shutil.copyfile('./bin/jMod.js', './jMod/current/jMod.js')
@@ -255,6 +260,7 @@ if(args.r == True):
         shutil.copyfile('./bin/jMod.min.js', './jMod/current/jMod.min.js')
         shutil.copyfile('./bin/jMod.min.expanded.js', './jMod/current/jMod.min.expanded.js')
 
+# Copy output to "-cp" destination if "-cp" argument is present
 if(args.cp != ''):
     if(args.m == True):
         shutil.copyfile('./bin/jMod.min.js', args.cp)
