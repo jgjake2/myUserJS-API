@@ -1,6 +1,6 @@
 {
 	"opts": {
-		"template": "templates/jaguarjs"
+		"template": "F:/Projects/jMod/main/jsdoc/templates/jaguarjs"
 	},
 	"templates": {
 		"cleverLinks": true,
