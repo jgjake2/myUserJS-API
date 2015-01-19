@@ -212,7 +212,21 @@ if(args.m == True):
 if(args.doc != ''):
     print('Generating JSDoc')
     curDir = os.path.dirname(os.path.abspath(__file__))
+    
+    confFileContent = ''
     confPath = os.path.join(curDir, 'conf.json')
+    confTmpPath = os.path.join(curDir, 'conf.tmp.json')
+    jsdocTemplatePath = os.path.join(curDir, 'jsdoc/templates/jaguarjs')
+    
+    with open (confPath, "r") as myfile:
+        confFileContent = myfile.read()
+    # Replace "{{{TEMPLATE_DIR}}}" with local path to template
+    confFileContent = confFileContent.replace("{{{TEMPLATE_DIR}}}", jsdocTemplatePath.replace("\\", "/"))
+    
+    # Write JSDoc config file
+    with open (confTmpPath, "w") as myfile:
+        myfile.write(confFileContent)
+    
     mujsPath = os.path.join(curDir, 'bin', 'jMod.full.js')
     mujsReadmePath = os.path.join(curDir, 'bin', 'README.md') # This readme is used to generate the doc's index page
     outputPath = os.path.join(curDir, 'bin', 'doc')
@@ -225,7 +239,7 @@ if(args.doc != ''):
         shutil.rmtree(outputPath)
         os.makedirs(outputPath)
     #p = subprocess.Popen([os.path.join(args.doc, "jsdoc.cmd"), mujsPath, '-c', confPath, '-d', outputPath, '-u', tutorialsPath, '-l'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    p = subprocess.Popen([os.path.join(args.doc, "jsdoc.cmd"), '-c', confPath, '-d', outputPath, '-u', tutorialsPath, '-l', mujsPath, mujsReadmePath], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.Popen([os.path.join(args.doc, "jsdoc.cmd"), '-c', confTmpPath, '-d', outputPath, '-u', tutorialsPath, '-l', mujsPath, mujsReadmePath], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
     print('Doc Out: ', stdout)
     print('Doc Err:', stderr)

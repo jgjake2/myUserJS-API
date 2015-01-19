@@ -1,6 +1,6 @@
 {
 	"opts": {
-		"template": "F:/Projects/jMod/main/jsdoc/templates/jaguarjs"
+		"template": "{{{TEMPLATE_DIR}}}"
 	},
 	"templates": {
 		"cleverLinks": true,
@@ -23,6 +23,6 @@
 			"description": "jMod Documentation",
 			"keyword": "jMod,myUserJS,userscript,script,javascript"
 		},
-		"linenums": false
+		"linenums": true
 	}
 }
