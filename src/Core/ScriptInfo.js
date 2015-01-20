@@ -3,6 +3,7 @@
 // +@history (0.0.14) Fixed GM_info cloning process.
 // +@history (0.0.15) Removed ref to jMod.fn (__proto__ is depreciated).
 // +@history (0.0.16) Moved into a "jMod.ScriptInfo" function.
+// +@history (0.0.17) Added enable/disable configuration and logging for "getScriptFileInfo".
 
 	// Parse Stack
 	RequireScript('Core.ParseStack');
@@ -36,32 +37,59 @@
 	ScriptInfo.gotFileInfo = false;
 	
 	ScriptInfo.getScriptFileInfo = function(){
-		var callerScriptInfo;
-		var output = {};
-		
+		if(!jConfig.getScriptFileInfo)
+			return;
+			
 		if(ScriptInfo.gotFileInfo)
-			return jConfig('script.script_file_info');
-		var e = new Error();
-		//console.log(e.stack);
-		if(e.stack.indexOf('.user.js') == -1)
-			return undefined;
-		var tStack = jMod.parseStack(e.stack.toString());
+			return jConfig.script.script_file_info;
+			
+		var i,
+			tStack,
+			callerScriptInfo,
+			output = {},
+			e = new Error(), // Create new error to get its stack
+			tStackStr = e.stack.toString();
+		// Check if a userscript is anywhere in the stack
+		if(tStackStr.indexOf('user.js') == -1)
+			return;
+		// Parse the stack
+		tStack = jMod.parseStack(tStackStr);
 		if(tStack.length > 0){
-			//console.log('tStack', tStack);
-			for(var i = tStack.length - 1; i >= 0; i--){
-				if(tStack[i].fileName != '' && tStack[i].fileExt.toLowerCase() == 'user.js'){
-					callerScriptInfo = tStack[i];
-					output.userscript_file_name = callerScriptInfo.fileName;
-					output.userscript_file_path = callerScriptInfo.fullFileName;
+			//for(i = tStack.length - 1; i >= 0; i--){
+			for(i = 0; i < tStack.length; i++){
+				callerScriptInfo = tStack[i];
+				// Find jMod in the stack
+				if(_undefined===typeof jConfig.jMod_File_Path && ['jmod.js', 'jmod.min.js', 'jmod.full.js', 'jmod.min.expanded.js', 'mujs.js', 'mujs.min.js'].indexOf(callerScriptInfo.fileName.toLowerCase()) != -1){
+					jConfig.jMod_Full_File_Name = callerScriptInfo.fileName;
+					jConfig.jMod_File_Name = callerScriptInfo.fileName.substr(0, callerScriptInfo.fileName.length - 3);
+					jConfig.jMod_File_Path = callerScriptInfo.fullFileName;
+				}
+				
+				// Find the userscript in the stack
+				if(callerScriptInfo.fileName != '' && callerScriptInfo.fileExt.toLowerCase() == 'user.js'){
 					ScriptInfo.gotFileInfo = true;
-					jConfig('script.script_file_info', output);
-					//jMod.log.Info('Userscript File Name: ' + callerScriptInfo.fullFileName);
+					output = jConfig.script.script_file_info = {
+						userscript_full_file_name: callerScriptInfo.fileName,
+						userscript_file_name: callerScriptInfo.fileName.substr(0, callerScriptInfo.fileName.length - 8),
+						userscript_file_path: callerScriptInfo.fullFileName,
+						caller_lineNumber: callerScriptInfo.lineNumber,
+						caller_functionName: callerScriptInfo.functionName
+					};
+					/*
+					output.userscript_full_file_name = callerScriptInfo.fileName;
+					output.userscript_file_name = callerScriptInfo.fileName.substr(0, callerScriptInfo.fileName.length - 8);
+					output.userscript_file_path = callerScriptInfo.fullFileName;
+					output.call_lineNumber = callerScriptInfo.lineNumber;
+					output.call_functionName = callerScriptInfo.functionName;
+					jConfig.script.script_file_info = output;
+					*/
+					if(jMod.debug)
+						jModLogInfo('ScriptInfo', 'Get Script File Info Successful!!', output, callerScriptInfo);
 					return output;
-					break;
 				}
 			}
 		}
-		return undefined;
+		return;
 	}
 	
 	Object.defineProperty(ScriptInfo, 'InfoSet', {

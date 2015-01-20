@@ -25,18 +25,22 @@
 +function(unsafeWindow, jMod) {
     unsafeWindow.jMod = this.jMod = jMod;
     if (jMod.debug) jMod.log.groupEnd("jMod Initialize");
-}.call(this, "undefined" !== typeof unsafeWindow ? unsafeWindow : "undefined" !== typeof window ? window : this, function(initStart, $, console, unsafeWindow, _undefined, undefined) {
-    var jMod = function(args) {
+    window.focus();
+}.call(this, "undefined" !== typeof unsafeWindow ? unsafeWindow : "undefined" !== typeof window ? window : this, function(initStart, $, console, window, unsafeWindow, _undefined, undefined) {
+    var jMod = function() {
         return jMod._call.apply(jMod, arguments);
     };
     jMod.InitializeStartTime = initStart;
     jMod.InitializeEndTime = -1;
-    var API = jMod.API = {};
-    var jModReady = -1, Slice = Array.prototype.slice, _jQueryAvailable = _undefined != typeof $ ? true : false, _css = "@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n" + (false ? "@import url(//test2.myuserjs.org/css/smartadmin-production-all-namespaced.css);\n" : "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n") + "@font-face {font-family: 'Sansation';font-style: normal;font-weight: 400;src: local('Sansation Regular'), local('Sansation-Regular'), url(http://myuserjs.org/fonts/Sansation-Regular.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: normal;font-weight: 300;src: local('Sansation Light'), local('Sansation-Light'), url(http://myuserjs.org/fonts/Sansation-Light.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: italic;font-weight: 300;src: local('Sansation Light Italic'), local('Sansation-LightItalic'), url(http://myuserjs.org/fonts/Sansation-LightItalic.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: normal;font-weight: 700;src: local('Sansation Bold'), local('Sansation-Bold'), url(http://myuserjs.org/fonts/Sansation-Bold.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: italic;font-weight: 400;src: local('Sansation Italic'), local('Sansation-Italic'), url(http://myuserjs.org/fonts/Sansation-Italic.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: italic;font-weight: 700;src: local('Sansation Bold Italic'), local('Sansation-BoldItalic'), url(http://myuserjs.org/fonts/Sansation-BoldItalic.ttf) format('ttf');}\n";
+    var API = jMod.API = {}, Slice = Array.prototype.slice, _jQueryAvailable = _undefined != typeof $ ? true : false, jModReady = -1, _css = "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n" + "@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n" + "@font-face {font-family: 'Sansation';font-style: normal;font-weight: 400;src: local('Sansation Regular'), local('Sansation-Regular'), url(http://myuserjs.org/fonts/Sansation-Regular.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: normal;font-weight: 300;src: local('Sansation Light'), local('Sansation-Light'), url(http://myuserjs.org/fonts/Sansation-Light.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: italic;font-weight: 300;src: local('Sansation Light Italic'), local('Sansation-LightItalic'), url(http://myuserjs.org/fonts/Sansation-LightItalic.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: normal;font-weight: 700;src: local('Sansation Bold'), local('Sansation-Bold'), url(http://myuserjs.org/fonts/Sansation-Bold.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: italic;font-weight: 400;src: local('Sansation Italic'), local('Sansation-Italic'), url(http://myuserjs.org/fonts/Sansation-Italic.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: italic;font-weight: 700;src: local('Sansation Bold Italic'), local('Sansation-BoldItalic'), url(http://myuserjs.org/fonts/Sansation-BoldItalic.ttf) format('ttf');}\n", CurrentRunningScript = {
+        id: "jMod",
+        config: {},
+        el: unsafeWindow.document && unsafeWindow.document.currentScript ? unsafeWindow.document.currentScript : undefined
+    };
     var DefineLockedProp = function(name, value, target, en) {
         var opts = {
             configurable: false,
-            enumerable: _undefined != typeof en ? en : true
+            enumerable: false === en ? en : true
         };
         if ("function" === typeof value) opts.get = value; else {
             opts.value = value;
@@ -44,17 +48,12 @@
         }
         Object.defineProperty(target || jMod, name, opts);
     };
-    var CurrentRunningScript = {
-        id: "jMod",
-        config: {},
-        el: unsafeWindow.document && unsafeWindow.document.currentScript ? unsafeWindow.document.currentScript : undefined
-    };
     DefineLockedProp("ScriptElement", function() {
         return CurrentRunningScript.el ? CurrentRunningScript : undefined;
     });
     DefineLockedProp("version", "0.0.17");
-    DefineLockedProp("build_time", "1421098235000");
-    DefineLockedProp("build_type", "beta");
+    DefineLockedProp("build_time", "1421789040000");
+    DefineLockedProp("build_type", "release");
     DefineLockedProp("_debug", false);
     Object.defineProperty(jMod, "debug", {
         get: function() {
@@ -164,18 +163,137 @@
         addStyle(_css + (input || ""));
         _css = "";
     };
+    function getFirstValidKey(obj, arr, filter) {
+        var hasFilter = "function" === typeof filter ? true : false;
+        var args = arr;
+        if ("object" !== typeof arr) {
+            args = Slice.call(arguments, 1);
+            hasFilter = false;
+        }
+        for (var i = 0; i < args.length; i++) if (typeof obj[args[i]] !== _undefined) if (!hasFilter || hasFilter && filter(args[i], obj[args[i]])) return args[i];
+        return undefined;
+    }
+    function getFirstValidKeyValue(obj, arr, filter) {
+        var key = getFirstValidKey.apply(this, arguments);
+        if (typeof key !== _undefined) return obj[key];
+        return undefined;
+    }
+    function Object_SearchForKey(str) {
+        var i = 0, tmp = this, names = str.split(".");
+        for (i; i < names.length; i++) {
+            if (typeof tmp[names[i]] === _undefined) return undefined;
+            tmp = tmp[names[i]];
+        }
+        return tmp;
+    }
+    function Object_SearchForKeyCaseInsensitive(str) {
+        var x, i = 0, tmp = this, names = str.split(".");
+        if (0 == names.length) return undefined;
+        for (i; i < names.length; i++) if ((x = Object.keys(tmp).join("|").toLowerCase().split("|").indexOf(names[i].toLowerCase())) != -1) tmp = tmp[Object.keys(tmp)[x]]; else return undefined;
+        return tmp;
+    }
+    function Object_setKeyValueCaseInsensitive(str, val) {
+        var parent, x, i = 0, names = str.split("."), tmp = this;
+        if (0 == names.length) return undefined;
+        for (i; i < names.length; i++) if ((x = Object.keys(tmp).join("|").toLowerCase().split("|").indexOf(names[i].toLowerCase())) != -1) {
+            parent = tmp;
+            names[i] = Object.keys(tmp)[x];
+            tmp = tmp[Object.keys(tmp)[x]];
+        } else return undefined;
+        parent[names[names.length - 1]] = val;
+        return names;
+    }
+    function Object_SearchForKeys(arr) {
+        var tmp, i = 0, args = "string" === typeof arr ? Slice.call(arguments) : arr;
+        for (i; i < args.length; i++) if ((tmp = Object_SearchForKey.apply(this, [ args[i] ])) !== undefined) return tmp;
+        return undefined;
+    }
+    function Object_setKeyValue(str, val, force) {
+        var index = 0, names = str.split("."), tmp = this;
+        for (index; index < names.length - 1; index++) {
+            if (typeof tmp[names[index]] === _undefined) if (force) tmp[names[index]] = {}; else return;
+            tmp = tmp[names[index]];
+        }
+        tmp[names[names.length - 1]] = val;
+    }
+    var props = {
+        SearchForKey: {
+            value: Object_SearchForKey,
+            enumerable: false
+        },
+        SearchForKeys: {
+            value: Object_SearchForKeys,
+            enumerable: false
+        },
+        setKeyValue: {
+            value: Object_setKeyValue,
+            enumerable: false
+        },
+        SearchForKeyI: {
+            value: Object_SearchForKeyCaseInsensitive,
+            enumerable: false
+        },
+        setKeyValueI: {
+            value: Object_setKeyValueCaseInsensitive,
+            enumerable: false
+        }
+    };
+    function mCloneInto(obj, scope, args) {
+        if (typeof cloneInto !== _undefined) {
+            try {
+                return cloneInto(obj, scope, args);
+            } catch (e) {}
+            var i, type, tmp = {};
+            for (i in obj) if (Object.prototype.hasOwnProperty.call(obj, i)) {
+                type = typeof obj[i];
+                if ([ "string", "number", "boolean" ].indexOf(type)) try {
+                    tmp[i] = cloneInto(obj[i], scope, args);
+                } catch (e) {} else if ("object" == type) if ("number" !== typeof obj[i].length) {
+                    tmp[i] = {};
+                    for (var x in obj[i]) try {
+                        if (Object.prototype.hasOwnProperty.call(obj[i], x)) tmp[i][x] = cloneInto(obj[i][x], scope, args);
+                    } catch (e) {}
+                } else {
+                    tmp[i] = [];
+                    for (var x = 0; x < obj[i].length; x++) try {
+                        tmp[i].push(cloneInto(obj[i][x], scope, args));
+                    } catch (e) {
+                        tmp[i].push(undefined);
+                    }
+                }
+            }
+            try {
+                return cloneInto(tmp, scope, args);
+            } catch (e) {}
+        } else ;
+        return obj;
+    }
+    function mExportFunction(func, scope, args) {
+        if (typeof exportFunction !== _undefined) try {
+            return exportFunction(func, scope, args);
+        } catch (e) {}
+        var name = "";
+        if (typeof args === _undefined) args = {};
+        if (typeof args.defineAs !== _undefined) name = args.defineAs; else if ("function" === typeof func && "" != func.name) name = func.name;
+        if ("" == name) return;
+        try {
+            scope[name] = func;
+            return scope[name];
+        } catch (e) {}
+    }
     jMod.parseStack = function(stackText) {
         var o = [];
-        var stackPatt = /([^\s]*)\@file\:\/\/\/([^\s]+?(?:\/([^\/]+?\.(user\.js|js|json|php)))?):(\d+)(?:\:(\d+))?/gi;
+        var stackPatt = /(([^\s]*)\@file\:\/\/\/([^\s]+?(?:\/([^\/]+?\.(user\.js|js|json|php|htm|html|asp)))?):(\d+)(?:\:(\d+))?)/gi;
         var match;
         while (null != (match = stackPatt.exec(stackText))) {
             var tmp = {
-                functionName: match[1],
-                fullFileName: match[2],
-                fileName: match[3],
-                fileExt: match[4],
-                lineNumber: match[5],
-                columnNumber: match[6]
+                line: match[1],
+                functionName: match[2],
+                fullFileName: match[3],
+                fileName: match[4],
+                fileExt: match[5],
+                lineNumber: match[6],
+                columnNumber: match[7]
             };
             o.push(tmp);
         }
@@ -282,21 +400,6 @@
         };
         this.setHostname(input);
     };
-    function getFirstValidKey(obj, arr, filter) {
-        var hasFilter = "function" === typeof filter ? true : false;
-        var args = arr;
-        if ("object" !== typeof arr) {
-            args = Slice.call(arguments, 1);
-            hasFilter = false;
-        }
-        for (var i = 0; i < args.length; i++) if (typeof obj[args[i]] !== _undefined) if (!hasFilter || hasFilter && filter(args[i], obj[args[i]])) return args[i];
-        return undefined;
-    }
-    function getFirstValidKeyValue(obj, arr, filter) {
-        var key = getFirstValidKey.apply(this, arguments);
-        if (typeof key !== _undefined) return obj[key];
-        return undefined;
-    }
     function eventCancel(e) {
         if (!e) if (window.event) e = window.event; else return;
         if (null != e.cancelBubble) e.cancelBubble = true;
@@ -305,91 +408,6 @@
         if (window.event) e.returnValue = false;
         if (null != e.cancel) e.cancel = true;
     }
-    function mExportFunction(func, scope, args) {
-        if (typeof exportFunction !== _undefined) exportFunction(func, scope, args); else {
-            var name;
-            if (typeof args === _undefined) args = {};
-            if (typeof args.defineAs !== _undefined) name = args.defineAs; else if ("function" === typeof func && "" != func.name) name = func.name;
-            scope[name || ""] = func;
-        }
-    }
-    function mCloneInto(obj, scope, args) {
-        if (typeof cloneInto !== _undefined) {
-            try {
-                return cloneInto(obj, scope, args);
-            } catch (e) {}
-            var tmp = {};
-            for (var i in obj) if (Object.prototype.hasOwnProperty.call(obj, i)) if ([ "string", "number" ].indexOf(typeof obj[i])) try {
-                tmp[i] = cloneInto(obj[i], scope, args);
-            } catch (e) {} else if ("object" == typeof obj[i]) {
-                tmp[i] = {};
-                for (var x in obj[i]) try {
-                    if (Object.prototype.hasOwnProperty.call(obj[i], x)) tmp[i][x] = cloneInto(obj[i][x], scope, args);
-                } catch (e) {}
-            }
-            return cloneInto(tmp, scope, args);
-        }
-    }
-    function Object_SearchForKey(str) {
-        var i = 0, tmp = this, names = str.split(".");
-        for (i; i < names.length; i++) {
-            if (typeof tmp[names[i]] === _undefined) return undefined;
-            tmp = tmp[names[i]];
-        }
-        return tmp;
-    }
-    function Object_SearchForKeyCaseInsensitive(str) {
-        var x, i = 0, tmp = this, names = str.split(".");
-        if (0 == names.length) return undefined;
-        for (i; i < names.length; i++) if ((x = Object.keys(tmp).join("|").toLowerCase().split("|").indexOf(names[i].toLowerCase())) != -1) tmp = tmp[Object.keys(tmp)[x]]; else return undefined;
-        return tmp;
-    }
-    function Object_setKeyValueCaseInsensitive(str, val) {
-        var parent, x, i = 0, names = str.split("."), tmp = this;
-        if (0 == names.length) return undefined;
-        for (i; i < names.length; i++) if ((x = Object.keys(tmp).join("|").toLowerCase().split("|").indexOf(names[i].toLowerCase())) != -1) {
-            parent = tmp;
-            names[i] = Object.keys(tmp)[x];
-            tmp = tmp[Object.keys(tmp)[x]];
-        } else return undefined;
-        parent[names[names.length - 1]] = val;
-        return names;
-    }
-    function Object_SearchForKeys(arr) {
-        var tmp, i = 0, args = "string" === typeof arr ? Slice.call(arguments) : arr;
-        for (i; i < args.length; i++) if ((tmp = Object_SearchForKey.apply(this, [ args[i] ])) !== undefined) return tmp;
-        return undefined;
-    }
-    function Object_setKeyValue(str, val, force) {
-        var index = 0, names = str.split("."), tmp = this;
-        for (index; index < names.length - 1; index++) {
-            if (typeof tmp[names[index]] === _undefined) if (force) tmp[names[index]] = {}; else return;
-            tmp = tmp[names[index]];
-        }
-        tmp[names[names.length - 1]] = val;
-    }
-    var props = {
-        SearchForKey: {
-            value: Object_SearchForKey,
-            enumerable: false
-        },
-        SearchForKeys: {
-            value: Object_SearchForKeys,
-            enumerable: false
-        },
-        setKeyValue: {
-            value: Object_setKeyValue,
-            enumerable: false
-        },
-        SearchForKeyI: {
-            value: Object_SearchForKeyCaseInsensitive,
-            enumerable: false
-        },
-        setKeyValueI: {
-            value: Object_setKeyValueCaseInsensitive,
-            enumerable: false
-        }
-    };
     var RealTypeOf = jMod.RealTypeOf = function(_obj) {
         var obj;
         try {
@@ -584,6 +602,9 @@
         return size;
     };
     var jConfig = jMod.Config = function(key, value) {
+        try {
+            if (jConfig.getScriptFileInfo && !ScriptInfo.gotFileInfo) ScriptInfo.getScriptFileInfo();
+        } catch (e) {}
         if (typeof value === _undefined) return "string" == typeof key ? jMod.Config.SearchForKey(key) : jMod.Config.SearchForKeys(key); else return jMod.Config.setKeyValue(key, value);
     };
     jMod.extend(jMod.Config, {
@@ -591,6 +612,7 @@
         scopeLock: false,
         secure: false,
         browser: jMod.Browser.getBrowser(),
+        getScriptFileInfo: true,
         script: {
             username: undefined,
             script_name: undefined
@@ -624,6 +646,9 @@
                 prefix: "jMod_",
                 engine: "GM_Storage"
             }
+        },
+        Language: {
+            Current: "en"
         },
         debug: false
     });
@@ -732,7 +757,17 @@
             }
             return o;
         }
-        return undefined;
+    });
+    jMod.API.ParseMetaData_Types.push(function(name, obj) {
+        if ("resource" == name.toLowerCase()) {
+            if ("object" !== typeof obj) obj = [ obj ];
+            var r, i = 0, o = {}, resource_patt = /^\s*([\w]+)\s+(.*?)\s*$/;
+            for (i; i < obj.length; i++) if (resource_patt.test(obj[i])) {
+                r = resource_patt.exec(obj[i]);
+                o[r[1]] = r[2];
+            }
+            return o;
+        }
     });
     jMod.API.ParseMetaData = function(headerBlock) {
         var tmp, key, i, r, o = {}, patt = /@([\S]+)\s+(.*?)$/i;
@@ -772,22 +807,32 @@
     };
     ScriptInfo.gotFileInfo = false;
     ScriptInfo.getScriptFileInfo = function() {
-        var callerScriptInfo;
-        var output = {};
-        if (ScriptInfo.gotFileInfo) return jConfig("script.script_file_info");
-        var e = new Error();
-        if (e.stack.indexOf(".user.js") == -1) return undefined;
-        var tStack = jMod.parseStack(e.stack.toString());
-        if (tStack.length > 0) for (var i = tStack.length - 1; i >= 0; i--) if ("" != tStack[i].fileName && "user.js" == tStack[i].fileExt.toLowerCase()) {
+        if (!jConfig.getScriptFileInfo) return;
+        if (ScriptInfo.gotFileInfo) return jConfig.script.script_file_info;
+        var i, tStack, callerScriptInfo, output = {}, e = new Error(), tStackStr = e.stack.toString();
+        if (tStackStr.indexOf("user.js") == -1) return;
+        tStack = jMod.parseStack(tStackStr);
+        if (tStack.length > 0) for (i = 0; i < tStack.length; i++) {
             callerScriptInfo = tStack[i];
-            output.userscript_file_name = callerScriptInfo.fileName;
-            output.userscript_file_path = callerScriptInfo.fullFileName;
-            ScriptInfo.gotFileInfo = true;
-            jConfig("script.script_file_info", output);
-            return output;
-            break;
+            if (_undefined === typeof jConfig.jMod_File_Path && [ "jmod.js", "jmod.min.js", "jmod.full.js", "jmod.min.expanded.js", "mujs.js", "mujs.min.js" ].indexOf(callerScriptInfo.fileName.toLowerCase()) != -1) {
+                jConfig.jMod_Full_File_Name = callerScriptInfo.fileName;
+                jConfig.jMod_File_Name = callerScriptInfo.fileName.substr(0, callerScriptInfo.fileName.length - 3);
+                jConfig.jMod_File_Path = callerScriptInfo.fullFileName;
+            }
+            if ("" != callerScriptInfo.fileName && "user.js" == callerScriptInfo.fileExt.toLowerCase()) {
+                ScriptInfo.gotFileInfo = true;
+                output = jConfig.script.script_file_info = {
+                    userscript_full_file_name: callerScriptInfo.fileName,
+                    userscript_file_name: callerScriptInfo.fileName.substr(0, callerScriptInfo.fileName.length - 8),
+                    userscript_file_path: callerScriptInfo.fullFileName,
+                    caller_lineNumber: callerScriptInfo.lineNumber,
+                    caller_functionName: callerScriptInfo.functionName
+                };
+                if (jMod.debug) jModLogInfo("ScriptInfo", "Get Script File Info Successful!!", output, callerScriptInfo);
+                return output;
+            }
         }
-        return undefined;
+        return;
     };
     Object.defineProperty(ScriptInfo, "InfoSet", {
         get: function() {
@@ -871,13 +916,94 @@
         return typeof r != _undefined ? r : ScriptInfo.set.apply(this, arguments);
     };
     if (_undefined == typeof jMod.Config.script.script_info && _undefined != typeof GM_info) ScriptInfo.set();
+    var StringFormat = function(str, arr) {
+        var i = -1;
+        function callback(exp, p0, p1, p2, p3, p4) {
+            if ("%%" == exp) return "%";
+            if (arr[++i] === undefined) return undefined;
+            var exp = p2 ? parseInt(p2.substr(1)) : undefined;
+            var base = p3 ? parseInt(p3.substr(1)) : undefined;
+            var val;
+            switch (p4) {
+              case "s":
+                val = arr[i];
+                break;
+
+              case "c":
+                val = arr[i][0];
+                break;
+
+              case "f":
+                val = parseFloat(arr[i]).toFixed(exp);
+                break;
+
+              case "p":
+                val = parseFloat(arr[i]).toPrecision(exp);
+                break;
+
+              case "e":
+                val = parseFloat(arr[i]).toExponential(exp);
+                break;
+
+              case "x":
+                val = parseInt(arr[i]).toString(base ? base : 16);
+                break;
+
+              case "d":
+                val = parseFloat(parseInt(arr[i], base ? base : 10).toPrecision(exp)).toFixed(0);
+            }
+            val = "object" == typeof val ? JSON.stringify(val) : val.toString(base);
+            var sz = parseInt(p1);
+            var ch = p1 && "0" == p1[0] ? "0" : " ";
+            while (val.length < sz) val = p0 !== undefined ? val + ch : ch + val;
+            return val;
+        }
+        var regex = /%(-)?(0?[0-9]+)?([.][0-9]+)?([#][0-9]+)?([scfpexd])/g;
+        return str.replace(regex, callback);
+    };
+    var Lang = jMod.Language = function(keys) {
+        var type, value, tmpLanguageObj = Lang.getLanguage(Lang.Current, true);
+        if (!tmpLanguageObj) return;
+        value = Object_SearchForKey.call(tmpLanguageObj, keys);
+        type = typeof value;
+        if (_undefined == type) {
+            if (Lang.Current === Lang.Default) return;
+            tmpLanguageObj = Lang.getLanguage(Lang.Default);
+            value = Object_SearchForKey.call(tmpLanguageObj, keys);
+            type = typeof value;
+            if (_undefined == type) return;
+        }
+        if (1 == arguments.length || "string" !== type) return value;
+        return StringFormat.call(StringFormat, value, Slice.call(arguments, 1));
+    };
+    Lang.Default = "en";
+    Object.defineProperty(Lang, "Current", {
+        get: function() {
+            try {
+                return jConfig.Language.Current;
+            } catch (e) {
+                return Lang.Default;
+            }
+        },
+        set: function(value) {
+            try {
+                if (_undefined !== typeof Lang.Names[value]) jConfig.Language.Current = value;
+            } catch (e) {}
+        }
+    });
+    Lang.Names = {};
+    Lang.getLanguage = function(name, revertToDefault) {
+        if (Lang.Names[name] !== undefined) return Lang[name];
+        if (revertToDefault) return Lang[Lang.Default];
+    };
+    Lang.Names.en = "English";
+    Lang.en = {};
+    Lang.Names.es = "Espanol";
+    Lang.es = {};
     jMod._call = function() {
         var type, tmp, arg0, arg1, length = arguments.length;
         try {
-            if (!ScriptInfo.gotFileInfo) ScriptInfo.getScriptFileInfo();
-        } catch (e) {}
-        try {
-            if (_undefined === typeof jMod.Config.script.script_info) ScriptInfo.get();
+            if (jConfig.getScriptFileInfo && !ScriptInfo.gotFileInfo) ScriptInfo.getScriptFileInfo();
         } catch (e) {}
         try {
             if (length > 0) {
@@ -1073,7 +1199,7 @@
             return el;
         }
     };
-    const validElementProps = [ "checked", "title", "async", "defer", "src", "onerror", "onload", "responseCallback", "value", "max", "min" ];
+    const validElementProps = [ "checked", "defaultValue", "title", "async", "defer", "src", "onerror", "onload", "responseCallback", "value", "max", "min" ];
     var createNewElement = jMod.Element.createNewElement = function(data) {
         var i, eventListeners = data.EventListeners || data.eventListeners, newElement = document.createElement(data.type || "div");
         if (data.id !== undefined) newElement.id = data.id;
@@ -1119,7 +1245,7 @@
         return;
     };
     function fireClick(el, bubbles, cancelable) {
-        if (document.createEvent) {
+        if (jMod.jQueryAvailable) $(el).click(); else if (document.createEvent) {
             var evt = document.createEvent("MouseEvents");
             evt.initEvent("click", bubbles || true, cancelable || true);
             el.dispatchEvent(evt);
@@ -1220,7 +1346,8 @@
             },
             ScopedConsoleCommand: function(command, value) {
                 var isFormatted = [ "debug", "log", "info", "warn", "error", "exception" ].indexOf(command) != -1 && "string" == typeof value && /(?:\%s|\%c|\%o|\%d|\%f|\%\.\df|\%i)/.test(value);
-                var ptr = isFormatted || _undefined != this.fb && _undefined != this.fb[command] ? this.fb : this.wc;
+                var ptr = isFormatted || _undefined != this.fb && _undefined != typeof this.fb[command] ? this.fb : this.wc;
+                if (_undefined == typeof ptr[command]) return false;
                 try {
                     switch (arguments.length) {
                       case 1:
@@ -1285,8 +1412,15 @@
 
                       case 16:
                         ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13], arguments[14], arguments[15]);
+                        break;
+
+                      default:
+                        return false;
                     }
-                } catch (e) {}
+                } catch (e) {
+                    return false;
+                }
+                return true;
             },
             ConsoleCommand: function(command, value) {
                 try {
@@ -1309,9 +1443,17 @@
                 if (output_type.level <= jConfig("API.log.verbosity_level")) this.ConsoleCommand.apply(this, [ output_type.value ].concat(Slice.call(arguments, 1)));
             },
             fmt: {
-                timePatt: "%.3fms",
                 time: "font-weight:bold;font-size:120%;color:red;",
-                stchange: "font-weight:bold;font-size:130%;color:blue;"
+                stchange: "font-weight:bold;font-size:130%;color:blue;",
+                iconStyle: 'font-size:175%;background-image:url("http://myuserjs.org/img/favicon/favicon.png");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;',
+                infoDefaultStyle: " ",
+                infoHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
+                infoTitleStyle: "color:#000;font-size:125%;",
+                infoTextStyle: "font-weight:bold;font-size:120%;color:blue;",
+                warningDefaultStyle: " ",
+                warningHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
+                warningTitleStyle: "color:#000;font-size:125%;",
+                warningTextStyle: "font-weight:bold;font-size:120%;color:red;"
             }
         };
         for (i = 0; i < msgList.length; i++) jMod.API.log[msgList[i][0]] = function(oType) {
@@ -1328,10 +1470,35 @@
         jMod.API.logFormatBuilder = function() {
             this.args = [];
             this.add = function(value, type, style) {
-                var isUndef = _undefined === typeof value;
+                var isUndef = _undefined === typeof value, origType = typeof type;
                 if (typeof type === _undefined) type = typeof value;
                 var fmtType;
                 switch (type) {
+                  case "d":
+                  case "%d":
+                    fmtType = "%d";
+                    break;
+
+                  case "i":
+                  case "%i":
+                    fmtType = "%i";
+                    break;
+
+                  case "f":
+                  case "%f":
+                    fmtType = "%.2f";
+                    break;
+
+                  case "number":
+                    if (parseInt(value) === value && value === +value) {
+                        fmtType = "%d";
+                        value = parseInt(value);
+                    } else {
+                        fmtType = "%.2f";
+                        value = parseFloat(value);
+                    }
+                    break;
+
                   case "s":
                   case "%s":
                     if ("\n" == value || " \n" == value) {
@@ -1350,9 +1517,12 @@
 
                   case "o":
                   case "%o":
+                    fmtType = "%o";
+                    break;
+
                   case "object":
                   default:
-                    fmtType = "%o";
+                    if (origType == _undefined && _undefined == typeof style) fmtType = ""; else fmtType = "%o";
                 }
                 this.args.push({
                     valueIsUndefined: isUndef,
@@ -1376,47 +1546,56 @@
     }();
     var jModError = function(e, title, message) {
         var errorDefaultStyle = "";
-        var ErrorIconURL = "http://myuserjs.org/img/favicon/favicon.png";
-        var errorIconStyle = 'font-size:175%;background-image:url("' + ErrorIconURL + '");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;';
         var errorHeaderStyle = 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;';
         var errorTitleStyle = "color:#000;font-size:125%;";
         var errorLineStyle = "color:blue;";
-        if (typeof e !== _undefined && null !== e) if (arguments.length <= 3) jMod.log.ScopedConsoleCommand.call(jMod.log, "error", "%c%s%cjMod Error%c - %c%s \n%s \n%c%s - %c(line %d)", errorDefaultStyle + errorIconStyle, "  ", errorDefaultStyle + errorHeaderStyle, " ", errorDefaultStyle + errorTitleStyle, title || " ", message || " ", errorDefaultStyle + " ", e.message, errorDefaultStyle + errorLineStyle, e.lineNumber, e); else jMod.log.ScopedConsoleCommand.call(jMod.log, "error", "%c%s%cjMod Error%c - %c%s \n%s \n%c%s - %c(line %d)", errorDefaultStyle + errorIconStyle, "  ", errorDefaultStyle + errorHeaderStyle, " ", errorDefaultStyle + errorTitleStyle, title || " ", message || " ", errorDefaultStyle + " ", e.message, errorDefaultStyle + errorLineStyle, e.lineNumber, e, arguments[3]); else jMod.log.ScopedConsoleCommand.apply(jMod.log, [ "error", "%c%s%cjMod Error%c - %c%s \n%s", errorDefaultStyle + errorIconStyle, "  ", errorDefaultStyle + errorHeaderStyle, " ", errorDefaultStyle + errorTitleStyle, title || " ", message || " " ].concat(Slice.call(arguments, 3)));
+        if (typeof e !== _undefined && null !== e) if (arguments.length <= 3) jMod.log.ScopedConsoleCommand.call(jMod.log, "error", "%c%s%cjMod Error%c - %c%s \n%s \n%c%s - %c(line %d)", errorDefaultStyle + jMod.log.fmt.iconStyle, "  ", errorDefaultStyle + errorHeaderStyle, " ", errorDefaultStyle + errorTitleStyle, title || " ", message || " ", errorDefaultStyle + " ", e.message, errorDefaultStyle + errorLineStyle, e.lineNumber, e); else jMod.log.ScopedConsoleCommand.call(jMod.log, "error", "%c%s%cjMod Error%c - %c%s \n%s \n%c%s - %c(line %d)", errorDefaultStyle + jMod.log.fmt.iconStyle, "  ", errorDefaultStyle + errorHeaderStyle, " ", errorDefaultStyle + errorTitleStyle, title || " ", message || " ", errorDefaultStyle + " ", e.message, errorDefaultStyle + errorLineStyle, e.lineNumber, e, arguments[3]); else jMod.log.ScopedConsoleCommand.apply(jMod.log, [ "error", "%c%s%cjMod Error%c - %c%s \n%s", errorDefaultStyle + jMod.log.fmt.iconStyle, "  ", errorDefaultStyle + errorHeaderStyle, " ", errorDefaultStyle + errorTitleStyle, title || " ", message || " " ].concat(Slice.call(arguments, 3)));
     };
-    var jModInfo = function(title) {
-        var infoDefaultStyle = "";
-        var infoIconURL = "http://myuserjs.org/img/favicon/favicon.png";
-        var infoIconStyle = 'font-size:175%;background-image:url("' + infoIconURL + '");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;';
-        var infoHeaderStyle = 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;';
-        var infoTitleStyle = "color:#000;font-size:125%;";
-        var exArgs = Slice.call(arguments, 1);
-        var fmtString = "%c%s%cjMod%c - %c%s";
-        var args = [];
-        if (exArgs.length > 0) fmtString += " \n%c";
-        for (var i = 0; i < exArgs.length; i++) if ("number" === typeof exArgs[i]) {
-            if (parseInt(exArgs[i]) === exArgs[i] && exArgs[i] === +exArgs[i] && exArgs[i] !== (0 | exArgs[i])) fmtString += "%.2f \n"; else fmtString += "%d \n";
-            args.push(exArgs[i]);
-        } else if ("string" === typeof exArgs[i]) {
-            fmtString += "%s \n";
-            args.push(exArgs[i]);
+    var jModLogWarning = function(title, text) {
+        if (jMod.log.OUTPUT_TYPES.WARNING.level > jConfig("API.log.verbosity_level")) return;
+        var i = 2, warningDefaultStyle = jMod.log.fmt.warningDefaultStyle, fmtBuild = new jMod.API.logFormatBuilder();
+        fmtBuild.add("  ", "%s", warningDefaultStyle + jMod.log.fmt.iconStyle);
+        fmtBuild.add("jMod Warning", "string", warningDefaultStyle + jMod.log.fmt.warningHeaderStyle);
+        if (_undefined !== typeof text) {
+            fmtBuild.add(" - ", "string", warningDefaultStyle);
+            fmtBuild.add(title || " ", "%s", warningDefaultStyle + jMod.log.fmt.warningTitleStyle);
+            fmtBuild.add(" \n", "string");
+            fmtBuild.add(text || "", "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle);
         } else {
-            fmtString += "%o\n";
-            args.push(exArgs[i]);
+            fmtBuild.add(" \n", "string");
+            fmtBuild.add(title || "", "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle);
         }
-        jMod.Info.apply(jMod.log, [ fmtString, infoDefaultStyle + infoIconStyle, "  ", infoDefaultStyle + infoHeaderStyle, " ", infoDefaultStyle + infoTitleStyle, title || " ", infoDefaultStyle + " " ].concat(args));
+        if (arguments.length > 2) fmtBuild.add(" \n", "string");
+        for (i; i < arguments.length; i++) fmtBuild.add(arguments[i]);
+        jMod.Warning.apply(jMod.log, fmtBuild.build());
+    };
+    var jModLogInfo = function(title, text) {
+        if (jMod.log.OUTPUT_TYPES.INFO.level > jConfig("API.log.verbosity_level")) return;
+        var i = 2, infoDefaultStyle = jMod.log.fmt.infoDefaultStyle, fmtBuild = new jMod.API.logFormatBuilder();
+        fmtBuild.add("  ", "%s", infoDefaultStyle + jMod.log.fmt.iconStyle);
+        fmtBuild.add("jMod", "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle);
+        if (_undefined !== typeof text) {
+            fmtBuild.add(" - ", "string", infoDefaultStyle);
+            fmtBuild.add(title || " ", "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle);
+            fmtBuild.add(" \n", "string");
+            fmtBuild.add(text || "", "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle);
+        } else {
+            fmtBuild.add(" \n", "string");
+            fmtBuild.add(title || "", "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle);
+        }
+        if (arguments.length > 2) fmtBuild.add(" \n", "string");
+        for (i; i < arguments.length; i++) fmtBuild.add(arguments[i]);
+        jMod.Info.apply(jMod.log, fmtBuild.build());
     };
     var jModLogTime = function(title, prefix, suffix) {
+        if (jMod.log.OUTPUT_TYPES.INFO.level > jConfig("API.log.verbosity_level")) return;
         var text = (prefix || "") + jMod.timeElapsed.toFixed(2) + "ms" + (suffix || "");
-        var infoDefaultStyle = " ";
-        var infoIconURL = "http://myuserjs.org/img/favicon/favicon.png";
-        var infoIconStyle = 'font-size:175%;background-image:url("' + infoIconURL + '");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;';
-        var infoHeaderStyle = 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;';
-        var infoTitleStyle = "color:#000;font-size:125%;";
+        var infoDefaultStyle = jMod.log.fmt.infoDefaultStyle;
         var fmtBuild = new jMod.API.logFormatBuilder();
-        fmtBuild.add("  ", "%s", infoDefaultStyle + infoIconStyle);
-        fmtBuild.add("jMod", "string", infoDefaultStyle + infoHeaderStyle);
+        fmtBuild.add("  ", "%s", infoDefaultStyle + jMod.log.fmt.iconStyle);
+        fmtBuild.add("jMod", "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle);
         fmtBuild.add(" - ", "string", infoDefaultStyle);
-        fmtBuild.add(title || " ", "%s", infoDefaultStyle + infoTitleStyle);
+        fmtBuild.add(title || " ", "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle);
         fmtBuild.add(" ", "string");
         fmtBuild.add(text, "%s", infoDefaultStyle + jMod.log.fmt.time);
         jMod.Info.apply(jMod.log, fmtBuild.build());
@@ -1510,18 +1689,219 @@
             }
         };
     };
-    var addStyle = jMod.API.addStyle = function(css) {
-        if (typeof css != _undefined && "" != css) if (typeof GM_addStyle !== _undefined) GM_addStyle(css); else if (heads = document.getElementsByTagName("head")) {
-            var style = document.createElement("style");
-            try {
-                style.innerHTML = css;
-            } catch (x) {
-                style.innerText = css;
+    jMod.Observer = function() {
+        this.filters = [];
+        this.addFilter = function(callback, data, fireOnce) {
+            this.filters.push({
+                callback: callback,
+                data: data,
+                fireOnce: true === fireOnce ? true : false
+            });
+        };
+        this.filterMutation = function(mutation) {
+            var filterData, _continue, tmp, x, i = 0;
+            for (i; i < this.filters.length; i++) {
+                filterData = this.filters[i].data;
+                _continue = false;
+                if (filterData.type) {
+                    if ("string" === typeof filterData.type) filterData.type = [ filterData.type ];
+                    if (filterData.type.indexOf(mutation.type) == -1) continue;
+                }
+                if ("object" === typeof filterData.target) {
+                    if (filterData.target.hasClass) {
+                        if ("string" === typeof filterData.target.hasClass) filterData.target.hasClass = [ filterData.target.hasClass ];
+                        for (x = 0; x < filterData.target.hasClass.length; x++) if (!hasClass(mutation.target, filterData.target.hasClass[x])) {
+                            _continue = true;
+                            break;
+                        }
+                        if (_continue) continue;
+                    }
+                    if (filterData.target.hasChildren) {
+                        if ("string" === typeof filterData.target.hasChildren) filterData.target.hasChildren = [ filterData.target.hasChildren ];
+                        for (x = 0; x < filterData.target.hasChildren.length; x++) {
+                            tmp = jMod.$$(filterData.target.hasChildren[x], mutation.target);
+                            if (!tmp || 0 == tmp.length) {
+                                _continue = true;
+                                break;
+                            }
+                        }
+                        if (_continue) continue;
+                    }
+                }
+                this.filters[i].callback(mutation, this);
+                if (this.filters[i].fireOnce) return;
             }
-            style.type = "text/css";
-            return heads[0].appendChild(style);
+        };
+        this.MutationObserver = new MutationObserver(function(mutations) {
+            for (var i = 0; i < mutations.length; i++) this.filterMutation(mutations[i]);
+        });
+        this.observe = function(target, config) {
+            this.MutationObserver.observe(target, config || {
+                childList: true,
+                attributes: true,
+                characterData: true,
+                subtree: true
+            });
+        };
+        this.disconnect = function() {
+            this.MutationObserver.disconnect();
+        };
+    };
+    jMod.FileSelector = function(data) {
+        var _this = this;
+        _this.events = {
+            change: []
+        };
+        if (data.onChange) _this.events.change.push(data.onChange);
+        _this.onChange = function(e) {
+            for (var i = 0; i < _this.events.change.length; i++) _this.events.change[i].call(this || _this || jMod, e, _this.files(), _this.value());
+        };
+        _this.click = function(bubbles, cancelable) {
+            return fireClick(_this.buttonTriggerElement, _undefined !== typeof bubbles ? bubbles : true, _undefined !== typeof cancelable ? cancelable : true);
+        };
+        _this.files = function() {
+            return _this.inputElement.files;
+        };
+        _this.value = function() {
+            return _this.inputElement.value;
+        };
+        var inputElementOpts = {
+            type: "input",
+            attributes: {
+                type: "file",
+                multiple: data.multiple ? true : false
+            },
+            style: {
+                position: "absolute",
+                opacity: "0",
+                "-ms-filter": "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)",
+                filter: "alpha(opacity=0)",
+                width: "0"
+            },
+            EventListeners: {
+                change: _this.onChange
+            }
+        };
+        if (data.defaultValue) inputElementOpts.defaultValue = data.defaultValue;
+        if (data.accept) inputElementOpts.attributes.accept = data.accept;
+        _this.inputElement = createNewElement(inputElementOpts);
+        var buttonTriggerElementOpts = {
+            type: "button",
+            EventListeners: {
+                click: function(e) {
+                    console.log("Button click triggered");
+                    var fileInput = this.previousSibling;
+                    fileInput.focus();
+                    fireClick(fileInput);
+                    eventCancel(e);
+                    return false;
+                }
+            }
+        };
+        if ("object" == typeof data.button) {
+            if (data.button.type) delete data.button.type;
+            if (data.button.EventListeners && data.button.EventListeners.click) delete data.button.EventListeners.click;
+            buttonTriggerElementOpts = jMod.extend(true, buttonTriggerElementOpts, data.button);
         }
-        return null;
+        _this.buttonTriggerElement = createNewElement(buttonTriggerElementOpts);
+        var formElementOpts = jMod.extend(true, data.form || {}, {
+            type: "form",
+            innerHTML: [ _this.inputElement, _this.buttonTriggerElement ]
+        });
+        _this.formElement = createNewElement(formElementOpts);
+        jMod.FileSelector.FileSelectorForms.push(_this.formElement);
+    };
+    jMod.FileSelector.FileSelectorForms = [];
+    jMod.FileSelector.FileReadSupport = function() {
+        return window.File && window.FileReader;
+    };
+    jMod.FileSelector.BlobSupport = function() {
+        return window.File && window.Blob;
+    };
+    jMod.FileSelector.ReadFileAsText = function(file, callback, error_callback) {
+        if (!jMod.FileSelector.FileReadSupport) {
+            if (jMod.debug) console.log("Error! No Support For File Reading!");
+            return false;
+        }
+        var r = new FileReader();
+        if (file) {
+            r.onload = function(e) {
+                return callback.call(this || jMod, e, e.target.result, file);
+            };
+            r.onerror = function(e) {
+                if (jMod.debug) console.log("Error reading file", file);
+                return (error_callback || callback)(e, undefined, file);
+            };
+            r.readAsText(file);
+            return true;
+        } else {
+            if (jMod.debug) console.log("Error reading file", file);
+            (error_callback || callback)(e, undefined, file);
+        }
+        return false;
+    };
+    jMod.FileSelector.ReadFileAsURL = function(file, callback, error_callback) {
+        if (!jMod.FileSelector.FileReadSupport) {
+            if (jMod.debug) console.log("Error! No Support For File Reading!");
+            return false;
+        }
+        var r = new FileReader();
+        if (file) {
+            r.onload = function(e) {
+                return callback.call(this || jMod, e, e.target.result, file);
+            };
+            r.onerror = function(e) {
+                if (jMod.debug) console.log("Error reading file", file);
+                return (error_callback || callback)(e, undefined, file);
+            };
+            r.readAsDataURL(file);
+            return true;
+        } else {
+            if (jMod.debug) console.log("Error reading file", file);
+            (error_callback || callback)(e, undefined, file);
+        }
+        return false;
+    };
+    jMod.FileSelector.ReadFileAsJSON = function(file, callback, error_callback) {
+        return jMod.FileSelector.ReadFileAsText(file, function(e, content, _file) {
+            if (content && "" != content) try {
+                return callback(e, JSON.parse(content), _file);
+            } catch (err) {
+                if (jMod.debug) console.log("Error! Cannot parse json file!", err, _file);
+                return (error_callback || callback)(e, undefined, _file);
+            } else {
+                if (jMod.debug) console.log("Error! JSON file is empty!", _file);
+                return (error_callback || callback)(e, undefined, _file);
+            }
+        });
+    };
+    var addStyle = jMod.API.addStyle = function(css) {
+        if (css && "" != css) {
+            if (typeof GM_addStyle !== _undefined) return GM_addStyle(css) || true;
+            var style, win = window || unsafeWindow, heads = win.document.getElementsByTagName("head");
+            if (heads) {
+                style = win.document.createElement("style");
+                try {
+                    style.innerHTML = css;
+                } catch (x) {
+                    style.innerText = css;
+                }
+                style.type = "text/css";
+                return heads[0].appendChild(style);
+            } else if (jMod.debug) jModLogWarning("jMod.API.addStyle", "Could not add css", css);
+        }
+    };
+    jMod.API.addStylesheet = function(url) {
+        var style, win = window || unsafeWindow, heads = win.document.getElementsByTagName("head");
+        if (heads) {
+            style = win.document.createElement("link");
+            style.setAttribute("rel", "stylesheet");
+            style.href = url;
+            return heads[0].appendChild(style);
+        } else if (jMod.debug) jModLogWarning("jMod.API.addStylesheet", "Could not add stylesheet", url);
+    };
+    jMod.API.importStylesheet = function(url) {
+        jMod.CSS = "@import url(" + url + ");\n";
     };
     jMod.API.addScript = function(js, src, id, type, async, defer) {
         var newScript, heads, data;
@@ -1605,6 +1985,102 @@
     jMod.deleteValue = function(key) {
         if ("GM_Storage" == jConfig("API.Storage.engine") && _undefined != typeof GM_deleteValue) return API.GM_Storage.deleteValue.apply(API.GM_Storage, arguments);
         return API.localStorage.deleteValue.apply(API.localStorage, arguments);
+    };
+    function customBase64Encode(inputStr) {
+        var bbLen = 3, enCharLen = 4, inpLen = inputStr.length, inx = 0, jnx, keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + "0123456789+/=", output = "", paddingBytes = 0;
+        var bytebuffer = new Array(bbLen), encodedCharIndexes = new Array(enCharLen);
+        while (inx < inpLen) {
+            for (jnx = 0; jnx < bbLen; ++jnx) if (inx < inpLen) bytebuffer[jnx] = 255 & inputStr.charCodeAt(inx++); else bytebuffer[jnx] = 0;
+            encodedCharIndexes[0] = bytebuffer[0] >> 2;
+            encodedCharIndexes[1] = (3 & bytebuffer[0]) << 4 | bytebuffer[1] >> 4;
+            encodedCharIndexes[2] = (15 & bytebuffer[1]) << 2 | bytebuffer[2] >> 6;
+            encodedCharIndexes[3] = 63 & bytebuffer[2];
+            paddingBytes = inx - (inpLen - 1);
+            switch (paddingBytes) {
+              case 1:
+                encodedCharIndexes[3] = 64;
+                break;
+
+              case 2:
+                encodedCharIndexes[3] = 64;
+                encodedCharIndexes[2] = 64;
+            }
+            for (jnx = 0; jnx < enCharLen; ++jnx) output += keyStr.charAt(encodedCharIndexes[jnx]);
+        }
+        return output;
+    }
+    jMod.API.getRemoteImageAsURL = function(url, mime, callback) {
+        if (_undefined == typeof GM_xmlhttpRequest) return;
+        var mimePatt = /Content-Type:\s*([^\s]+)/i;
+        if ("function" === typeof mime && _undefined === typeof callback) {
+            callback = mime;
+            mime = undefined;
+        }
+        return GM_xmlhttpRequest({
+            method: "GET",
+            url: url,
+            overrideMimeType: "text/plain; charset=x-user-defined",
+            onload: function(response) {
+                if (_undefined == typeof mime || null == mime || "" == mime) try {
+                    var rMime = mimePatt.exec(response.responseHeaders);
+                    if (rMime && rMime.length > 1) mime = rMime[1].trim();
+                } catch (e) {}
+                callback("data:" + (mime && "" != mime ? mime : "image/png") + ";base64," + customBase64Encode(response.responseText));
+            }
+        });
+    };
+    jMod.API.getResourceText = function(name, callback, useLiveOnFail) {
+        if (_undefined !== typeof GM_getResourceText) try {
+            var tmp = GM_getResourceText(name);
+            if (callback) callback(tmp);
+            return tmp;
+        } catch (e) {}
+        if (useLiveOnFail) return jMod.API.getResourceTextLive(name, callback);
+    };
+    jMod.API.getResourceURL = function(name, callback, useLiveOnFail) {
+        if (_undefined !== typeof GM_getResourceURL) try {
+            var tmp = GM_getResourceURL(name);
+            if (callback) callback(tmp);
+            return tmp;
+        } catch (e) {}
+        if (useLiveOnFail) return jMod.API.getResourceURLLive(name, callback);
+    };
+    jMod.API.getResourceTextLive = function(name, callback) {
+        if (_undefined == typeof GM_xmlhttpRequest) return;
+        var resourceObj = jConfig("script.script_info.resource");
+        if (resourceObj && _undefined !== typeof resourceObj[name]) return GM_xmlhttpRequest({
+            method: "GET",
+            url: resourceObj[name],
+            onload: function(response) {
+                callback(response.responseText);
+            }
+        });
+    };
+    jMod.API.getResourceURLLive = function(name, callback) {
+        var resourceObj = jConfig("script.script_info.resource");
+        if (resourceObj && _undefined !== typeof resourceObj[name]) return jMod.API.getRemoteImageAsURL(resourceObj[name], callback);
+    };
+    jMod.API.addResourceCSS = function(name) {
+        if (!jMod.API.getResourceText(name, function(result) {
+            if ("string" === typeof result && "" != result) jMod.CSS = result;
+        }, false)) {
+            var resourceObj = jConfig("script.script_info.resource");
+            if (resourceObj && _undefined !== typeof resourceObj[name]) jMod.API.addStylesheet(resourceObj[name]);
+        }
+    };
+    jMod.API.addResourceScript = function(name) {
+        if (!jMod.API.getResourceText(name, function(result) {
+            if ("string" === typeof result && "" != result) jMod.API.addScript({
+                js: result
+            });
+        }, false)) {
+            var resourceObj = jConfig("script.script_info.resource");
+            if (resourceObj && _undefined !== typeof resourceObj[name]) jMod.API.addScript({
+                src: resourceObj[name],
+                async: true,
+                defer: true
+            });
+        }
     };
     jMod.API.Date = function(command, args) {
         switch (command) {
@@ -2449,11 +2925,19 @@
             if (tabEl && isElement(tabEl)) return fireClick(tabEl.querySelector('a[data-toggle="tab"]'));
         }
     };
-    Tabs.resize = function(tabsNav) {
+    function waitForComputeableWidth(el, callback, count) {
+        var computedNav = (window || unsafeWindow).getComputedStyle(el, null);
+        if ((count || 0) < 20 && isNaN(parseInt(computedNav.width))) setTimeout(function(el, callback, count) {
+            waitForComputeableWidth(el, callback, count + 1);
+        }, 20, el, callback, count || 0); else callback(el, computedNav);
+    }
+    function resizeTabs(tabsNav, computedNav) {
         var tabsContent = tabsNav.parentElement.querySelector(".tab-content");
-        var computedNav = window.getComputedStyle(tabsNav, null);
-        var width = parseInt(computedNav.getPropertyValue("width"));
-        tabsContent.style.marginLeft = width + 11 + "px";
+        var width = parseInt(computedNav.width);
+        if (isNaN(width)) jModLogWarning("Tabs.resize", "Tab width is NaN!", tabsNav, tabsContent, computedNav); else if (width > 200) jModLogWarning("Tabs.resize", "Tab width too wide!", width, tabsNav); else if (width > 50) tabsContent.style.marginLeft = width + 11 + "px";
+    }
+    Tabs.resize = function(tabsNav) {
+        waitForComputeableWidth(tabsNav, resizeTabs);
     };
     jMod.Config.Modal = jMod.extend({
         enabled: true,
@@ -2774,7 +3258,7 @@
             jMod.Settings.__storedData = undefined;
             jMod.Settings.settingsModalElement = jMod.Settings.MakeSettingsModal(data);
             Settings.PrefTypes.onChange();
-            unsafeWindow.addEventListener("resize", jMod.Settings.onResize, false);
+            (window || unsafeWindow).addEventListener("resize", jMod.Settings.onResize, false);
             jMod.Settings.onResize();
         }
     };
@@ -2785,6 +3269,7 @@
     };
     Settings.get = function(prefName, noDefault) {
         var storedData = Settings._storedData;
+        if (_undefined === typeof prefName) return storedData;
         return storedData && storedData[prefName] !== undefined ? storedData[prefName] : true == noDefault ? undefined : Settings.getDefault(prefName);
     };
     Settings.set = function(prefName, value) {
@@ -3424,6 +3909,102 @@
             prefEl.setAttribute("disabled", "disabled");
         }
     });
+    var setBackgroundURI = function(el, uri, innerHTML) {
+        el.innerHTML = innerHTML || "";
+        el.style.backgroundImage = "url(" + uri + ")";
+        el.setAttribute("data-src", uri);
+        var bgimg = new Image();
+        bgimg.onload = function() {
+            var tmpHeight = parseInt(bgimg.naturalHeight) + "px";
+            var tmpWidth = parseInt(bgimg.naturalWidth) + "px";
+            if (!isNaN(bgimg.naturalHeight) && !isNaN(bgimg.naturalWidth)) {
+                if (parseInt(tmpHeight) > 300) {
+                    tmpHeight = "300px";
+                    tmpWidth = "100%";
+                    el.style.backgroundSize = "contain";
+                } else el.style.backgroundSize = "100% 100%";
+                el.style.height = tmpHeight;
+                el.style.width = tmpWidth;
+            }
+            bgimg.parentElement.removeChild(bgimg);
+        };
+        bgimg.style.position = "absolute";
+        bgimg.style.opacity = "0";
+        (window || unsafeWindow).document.body.appendChild(bgimg);
+        bgimg.src = uri;
+    };
+    Settings.PrefTypes.add("imagefile", {
+        make: function(data) {
+            var defaultValue = data["default"] || "";
+            var storedValue = Settings.get(data.name);
+            var currentValue = storedValue || defaultValue;
+            var hasValidValue = "string" === typeof currentValue && "" != currentValue ? true : false;
+            var fileSelector = new jMod.FileSelector({
+                multiple: false,
+                accept: "image/*",
+                button: {
+                    style: data.style,
+                    className: "btn btn-success",
+                    innerHTML: [ '<i class="fa ' + (data.buttonIcon || "fa-file-image-o") + '" style="margin-right:10px;"></i>', data.buttonText || "Select an Image" ],
+                    attributes: {
+                        type: "button"
+                    }
+                },
+                form: {
+                    className: "imagefile-form pref",
+                    attributes: {
+                        name: data.name,
+                        "data-jmod-settings-pref": data.name,
+                        "data-jmod-settings-pref-default": data["default"] || null
+                    }
+                },
+                onChange: function(e, files, value) {
+                    jMod.FileSelector.ReadFileAsURL(files[0], function(e, content, file) {
+                        var imgContainerEl = fileSelector.formElement.parentElement.lastChild;
+                        setBackgroundURI(imgContainerEl, content, "");
+                        Settings.PrefTypes.onChange(fileSelector.formElement.getAttribute("name"), content);
+                    }, function(e, content, file) {
+                        var imgContainerEl = fileSelector.formElement.parentElement.lastChild;
+                        setBackgroundURI(imgContainerEl, "", "No Preview");
+                        Settings.PrefTypes.onChange(fileSelector.formElement.getAttribute("name"), "");
+                    });
+                }
+            });
+            var opts = {
+                type: "div",
+                className: "pref-container",
+                innerHTML: [ fileSelector.formElement, createNewElement({
+                    type: "div",
+                    className: "image-preview-container",
+                    style: {},
+                    attributes: {},
+                    innerHTML: hasValidValue ? "" : "No Preview"
+                }) ]
+            };
+            if (Loading.DOMLoaded) setBackgroundURI(opts.innerHTML[1], hasValidValue ? currentValue : "", hasValidValue ? "" : "No Preview"); else setTimeout(setBackgroundURI, 150, opts.innerHTML[1], hasValidValue ? currentValue : "", hasValidValue ? "" : "No Preview");
+            if (_undefined != typeof data["tooltip"] && (_undefined != typeof data.tooltip["innerHTML"] || _undefined != typeof data.tooltip["text"])) opts.innerHTML[0] = setTooltipProperties(opts.innerHTML[0], data.tooltip);
+            return opts;
+        },
+        getValue: function(prefEl, data) {
+            try {
+                var imgContainerEl = prefEl.parentElement.lastChild;
+                return imgContainerEl.getAttribute("data-src");
+            } catch (e) {
+                return "";
+            }
+        },
+        setValue: function(prefEl, data, value) {
+            var imgContainerEl = prefEl.parentElement.lastChild;
+            setBackgroundURI(imgContainerEl, value, value && "" != value ? "" : "No Preview");
+            return true;
+        },
+        enable: function(prefEl, data) {
+            if (prefEl.hasAttribute("disabled")) prefEl.removeAttribute("disabled");
+        },
+        disable: function(prefEl, data) {
+            prefEl.setAttribute("disabled", "disabled");
+        }
+    });
     function setTooltipProperties(obj, data) {
         if (!isElement(obj)) {
             obj.className = (obj.className || "") + " " + jConfig(Tooltip_TooltipTargetClass_Key);
@@ -3607,6 +4188,22 @@
             className: jConfig(Settings_ModalElementClass_Key),
             body: settingsBody,
             footer: [ {
+                type: "span",
+                className: "powered-by",
+                innerHTML: {
+                    type: "a",
+                    innerHTML: [ {
+                        type: "img",
+                        src: "http://myuserjs.org/img/favicon/favicon.png",
+                        attributes: {
+                            height: "16px"
+                        }
+                    }, "Powered by jMod" ],
+                    attributes: {
+                        href: "http://doc.myuserjs.org"
+                    }
+                }
+            }, {
                 type: "a",
                 innerHTML: "Clear Settings",
                 className: "btn-clear-settings",
@@ -3622,22 +4219,6 @@
                             eventCancel(e);
                             return false;
                         }
-                    }
-                }
-            }, {
-                type: "span",
-                className: "powered-by",
-                innerHTML: {
-                    type: "a",
-                    innerHTML: [ {
-                        type: "img",
-                        src: "http://myuserjs.org/img/favicon/favicon.png",
-                        attributes: {
-                            height: "16px"
-                        }
-                    }, "Powered by jMod" ],
-                    attributes: {
-                        href: "http://doc.myuserjs.org"
                     }
                 }
             } ],
@@ -3676,9 +4257,9 @@
         var computedDialog = unsafeWindow.getComputedStyle(settingsDialog, null);
         var marginTop = parseInt(computedDialog.getPropertyValue("margin-top"));
         var marginBottom = parseInt(computedDialog.getPropertyValue("margin-bottom"));
-        var maxHeight = viewportHeight - parseInt(settingsHeader.offsetHeight) - parseInt(settingsFooter.offsetHeight) - marginTop - marginBottom;
+        var maxHeight = parseInt(viewportHeight) - parseInt(settingsHeader.offsetHeight) - parseInt(settingsFooter.offsetHeight) - marginTop - marginBottom - 1;
         settingsBody.style.maxHeight = maxHeight + "px";
-        var settingsTabs = jMod.$(".nav.nav-tabs", settingsBody);
+        var settingsTabs = jMod.$(".nav-tabs", settingsBody);
         jMod.Tabs.resize(settingsTabs);
     };
     Settings.show = function() {
@@ -3703,7 +4284,7 @@
     Settings.init = function() {
         Settings.Initialized = true;
     };
-    jMod.CSS = '.jmod-na .modal-body{min-height:200px;max-height:500px;overflow-y:auto;}.jmod-na .powered-by{font-family:"Sansation",Lato;font-weight:300;font-size:16px;position:absolute;left:0;text-align:center;width:100%;bottom:0;padding-bottom:5px;}.jmod-na .powered-by > a:link,.jmod-na .powered-by > a:visited,.jmod-na .powered-by > a:hover,.jmod-na .powered-by > a:active{text-decoration:none;color:#000;}.jmod-na .powered-by img{margin-right:3px;}.jmod-na .noselect{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}.jmod-na .noselect::selection{background:transparent;}.jmod-na .noselect::-moz-selection{background:transparent;}';
+    jMod.CSS = '.jmod-na .modal-body{min-height:200px;max-height:500px;overflow-y:auto;}.jmod-na .powered-by{font-family:"Sansation",Lato;font-weight:300;font-size:16px;position:absolute;left:0;text-align:center;width:100%;bottom:0;padding-bottom:5px;}.jmod-na .powered-by > a:link,.jmod-na .powered-by > a:visited,.jmod-na .powered-by > a:hover,.jmod-na .powered-by > a:active{text-decoration:none;color:#000;}.jmod-na .powered-by img{margin-right:3px;}.jmod-na .noselect{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}.jmod-na .noselect::selection{background:transparent;}.jmod-na .noselect::-moz-selection{background:transparent;}.jmod-na .imagefile-form{display:inline-block;vertical-align:top;}.jmod-na .imagefile-form > button{margin-right:10px;}.jmod-na .image-preview-container{display:inline-flex;color:rgba(0,0,0,0.7);background-repeat:no-repeat;background-position:center center;background-size:100% 100%;max-width:100%;min-width:35px;min-height:35px;max-height:300px;border:solid 1px #000000;padding:5px;text-align:center;vertical-align:center center;align-items:center;justify-content:center;}';
     jMod.getDOMTiming = function() {
         var _timingData, timingData = {};
         try {
@@ -3992,7 +4573,7 @@
         };
         var defaultFilter = function(message, url, linenumber, colNumber, eObj, stackInfo) {
             try {
-                if (jConfig("script.script_info.userscript_file_name") == stackInfo[0].fileName) {
+                if (jConfig("script.script_info.userscript_full_file_name") == stackInfo[0].fileName) {
                     console.log("Error is from userscript!");
                     switch (eObj.name) {
                       case "EvalError":
@@ -4103,17 +4684,9 @@
             return false;
         };
     };
+    if (_undefined == typeof jMod.Config.script.script_info && _undefined != typeof GM_info) ScriptInfo.set();
     +function() {
-        if (typeof GM_info !== _undefined && !ScriptInfo.InfoSet) {
-            jMod.log.Debug("GM_info", GM_info);
-            jMod({
-                GM_info: GM_info,
-                has_GM_info: typeof GM_info !== _undefined ? true : false,
-                has_GM_getMetadata: typeof GM_getMetadata !== _undefined ? true : false
-            });
-        }
-        var pageLoadTime;
-        var totalCallCount = 0;
+        var pageLoadTime, totalCallCount = 0;
         const maxCallCount = 200;
         var InitHandlers = {
             DOMLoaded: function() {
@@ -4167,6 +4740,7 @@
                 if (!Loading.DOMLoaded) InitHandlers.DOMLoaded();
                 if (!Loading.documentComplete) InitHandlers.documentComplete();
                 if (!Loading.performanceReady) InitHandlers.performanceReady();
+                if (jMod.debug) jModLogTime("jMod Finish Init");
                 return;
             }
             totalCallCount++;
@@ -4175,7 +4749,6 @@
         function checkTimer() {
             if (!Loading.Complete) tryInit("checkTimer"); else clearInterval(checkTimer);
         }
-        setInterval(checkTimer, 40);
         window.addEventListener("DOMContentLoaded", function(e) {
             if (!Loading.Complete) tryInit("DOMContentLoaded");
             jMod.Events.fire.apply(jMod.Events, [ "DOMContentLoaded", {
@@ -4215,10 +4788,11 @@
         }
         window.addEventListener("afterscriptexecute", AfterScriptExec, false);
         tryInit();
+        setInterval(checkTimer, 25);
     }();
     if (performance.available) setTimeout(function() {
         jMod.InitializeEndTime = performance.now;
     }, 0);
-    jModLogTime("jMod Initialize Time Elapsed");
+    if (jMod.debug) jModLogTime("jMod Initialize Time Elapsed");
     return jMod;
-}("undefined" != typeof window.performance ? window.performance.now() : 0, "undefined" != typeof jQuery ? jQuery : void 0, console, "undefined" != typeof unsafeWindow ? unsafeWindow : "undefined" !== typeof window ? window : this, "undefined"));
+}("undefined" !== typeof window.performance ? window.performance.now() : 0, "undefined" !== typeof jQuery ? jQuery : void 0, console, window, "undefined" !== typeof unsafeWindow ? unsafeWindow : "undefined" !== typeof window ? window : this, "undefined"));

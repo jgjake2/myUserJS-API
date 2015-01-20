@@ -277,6 +277,21 @@ var SettingsTest = function(){
 				section: 'Other',
 				type: 'input'
 			},
+			
+			{
+				name: 'Image File',
+				description: 'Image File description',
+				buttonText: 'Select an Image...',
+				buttonIcon: 'fa-file-o ',
+				tooltip: {
+					innerHTML: 'Image File Tooltip',
+					placement: 'left'
+				},
+				tab: 'Tab Name 2',
+				section: 'Other',
+				type: 'imagefile',
+				'default': ''
+			},
 		],
 		tabs: [
 			// (optional) Additional Custom tab
@@ -308,7 +323,7 @@ var SettingsTest = function(){
 		// (optional) Change the order of the tabs. Tabs left out will be added after in the order they are referenced by your settings
 		tabOrder: ['About', 'Tab Name 1'],
 		// (optional) Set the active tab
-		activeTab: 'Tab Name 1',
+		activeTab: 'Tab Name 2',
 		// (optional) callback that fires before the settings dialog closes
 		onBeforeHide: function(e){
 			console.log('Settings on before hide');

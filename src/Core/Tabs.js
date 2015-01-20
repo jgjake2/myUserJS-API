@@ -1,5 +1,6 @@
 // +@display_name  Tooltip
 // +@history (0.0.15) History begins.
+// +@history (0.0.17) Fix resizing bug that causes content to disappear when tab width is not computable or too large.
 
 /**
  * Tabs Configuration Options
@@ -211,9 +212,29 @@ Tabs.show = function(tabGroup, tab){
 	}
 }
 
-Tabs.resize = function(tabsNav){
+function waitForComputeableWidth(el, callback, count){
+	var computedNav = (window || unsafeWindow).getComputedStyle(el, null);
+	if((count || 0) < 20 && isNaN(parseInt(computedNav.width))){
+		setTimeout(function(el, callback, count){
+			waitForComputeableWidth(el, callback, count + 1);
+		}, 20, el, callback, count || 0);
+	} else {
+		callback(el, computedNav);
+	}
+}
+
+function resizeTabs(tabsNav, computedNav){
 	var tabsContent = tabsNav.parentElement.querySelector('.tab-content');
-	var computedNav = window.getComputedStyle(tabsNav, null);
-	var width = parseInt(computedNav.getPropertyValue('width'));
-	tabsContent.style.marginLeft = (width + 11) + 'px';
+	//var width = parseInt(computedNav.getPropertyValue('width'));
+	var width = parseInt(computedNav.width);
+	if(isNaN(width))
+		jModLogWarning('Tabs.resize', 'Tab width is NaN!', tabsNav, tabsContent, computedNav);
+	else if(width > 200)
+		jModLogWarning('Tabs.resize', 'Tab width too wide!', width, tabsNav);
+	else if(width > 50)
+			tabsContent.style.marginLeft = (width + 11) + 'px';
+}
+
+Tabs.resize = function(tabsNav){
+	waitForComputeableWidth(tabsNav, resizeTabs);
 }

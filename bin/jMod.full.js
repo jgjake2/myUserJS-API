@@ -163,10 +163,11 @@
 	if(jMod.debug){
 		jMod.log.groupEnd('jMod Initialize');
 	}
+	window.focus();
 }.call(
 	this,
 	"undefined"!==typeof unsafeWindow?unsafeWindow:("undefined"!==typeof window?window:this),
-function(initStart, $, console, unsafeWindow, _undefined, undefined){
+function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	/**
 	 * Calls jMod._call with the given arguments
 	 * @global
@@ -178,32 +179,38 @@ function(initStart, $, console, unsafeWindow, _undefined, undefined){
 	 * // Get the current value of script.username
 	 * jMod('get', 'script.username')
 	 */
-	var jMod = function(args){return jMod._call.apply(jMod, arguments);};
+	var jMod = function(){return jMod._call.apply(jMod, arguments);};
 	jMod.InitializeStartTime = initStart;
 	jMod.InitializeEndTime = -1;
-	
 	
 	/**
 	 * API Namespace
 	 * @memberOf! jMod
 	 * @namespace jMod.API
 	 */
-	var API = jMod.API = {};
-	var jModReady = -1,
+	var API = jMod.API = {},
 		Slice = Array.prototype.slice,
 		_jQueryAvailable = _undefined!=typeof $?true:false,
-		_css = "@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n"
-		+ (false ? "@import url(//test2.myuserjs.org/css/smartadmin-production-all-namespaced.css);\n" : "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n")
+		jModReady = -1,
+		//(false ? "@import url(//test2.myuserjs.org/css/smartadmin-production-all-namespaced.css);\n" : "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n")
+		_css = "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n"
+		+"@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n"
 		+"@font-face {font-family: 'Sansation';font-style: normal;font-weight: 400;src: local('Sansation Regular'), local('Sansation-Regular'), url(http://myuserjs.org/fonts/Sansation-Regular.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: normal;font-weight: 300;src: local('Sansation Light'), local('Sansation-Light'), url(http://myuserjs.org/fonts/Sansation-Light.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 300;src: local('Sansation Light Italic'), local('Sansation-LightItalic'), url(http://myuserjs.org/fonts/Sansation-LightItalic.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: normal;font-weight: 700;src: local('Sansation Bold'), local('Sansation-Bold'), url(http://myuserjs.org/fonts/Sansation-Bold.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 400;src: local('Sansation Italic'), local('Sansation-Italic'), url(http://myuserjs.org/fonts/Sansation-Italic.ttf) format('ttf');}\n"
-		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 700;src: local('Sansation Bold Italic'), local('Sansation-BoldItalic'), url(http://myuserjs.org/fonts/Sansation-BoldItalic.ttf) format('ttf');}\n";
+		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 700;src: local('Sansation Bold Italic'), local('Sansation-BoldItalic'), url(http://myuserjs.org/fonts/Sansation-BoldItalic.ttf) format('ttf');}\n",
+		CurrentRunningScript = {
+			id: 'jMod',
+			config: {},
+			el: unsafeWindow.document&&unsafeWindow.document.currentScript?unsafeWindow.document.currentScript:undefined
+		}
+		
 	var DefineLockedProp = function(name, value, target, en){
 		var opts = {
 			configurable: false,
-			enumerable: (_undefined!=typeof en?en:true)
+			enumerable: en===false?en:true
 		}
 		if(typeof value === "function")
 			opts.get = value;
@@ -213,11 +220,7 @@ function(initStart, $, console, unsafeWindow, _undefined, undefined){
 		}
 		Object.defineProperty(target || jMod, name, opts);
 	}
-	var CurrentRunningScript = {
-		id: 'jMod',
-		config: {},
-		el: unsafeWindow.document&&unsafeWindow.document.currentScript?unsafeWindow.document.currentScript:undefined
-	}
+
 	
 	DefineLockedProp('ScriptElement', function(){return (CurrentRunningScript.el ? CurrentRunningScript : undefined);});
 	
@@ -235,7 +238,7 @@ function(initStart, $, console, unsafeWindow, _undefined, undefined){
 	 * @memberOf! jMod
 	 * @type {string}
 	 */
-	DefineLockedProp('build_time', '1421098235000');
+	DefineLockedProp('build_time', '1421789040000');
 	
 	/**
 	 * Current build type (beta|release)
@@ -243,7 +246,7 @@ function(initStart, $, console, unsafeWindow, _undefined, undefined){
 	 * @memberOf! jMod
 	 * @type {string}
 	 */
-	DefineLockedProp('build_type', 'beta');
+	DefineLockedProp('build_type', 'release');
 	
 	/**
 	 * Is debug mode enabled
@@ -398,19 +401,193 @@ var performance = new function(){
 	/***********************************
 	 ** Functions/Classes/Prototypes
 	 **********************************/
+function getFirstValidKey(obj, arr, filter){
+	var hasFilter = (typeof filter === "function" ? true : false);
+	var args = arr;
+	if(typeof arr !== "object"){
+		args = Slice.call(arguments, 1);
+		hasFilter = false;
+	}
+	for(var i = 0; i < args.length; i++){
+		if(typeof obj[args[i]] !== _undefined){
+			if(!hasFilter || (hasFilter && filter(args[i], obj[args[i]])))
+				return args[i];
+		}
+	}
+	return undefined;
+}
+
+function getFirstValidKeyValue(obj, arr, filter){
+	var key = getFirstValidKey.apply(this, arguments);
+	if(typeof key !== _undefined)
+		return obj[key];
+	return undefined;
+}
+
+function Object_SearchForKey(str){
+	var i = 0, tmp = this, names = str.split('.');
+	for(i; i < names.length; i++){
+		if(typeof tmp[names[i]] === _undefined) return undefined;
+		tmp = tmp[names[i]];
+	}
+	return tmp;
+}
+
+function Object_SearchForKeyCaseInsensitive(str){
+	var x, i = 0, tmp = this, names = str.split('.');
+	if(names.length == 0) return undefined;
+	for(i; i < names.length; i++){
+		
+		if( (x = (Object.keys(tmp).join('|').toLowerCase().split('|')).indexOf(names[i].toLowerCase())) != -1 )
+			tmp = tmp[Object.keys(tmp)[x]];
+		else
+			return undefined;
+	}
+	return tmp;
+}
+
+function Object_setKeyValueCaseInsensitive(str, val){
+	var parent, x, i = 0, names = str.split('.'), tmp = this;
+	if(names.length == 0) return undefined;
+	for(i; i < names.length; i++){
+		if( (x = (Object.keys(tmp).join('|').toLowerCase().split('|')).indexOf(names[i].toLowerCase())) != -1 ){
+			parent = tmp;
+			names[i] = Object.keys(tmp)[x];
+			tmp = tmp[Object.keys(tmp)[x]];
+		} else
+			return undefined;
+	}
+	parent[names[names.length - 1]] = val;
+	return names;
+}
+
+function Object_SearchForKeys(arr){
+	var tmp, i = 0, args = ("string"===typeof arr?Slice.call(arguments):arr);
+	for(i; i < args.length; i++){
+		if((tmp = Object_SearchForKey.apply(this, [args[i]])) !== undefined)
+			return tmp;
+	}
+	return undefined;
+}
+
+function Object_setKeyValue(str, val, force){
+	var index = 0, names = str.split('.'), tmp = this;
+	for(index; index < names.length -1; index++){
+		if(typeof tmp[names[index]] === _undefined) {
+			if(force)
+				tmp[names[index]] = {};
+			else
+				return;
+		}
+		tmp = tmp[names[index]];
+	}
+	tmp[names[names.length - 1]] = val;
+	//return this;
+}
+
+var props = {
+	SearchForKey: {value: Object_SearchForKey, enumerable: false},
+	SearchForKeys: {value: Object_SearchForKeys, enumerable: false},
+	setKeyValue: {value: Object_setKeyValue, enumerable: false},
+	
+	SearchForKeyI: {value: Object_SearchForKeyCaseInsensitive, enumerable: false},
+	setKeyValueI: {value: Object_setKeyValueCaseInsensitive, enumerable: false}
+};
+function mCloneInto(obj, scope, args){
+	if(typeof cloneInto !== _undefined){
+		try{
+			// Should work 99% of the time, unless there is a scope-locked property like an error event object from a privileged userscript
+			return cloneInto(obj, scope, args);
+		}catch(e){}
+		
+		// Very crude, will clean up later with some recursion
+		// If it fails, copy it piece-by-piece excluding any properties that fail to copy cleanly.
+		var i, type, tmp = {};
+		/*
+		var i, type, cloneCount = 0;
+		while(typeof (scope || unsafeWindow)["tmpCloneObj" + cloneCount] != _undefined){
+			cloneCount++;
+		}
+		var tmp = (typeof createObjectIn !== "undefined" ? createObjectIn(scope || unsafeWindow, {defineAs: "tmpCloneObj" + cloneCount}) : {});
+		*/
+		for(i in obj){
+			if(Object.prototype.hasOwnProperty.call(obj, i)){
+				type = typeof obj[i];
+				// Copy strings, numbers, and booleans normally
+				if(["string", "number", "boolean"].indexOf(type)){
+					try{
+						tmp[i] = cloneInto(obj[i], scope, args);
+					}catch(e){}
+				// Copy objects by doing a "shallow" copy of its properties
+				} else if(type == "object"){
+					// Check if obj[i] is an array
+					// Don't risk checking its constructor, just look for length property
+					if(typeof obj[i].length !== "number"){
+						tmp[i] = {};
+						for(var x in obj[i]){
+							try{
+								if(Object.prototype.hasOwnProperty.call(obj[i], x)){
+									tmp[i][x] = cloneInto(obj[i][x], scope, args);
+								}
+							}catch(e){}
+						}
+					} else {
+						tmp[i] = [];
+						for(var x = 0; x < obj[i].length; x++){
+							try{
+								tmp[i].push(cloneInto(obj[i][x], scope, args));
+							}catch(e){
+								tmp[i].push(undefined);
+							}
+						}
+					}
+				}
+			}
+		}
+		try{
+			return cloneInto(tmp, scope, args);
+		}catch(e){
+			//return tmp;
+		}
+	} else {
+		// Manually clone object
+		// ToDo
+	}
+	// If everything fails, return the original object
+	return obj;
+}
+function mExportFunction(func, scope, args){
+	if(typeof exportFunction !== _undefined){
+		try{
+			return exportFunction(func, scope, args);
+		}catch(e){}
+	}
+	var name = '';
+	if(typeof args === _undefined) args = {};
+	if(typeof args.defineAs !== _undefined)
+		name = args.defineAs;
+	else if(typeof func === "function" && func.name != '')
+		name = func.name
+	if(name == '') return;
+	try{
+		scope[name] = func;
+		return scope[name];
+	}catch(e){}
+}
 jMod.parseStack = function(stackText){
 	var o = [];
 	//var anonFunctionPatt = /\@((?:https?\:\/\/)?[^\s\:]+).*?([^\:\s]*)?\:(\d+)(?:\:(\d+))?\s*$/gi;
-	var stackPatt = /([^\s]*)\@file\:\/\/\/([^\s]+?(?:\/([^\/]+?\.(user\.js|js|json|php)))?):(\d+)(?:\:(\d+))?/gi;
+	var stackPatt = /(([^\s]*)\@file\:\/\/\/([^\s]+?(?:\/([^\/]+?\.(user\.js|js|json|php|htm|html|asp)))?):(\d+)(?:\:(\d+))?)/gi;
 	var match;
 	while ((match = stackPatt.exec(stackText)) != null) {
 		var tmp = {
-			functionName: match[1],
-			fullFileName: match[2],
-			fileName: match[3],
-			fileExt: match[4],
-			lineNumber: match[5],
-			columnNumber: match[6]
+			line: match[1],
+			functionName: match[2],
+			fullFileName: match[3],
+			fileName: match[4],
+			fileExt: match[5],
+			lineNumber: match[6],
+			columnNumber: match[7]
 		};
 		o.push(tmp);
 	}
@@ -649,28 +826,14 @@ var URLBuilder = jMod.URLBuilder = function(input){
 	// Parse Stack
 
 	
-	function getFirstValidKey(obj, arr, filter){
-		var hasFilter = (typeof filter === "function" ? true : false);
-		var args = arr;
-		if(typeof arr !== "object"){
-			args = Slice.call(arguments, 1);
-			hasFilter = false;
-		}
-		for(var i = 0; i < args.length; i++){
-			if(typeof obj[args[i]] !== _undefined){
-				if(!hasFilter || (hasFilter && filter(args[i], obj[args[i]])))
-					return args[i];
-			}
-		}
-		return undefined;
-	}
+	// ExportFunction
+
 	
-	function getFirstValidKeyValue(obj, arr, filter){
-		var key = getFirstValidKey.apply(this, arguments);
-		if(typeof key !== _undefined)
-			return obj[key];
-		return undefined;
-	}
+	// CloneInto
+
+	
+	// Object Prototypes
+
 	
 	function eventCancel(e){
 		if(!e)
@@ -684,133 +847,6 @@ var URLBuilder = jMod.URLBuilder = function(input){
 		if(window.event) e.returnValue = false;
 		if(e.cancel != null) e.cancel = true;
 	}
-
-	function mExportFunction(func, scope, args){
-		if(typeof exportFunction !== _undefined){
-			exportFunction(func, scope, args);
-		} else {
-			var name;
-			if(typeof args === _undefined) args = {};
-			if(typeof args.defineAs !== _undefined) {
-				name = args.defineAs;
-			} else if(typeof func === "function" && func.name != ''){
-				name = func.name
-			}
-			scope[name || ''] = func;
-		}
-	}
-	/*
-	function mCloneInto(obj, scope, args){
-		if(typeof cloneInto !== _undefined){
-			return cloneInto(obj, scope, args);
-		} else {
-			// Todo
-			return obj;
-		}
-	}
-	*/
-	
-	function mCloneInto(obj, scope, args){
-		if(typeof cloneInto !== _undefined){
-			try{
-				return cloneInto(obj, scope, args);
-			}catch(e){}
-			
-			var tmp = {};
-			//tmp = jMod.extend(tmp, obj);
-			for(var i in obj){
-				if(Object.prototype.hasOwnProperty.call(obj, i)){
-					if(["string", "number"].indexOf(typeof obj[i])){
-						try{
-							tmp[i] = cloneInto(obj[i], scope, args);
-						}catch(e){}
-					} else if(typeof obj[i] == "object"){
-						tmp[i] = {};
-						for(var x in obj[i]){
-							try{
-								if(Object.prototype.hasOwnProperty.call(obj[i], x)){
-									tmp[i][x] = cloneInto(obj[i][x], scope, args);
-								}
-							}catch(e){}
-						}
-					}
-				}
-			}
-			//return tmp;
-			return cloneInto(tmp, scope, args);
-		}
-		
-	}
-	
-	function Object_SearchForKey(str){
-		var i = 0, tmp = this, names = str.split('.');
-		for(i; i < names.length; i++){
-			if(typeof tmp[names[i]] === _undefined) return undefined;
-			tmp = tmp[names[i]];
-		}
-		return tmp;
-	}
-	
-	function Object_SearchForKeyCaseInsensitive(str){
-		var x, i = 0, tmp = this, names = str.split('.');
-		if(names.length == 0) return undefined;
-		for(i; i < names.length; i++){
-			
-			if( (x = (Object.keys(tmp).join('|').toLowerCase().split('|')).indexOf(names[i].toLowerCase())) != -1 )
-				tmp = tmp[Object.keys(tmp)[x]];
-			else
-				return undefined;
-		}
-		return tmp;
-	}
-	
-	function Object_setKeyValueCaseInsensitive(str, val){
-		var parent, x, i = 0, names = str.split('.'), tmp = this;
-		if(names.length == 0) return undefined;
-		for(i; i < names.length; i++){
-			if( (x = (Object.keys(tmp).join('|').toLowerCase().split('|')).indexOf(names[i].toLowerCase())) != -1 ){
-				parent = tmp;
-				names[i] = Object.keys(tmp)[x];
-				tmp = tmp[Object.keys(tmp)[x]];
-			} else
-				return undefined;
-		}
-		parent[names[names.length - 1]] = val;
-		return names;
-	}
-	
-	function Object_SearchForKeys(arr){
-		var tmp, i = 0, args = ("string"===typeof arr?Slice.call(arguments):arr);
-		for(i; i < args.length; i++){
-			if((tmp = Object_SearchForKey.apply(this, [args[i]])) !== undefined)
-				return tmp;
-		}
-		return undefined;
-	}
-	
-	function Object_setKeyValue(str, val, force){
-		var index = 0, names = str.split('.'), tmp = this;
-		for(index; index < names.length -1; index++){
-			if(typeof tmp[names[index]] === _undefined) {
-				if(force)
-					tmp[names[index]] = {};
-				else
-					return;
-			}
-			tmp = tmp[names[index]];
-		}
-		tmp[names[names.length - 1]] = val;
-		//return this;
-	}
-
-	var props = {
-		SearchForKey: {value: Object_SearchForKey, enumerable: false},
-		SearchForKeys: {value: Object_SearchForKeys, enumerable: false},
-		setKeyValue: {value: Object_setKeyValue, enumerable: false},
-		
-		SearchForKeyI: {value: Object_SearchForKeyCaseInsensitive, enumerable: false},
-		setKeyValueI: {value: Object_setKeyValueCaseInsensitive, enumerable: false}
-	};
 	
 	/***********************************
 	 ** Types/TypeOf
@@ -1316,6 +1352,7 @@ jMod.extendp = function() {
 	 * @property {boolean} scopeLock
 	 * @property {boolean} secure
 	 * @property {object} browser
+	 * @property {boolean} getScriptFileInfo - Enable / Disable getting information about the userscript file
 	 * @property {object} script
 	 * @property {string} script.username       - Owner's username hosted on myUserJS
 	 * @property {string} script.script_name    - Script's short-name (can be fount in script's hosted URL on myUserJS)
@@ -1339,10 +1376,14 @@ jMod.extendp = function() {
 	 * @property {object} API.Storage
 	 * @property {string} API.Storage.prefix - Prefix for all stored values
 	 * @property {string} API.Storage.engine - Default storage engine [GM_Storage or localStorage] (Will default to localStorage when GM_Storage is not available)
+	 * @property {object} Language
+	 * @property {string} Language.Current - Current language
 	 * @property {boolean} debug
 	 * @example
 	 * // Get the current value of script.username
 	 * jMod('get', 'script.username')
+	 * // or
+	 * jMod('script.username')
 	 * // or
 	 * jMod.Config('script.username');
 	 * // or
@@ -1351,12 +1392,15 @@ jMod.extendp = function() {
 	 * // Set the current value of script.username
 	 * jMod('set', 'script.username', 'foo')
 	 * // or
+	 * jMod('script.username', 'foo')
+	 * // or
 	 * jMod.Config('script.username', 'foo');
 	 * // or
 	 * jMod.Config.script.username = 'foo';
 	 */
 	 
 	var jConfig = jMod.Config = function(key, value){
+		try{if(jConfig.getScriptFileInfo&&!ScriptInfo.gotFileInfo)ScriptInfo.getScriptFileInfo();}catch(e){} // Try to get information about the userscript if possible
 		if(typeof value === _undefined){
 			return (typeof key == "string" ? jMod.Config.SearchForKey(key) : jMod.Config.SearchForKeys(key));
 		} else {
@@ -1370,6 +1414,7 @@ jMod.extendp = function() {
 		'scopeLock': false,
 		'secure': false,
 		'browser': jMod.Browser.getBrowser(),
+		'getScriptFileInfo': true,
 		'script': {
 			username: undefined,
 			script_name: undefined
@@ -1407,6 +1452,9 @@ jMod.extendp = function() {
 				'prefix': 'jMod_', // API.localStorage.storage_prefix
 				'engine': 'GM_Storage' // Default storage engine [GM_Storage or localStorage] (Will default to localStorage when GM_Storage is not available)
 			}
+		},
+		'Language': {
+			'Current': 'en'
 		},
 		'debug': false
 	});
@@ -1554,7 +1602,26 @@ jMod.API.ParseMetaData_Types.push(function(name, obj){
 		}
 		return o;
 	}
-	return undefined;
+});
+
+jMod.API.ParseMetaData_Types.push(function(name, obj){
+	if(name.toLowerCase() == "resource"){
+		if(typeof obj !== "object")
+			obj = [obj];
+			
+		var r,
+			i = 0,
+			o = {},
+			resource_patt = /^\s*([\w]+)\s+(.*?)\s*$/;
+			
+		for(i; i < obj.length; i++){
+			if(resource_patt.test(obj[i])){
+				r = resource_patt.exec(obj[i]);
+				o[r[1]] = r[2];
+			}
+		}
+		return o;
+	}
 });
 
 jMod.API.ParseMetaData = function(headerBlock){
@@ -1629,32 +1696,59 @@ jMod.API.ParseMetaData = function(headerBlock){
 	ScriptInfo.gotFileInfo = false;
 	
 	ScriptInfo.getScriptFileInfo = function(){
-		var callerScriptInfo;
-		var output = {};
-		
+		if(!jConfig.getScriptFileInfo)
+			return;
+			
 		if(ScriptInfo.gotFileInfo)
-			return jConfig('script.script_file_info');
-		var e = new Error();
-		//console.log(e.stack);
-		if(e.stack.indexOf('.user.js') == -1)
-			return undefined;
-		var tStack = jMod.parseStack(e.stack.toString());
+			return jConfig.script.script_file_info;
+			
+		var i,
+			tStack,
+			callerScriptInfo,
+			output = {},
+			e = new Error(), // Create new error to get its stack
+			tStackStr = e.stack.toString();
+		// Check if a userscript is anywhere in the stack
+		if(tStackStr.indexOf('user.js') == -1)
+			return;
+		// Parse the stack
+		tStack = jMod.parseStack(tStackStr);
 		if(tStack.length > 0){
-			//console.log('tStack', tStack);
-			for(var i = tStack.length - 1; i >= 0; i--){
-				if(tStack[i].fileName != '' && tStack[i].fileExt.toLowerCase() == 'user.js'){
-					callerScriptInfo = tStack[i];
-					output.userscript_file_name = callerScriptInfo.fileName;
-					output.userscript_file_path = callerScriptInfo.fullFileName;
+			//for(i = tStack.length - 1; i >= 0; i--){
+			for(i = 0; i < tStack.length; i++){
+				callerScriptInfo = tStack[i];
+				// Find jMod in the stack
+				if(_undefined===typeof jConfig.jMod_File_Path && ['jmod.js', 'jmod.min.js', 'jmod.full.js', 'jmod.min.expanded.js', 'mujs.js', 'mujs.min.js'].indexOf(callerScriptInfo.fileName.toLowerCase()) != -1){
+					jConfig.jMod_Full_File_Name = callerScriptInfo.fileName;
+					jConfig.jMod_File_Name = callerScriptInfo.fileName.substr(0, callerScriptInfo.fileName.length - 3);
+					jConfig.jMod_File_Path = callerScriptInfo.fullFileName;
+				}
+				
+				// Find the userscript in the stack
+				if(callerScriptInfo.fileName != '' && callerScriptInfo.fileExt.toLowerCase() == 'user.js'){
 					ScriptInfo.gotFileInfo = true;
-					jConfig('script.script_file_info', output);
-					//jMod.log.Info('Userscript File Name: ' + callerScriptInfo.fullFileName);
+					output = jConfig.script.script_file_info = {
+						userscript_full_file_name: callerScriptInfo.fileName,
+						userscript_file_name: callerScriptInfo.fileName.substr(0, callerScriptInfo.fileName.length - 8),
+						userscript_file_path: callerScriptInfo.fullFileName,
+						caller_lineNumber: callerScriptInfo.lineNumber,
+						caller_functionName: callerScriptInfo.functionName
+					};
+					/*
+					output.userscript_full_file_name = callerScriptInfo.fileName;
+					output.userscript_file_name = callerScriptInfo.fileName.substr(0, callerScriptInfo.fileName.length - 8);
+					output.userscript_file_path = callerScriptInfo.fullFileName;
+					output.call_lineNumber = callerScriptInfo.lineNumber;
+					output.call_functionName = callerScriptInfo.functionName;
+					jConfig.script.script_file_info = output;
+					*/
+					if(jMod.debug)
+						jModLogInfo('ScriptInfo', 'Get Script File Info Successful!!', output, callerScriptInfo);
 					return output;
-					break;
 				}
 			}
 		}
-		return undefined;
+		return;
 	}
 	
 	Object.defineProperty(ScriptInfo, 'InfoSet', {
@@ -1798,13 +1892,114 @@ jMod.API.ParseMetaData = function(headerBlock){
 	}
 	
 	/***********************************
+	 ** Language
+	 **********************************/
+var StringFormat = function(str, arr){
+    var i = -1;
+    function callback(exp, p0, p1, p2, p3, p4){
+        if (exp=='%%') return '%';
+        if (arr[++i] === undefined) return undefined;
+        var exp  = p2 ? parseInt(p2.substr(1)) : undefined;
+        var base = p3 ? parseInt(p3.substr(1)) : undefined;
+        var val;
+        switch (p4) {
+            case 's': val = arr[i]; break;
+            case 'c': val = arr[i][0]; break;
+            case 'f': val = parseFloat(arr[i]).toFixed(exp); break;
+            case 'p': val = parseFloat(arr[i]).toPrecision(exp); break;
+            case 'e': val = parseFloat(arr[i]).toExponential(exp); break;
+            case 'x': val = parseInt(arr[i]).toString(base?base:16); break;
+            case 'd': val = parseFloat(parseInt(arr[i], base?base:10).toPrecision(exp)).toFixed(0); break;
+        }
+        val = typeof(val)=='object' ? JSON.stringify(val) : val.toString(base);
+        var sz = parseInt(p1); /* padding size */
+        var ch = p1 && p1[0]=='0' ? '0' : ' '; /* isnull? */
+        while (val.length<sz) val = p0 !== undefined ? val+ch : ch+val; /* isminus? */
+       return val;
+    }
+    var regex = /%(-)?(0?[0-9]+)?([.][0-9]+)?([#][0-9]+)?([scfpexd])/g;
+    return str.replace(regex, callback);
+}
+
+var Lang = jMod.Language = function(keys){
+	var type, value, tmpLanguageObj = Lang.getLanguage(Lang.Current, true);
+	if(!tmpLanguageObj)
+		return;
+	value = Object_SearchForKey.call(tmpLanguageObj, keys);
+	type = typeof value;
+	if(_undefined==type){
+		if(Lang.Current === Lang.Default)
+			return;
+		tmpLanguageObj = Lang.getLanguage(Lang.Default);
+		value = Object_SearchForKey.call(tmpLanguageObj, keys);
+		type = typeof value;
+		if(_undefined==type)
+			return;
+	}
+	if(arguments.length == 1 || type !== "string")
+		return value;
+	return StringFormat.call(StringFormat, value, Slice.call(arguments, 1));
+}
+Lang.Default = 'en';
+Object.defineProperty(Lang, 'Current', {
+	get: function(){
+		try {
+			return jConfig.Language.Current;
+		} catch(e){
+			return Lang.Default;
+		}
+	},
+	set: function(value){
+		try {
+			if(_undefined!==typeof Lang.Names[value])
+				jConfig.Language.Current = value;
+		} catch(e){}
+	}
+});
+Lang.Names = {};
+
+Lang.getLanguage = function(name, revertToDefault){
+	if(Lang.Names[name] !== undefined)
+		return Lang[name];
+	if(revertToDefault)
+		return Lang[Lang.Default];
+}
+
+// English
+Lang.Names.en = 'English';
+
+Lang.en = {
+	//'test': 'test string',
+	//'test2': 'test %s %d',
+	//'test3': 'English only'
+};
+
+
+// Spanish
+Lang.Names.es = 'Espanol';
+
+Lang.es = {
+	//'test': 'cadena de prueba',
+	//'test2': 'prueba %s %d'
+};
+
+
+/*
+Lang.Current = 'es';
+console.log('Language Test');
+console.log(Lang('test'));
+console.log(Lang('test2', 'tacos', 123));
+console.log(Lang('test3'));
+*/
+	
+	/***********************************
 	 ** _call
 	 **********************************/
 jMod._call = function(){
 	var type, tmp, arg0, arg1, length = arguments.length;
 	// Try to get the Userscript's file info if jMod() is being called from the script
-	try{if(!ScriptInfo.gotFileInfo)ScriptInfo.getScriptFileInfo();}catch(e){}
-	try{if(_undefined===typeof jMod.Config.script.script_info)ScriptInfo.get();}catch(e){}
+	try{if(jConfig.getScriptFileInfo&&!ScriptInfo.gotFileInfo)ScriptInfo.getScriptFileInfo();}catch(e){} // Try to get information about the userscript if possible
+	//try{if(_undefined===typeof jMod.Config.script.script_info)ScriptInfo.get();}catch(e){}
 	try{
 		if(length > 0){
 			arg0 = arguments[0];
@@ -2237,7 +2432,7 @@ var appendChild = jMod.Element.appendChild = function(el, data) {
  */
 
 /** @const */
-const validElementProps = ['checked', 'title', 'async', 'defer', 'src', 'onerror', 'onload', 'responseCallback', 'value', 'max', 'min'];
+const validElementProps = ['checked', 'defaultValue', 'title', 'async', 'defer', 'src', 'onerror', 'onload', 'responseCallback', 'value', 'max', 'min'];
  
 /**
  * Create a new DOM element
@@ -2339,7 +2534,9 @@ var findParentWithClass = jMod.Element.findParentWithClass = function(el, classN
 }
 
 function fireClick(el, bubbles, cancelable){
-	if(document.createEvent) {
+	if(jMod.jQueryAvailable){
+		$(el).click();
+	} else if(document.createEvent) {
 		var evt = document.createEvent('MouseEvents');
 		evt.initEvent('click', bubbles || true, cancelable || true);
 		el.dispatchEvent(evt);	
@@ -2497,8 +2694,9 @@ function fireClick(el, bubbles, cancelable){
 		// For commands you can't call .apply on (like when an error object is involved)
 		ScopedConsoleCommand: function(command, value){
 			var isFormatted = (['debug','log','info','warn','error','exception'].indexOf(command)!=-1&&"string"==typeof value&&/(?:\%s|\%c|\%o|\%d|\%f|\%\.\df|\%i)/.test(value)); // Don't use GM_log on formatted logs
-			//var ptr = (!isFormatted && _undefined!=this.wc && _undefined!=this.wc[command] ? this.wc : this.fb);
-			var ptr = (isFormatted || (_undefined!=this.fb && _undefined!=this.fb[command])? this.fb : this.wc);
+			var ptr = (isFormatted || (_undefined!=this.fb && _undefined!=typeof this.fb[command])? this.fb : this.wc);
+			if(_undefined==typeof ptr[command])
+				return false;
 			try{
 			switch(arguments.length){
 				case 1:
@@ -2549,8 +2747,14 @@ function fireClick(el, bubbles, cancelable){
 				case 16:
 					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13], arguments[14], arguments[15]);
 					break;
+				default:
+					return false;
+					break;
 			}
-			}catch(e){}
+			}catch(e){
+				return false;
+			}
+			return true;
 		},
 		
 		ConsoleCommand: function(command, value){
@@ -2606,10 +2810,22 @@ function fireClick(el, bubbles, cancelable){
 		},
 		
 		fmt: {
-			timePatt: '%.3fms',
+			//timePatt: '%.3fms',
 			time: 'font-weight:bold;font-size:120%;color:red;',
 			
-			stchange: 'font-weight:bold;font-size:130%;color:blue;'
+			stchange: 'font-weight:bold;font-size:130%;color:blue;',
+			
+			iconStyle: 'font-size:175%;background-image:url("http://myuserjs.org/img/favicon/favicon.png");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;',
+			
+			infoDefaultStyle: ' ',
+			infoHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
+			infoTitleStyle: 'color:#000;font-size:125%;',
+			infoTextStyle: 'font-weight:bold;font-size:120%;color:blue;',
+			
+			warningDefaultStyle: ' ',
+			warningHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
+			warningTitleStyle: 'color:#000;font-size:125%;',
+			warningTextStyle: 'font-weight:bold;font-size:120%;color:red;'
 		}
 	};
 	
@@ -2633,10 +2849,32 @@ function fireClick(el, bubbles, cancelable){
 		this.args = [];
 		
 		this.add = function(value, type, style){
-			var isUndef = _undefined===typeof value;
+			var isUndef = _undefined===typeof value,
+				origType = typeof type;
 			if(typeof type === _undefined) type = typeof value;
 			var fmtType;
 			switch(type){
+				case "d":
+				case "%d":
+					fmtType = "%d";
+					break;
+				case "i":
+				case "%i":
+					fmtType = "%i";
+					break;
+				case "f":
+				case "%f":
+					fmtType = "%.2f";
+					break;
+				case "number":
+					if(parseInt(value) === value && value === +value){
+						fmtType = "%d";
+						value = parseInt(value);
+					} else {
+						fmtType = "%.2f";
+						value = parseFloat(value);
+					}
+					break;
 				case "s":
 				case "%s":
 					if(value == "\n" || value == " \n"){
@@ -2654,9 +2892,14 @@ function fireClick(el, bubbles, cancelable){
 					break;
 				case "o":
 				case "%o":
+					fmtType = "%o";
+					break;
 				case "object":
 				default:
-					fmtType = "%o";
+					if(origType==_undefined && _undefined==typeof style)
+						fmtType = "";
+					else
+						fmtType = "%o";
 					break;
 			}
 			
@@ -2685,18 +2928,6 @@ function fireClick(el, bubbles, cancelable){
 			return [fmtString].concat(arr);
 		}
 	};
-	
-	/*
-	var fmtBuild = new jMod.API.logFormatBuilder();
-	var tmpObj = {taco: "bell"};
-	fmtBuild.add("foo bar");
-	fmtBuild.add(" \n");
-	fmtBuild.add("mystring text", "string", "color:red;");
-	fmtBuild.add(tmpObj);
-	console.log(fmtBuild.build());
-	*/
-	
-	
 		
 	jMod.log.UpdateAll();
 		
@@ -2705,8 +2936,8 @@ function fireClick(el, bubbles, cancelable){
 var jModError = function(e, title, message){
 	var errorDefaultStyle = '';
 	//var ErrorIconURL = 'http://www.shedworx.com/files/images/error.png';
-	var ErrorIconURL = 'http://myuserjs.org/img/favicon/favicon.png';
-	var errorIconStyle = 'font-size:175%;background-image:url("'+ErrorIconURL+'");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;';
+	//var ErrorIconURL = 'http://myuserjs.org/img/favicon/favicon.png';
+	//var errorIconStyle = 'font-size:175%;background-image:url("'+ErrorIconURL+'");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;';
 	
 	var errorHeaderStyle = 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;';
 	
@@ -2721,7 +2952,7 @@ var jModError = function(e, title, message){
 			jMod.log.ScopedConsoleCommand.call(jMod.log,
 				'error',
 				'%c%s%cjMod Error%c - %c%s \n%s \n%c%s - %c(line %d)',
-				errorDefaultStyle + errorIconStyle, // Icon Style
+				errorDefaultStyle + jMod.log.fmt.iconStyle, // Icon Style
 				'  ', // Icon
 				errorDefaultStyle + errorHeaderStyle, // Header Style
 				' ', // Header
@@ -2738,7 +2969,7 @@ var jModError = function(e, title, message){
 			jMod.log.ScopedConsoleCommand.call(jMod.log,
 				'error',
 				'%c%s%cjMod Error%c - %c%s \n%s \n%c%s - %c(line %d)',
-				errorDefaultStyle + errorIconStyle, // Icon Style
+				errorDefaultStyle + jMod.log.fmt.iconStyle, // Icon Style
 				'  ', // Icon
 				errorDefaultStyle + errorHeaderStyle, // Header Style
 				' ', // Header
@@ -2757,7 +2988,7 @@ var jModError = function(e, title, message){
 		jMod.log.ScopedConsoleCommand.apply(jMod.log,[
 				'error',
 				'%c%s%cjMod Error%c - %c%s \n%s',
-				errorDefaultStyle + errorIconStyle, // Icon Style
+				errorDefaultStyle + jMod.log.fmt.iconStyle, // Icon Style
 				'  ', // Icon
 				errorDefaultStyle + errorHeaderStyle, // Header Style
 				' ', // Header
@@ -2770,70 +3001,78 @@ var jModError = function(e, title, message){
 	}
 };
 
-var jModInfo = function(title){
-	var infoDefaultStyle = '';
-	//var ErrorIconURL = 'http://www.shedworx.com/files/images/error.png';
-	var infoIconURL = 'http://myuserjs.org/img/favicon/favicon.png';
-	var infoIconStyle = 'font-size:175%;background-image:url("'+infoIconURL+'");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;';
-	
-	var infoHeaderStyle = 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;';
-	
-	var infoTitleStyle = 'color:#000;font-size:125%;';
-	
-	var exArgs = Slice.call(arguments,1);
-	var fmtString = '%c%s%cjMod%c - %c%s';
-	var args = [];
-	if(exArgs.length > 0)
-		fmtString += ' \n%c';
-	for(var i = 0; i < exArgs.length; i++){
-		if(typeof exArgs[i] === "number"){
-			if(parseInt(exArgs[i]) === exArgs[i] && exArgs[i] === +exArgs[i] && exArgs[i] !== (exArgs[i]|0)){
-				fmtString += '%.2f \n';
-			} else {
-				fmtString += '%d \n';
-			}
-			args.push(exArgs[i]);
-		} else if(typeof exArgs[i] === "string"){
-			fmtString += '%s \n';
-			args.push(exArgs[i]);
-		} else {
-			fmtString += '%o\n';
-			args.push(exArgs[i]);
-		}
+var jModLogWarning = function(title, text){
+	if(jMod.log.OUTPUT_TYPES.WARNING.level > jConfig('API.log.verbosity_level'))
+		return;
+		
+	var i = 2,
+		warningDefaultStyle = jMod.log.fmt.warningDefaultStyle,
+		fmtBuild = new jMod.API.logFormatBuilder();
+		
+	fmtBuild.add('  ', "%s", warningDefaultStyle + jMod.log.fmt.iconStyle);
+	fmtBuild.add('jMod Warning', "string", warningDefaultStyle + jMod.log.fmt.warningHeaderStyle);
+	if(_undefined!==typeof text){
+		fmtBuild.add(' - ', "string", warningDefaultStyle);
+		fmtBuild.add(title || ' ', "%s", warningDefaultStyle + jMod.log.fmt.warningTitleStyle);
+		fmtBuild.add(" \n", "string");
+		fmtBuild.add(text || '', "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle);
+	} else {
+		fmtBuild.add(" \n", "string");
+		fmtBuild.add(title || '', "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle);
 	}
 	
-	// Have to get around scope/permission problems when dealing with "e"
-	jMod.Info.apply(jMod.log,[
-	//jMod.log.ScopedConsoleCommand.apply(jMod.log,[
-		//'info',
-		fmtString,
-		infoDefaultStyle + infoIconStyle, // Icon Style
-		'  ', // Icon
-		infoDefaultStyle + infoHeaderStyle, // Header Style
-		' ', // Header
-		infoDefaultStyle + infoTitleStyle, // Title Style
-		(title || ' '), // Title
-		infoDefaultStyle + ' ' // arguments style
-		].concat(args)
-	);
+	if(arguments.length > 2)
+		fmtBuild.add(" \n", "string");
+		
+	for(i; i < arguments.length; i++){
+		fmtBuild.add(arguments[i]);
+	}
+	
+	jMod.Warning.apply(jMod.log,fmtBuild.build());
+}
+
+var jModLogInfo = function(title, text){
+	if(jMod.log.OUTPUT_TYPES.INFO.level > jConfig('API.log.verbosity_level'))
+		return;
+		
+	var i = 2,
+		infoDefaultStyle = jMod.log.fmt.infoDefaultStyle,
+		fmtBuild = new jMod.API.logFormatBuilder();
+		
+	fmtBuild.add('  ', "%s", infoDefaultStyle + jMod.log.fmt.iconStyle);
+	fmtBuild.add('jMod', "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle);
+	if(_undefined!==typeof text){
+		fmtBuild.add(' - ', "string", infoDefaultStyle);
+		fmtBuild.add(title || ' ', "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle);
+		fmtBuild.add(" \n", "string");
+		fmtBuild.add(text || '', "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle);
+	} else {
+		fmtBuild.add(" \n", "string");
+		fmtBuild.add(title || '', "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle);
+	}
+	
+	if(arguments.length > 2)
+		fmtBuild.add(" \n", "string");
+		
+	for(i; i < arguments.length; i++){
+		fmtBuild.add(arguments[i]);
+	}
+	
+	jMod.Info.apply(jMod.log,fmtBuild.build());
 }
 
 var jModLogTime = function(title, prefix, suffix){
+	if(jMod.log.OUTPUT_TYPES.INFO.level > jConfig('API.log.verbosity_level'))
+		return;
 	var text = (prefix || '') +  jMod.timeElapsed.toFixed(2) + 'ms' + (suffix || '');
 	
-	var infoDefaultStyle = ' ';
-	var infoIconURL = 'http://myuserjs.org/img/favicon/favicon.png';
-	var infoIconStyle = 'font-size:175%;background-image:url("'+infoIconURL+'");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;';
-	
-	var infoHeaderStyle = 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;';
-	
-	var infoTitleStyle = 'color:#000;font-size:125%;';
+	var infoDefaultStyle = jMod.log.fmt.infoDefaultStyle;
 	
 	var fmtBuild = new jMod.API.logFormatBuilder();
-	fmtBuild.add('  ', "%s", infoDefaultStyle + infoIconStyle);
-	fmtBuild.add('jMod', "string", infoDefaultStyle + infoHeaderStyle);
+	fmtBuild.add('  ', "%s", infoDefaultStyle + jMod.log.fmt.iconStyle);
+	fmtBuild.add('jMod', "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle);
 	fmtBuild.add(' - ', "string", infoDefaultStyle);
-	fmtBuild.add(title || ' ', "%s", infoDefaultStyle + infoTitleStyle);
+	fmtBuild.add(title || ' ', "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle);
 	fmtBuild.add(' ', "string");
 	fmtBuild.add(text, "%s", infoDefaultStyle + jMod.log.fmt.time);
 	
@@ -2849,8 +3088,10 @@ var jModLogTime = function(title, prefix, suffix){
 		jMod.log.group('jMod Start');
 		jMod.log.group('jMod Initialize');
 		
-		if(CurrentRunningScript.el)
+		if(CurrentRunningScript.el){
+			//jConfig.getScriptFileInfo = false;
 			jMod.Info('CurrentRunningScript', CurrentRunningScript);
+		}
 	}
 	
 	/***********************************
@@ -3010,6 +3251,385 @@ var EventsClass = function(_events){
 		}
 	}
 };
+	
+	/***********************************
+	 ** Observer
+	 **********************************/
+jMod.Observer = function(){
+	
+	this.filters = [];
+	
+	this.addFilter = function(callback, data, fireOnce){
+		this.filters.push({
+			callback: callback,
+			data: data,
+			fireOnce: fireOnce === true ? true : false
+		});
+	}
+	
+	this.filterMutation = function(mutation){
+		var filterData,
+			_continue,
+			tmp,
+			x,
+			i = 0;
+			
+		for(i; i < this.filters.length; i++){
+			filterData = this.filters[i].data;
+			_continue = false;
+			
+			if(filterData.type){
+				if(typeof filterData.type === "string")
+					filterData.type = [filterData.type];
+				if(filterData.type.indexOf(mutation.type) == -1)
+					continue;
+			}
+			
+			if(typeof filterData.target === "object"){
+				// Has Class
+				if(filterData.target.hasClass){
+					if(typeof filterData.target.hasClass === "string")
+						filterData.target.hasClass = [filterData.target.hasClass];
+					for(x = 0; x < filterData.target.hasClass.length; x++){
+						if(!hasClass(mutation.target, filterData.target.hasClass[x])){
+							_continue = true;
+							break;
+						}
+					}
+					if(_continue)
+						continue;
+				}
+				
+				// Has Children
+				if(filterData.target.hasChildren){
+					if(typeof filterData.target.hasChildren === "string")
+						filterData.target.hasChildren = [filterData.target.hasChildren];
+					for(x = 0; x < filterData.target.hasChildren.length; x++){
+						tmp = jMod.$$(filterData.target.hasChildren[x], mutation.target);
+						if(!tmp || tmp.length == 0){
+							_continue = true;
+							break;
+						}
+					}
+					if(_continue)
+						continue;
+				}
+				
+				
+			}
+			
+			// Fire Callback
+			this.filters[i].callback(mutation, this);
+			if(this.filters[i].fireOnce)
+				return;
+		}
+	}
+	
+	this.MutationObserver = new MutationObserver(function(mutations) {
+		for(var i = 0; i < mutations.length; i++){
+			this.filterMutation(mutations[i]);
+		}
+	});
+	
+	this.observe = function(target, config){
+		this.MutationObserver.observe(target, config || {
+			childList: true,
+			attributes: true,
+			characterData: true,
+			subtree: true,
+			//attributeOldValue: true,
+			//characterDataOldValue: true,
+			//attributeFilter: true
+		});
+	}
+	
+	this.disconnect = function(){
+		this.MutationObserver.disconnect();
+	}
+}
+
+
+	
+	/***********************************
+	 ** File Selector
+	 **********************************/
+/**
+ * Arguments for creating a new FileSelector Instance
+ * @typedef {Object} jMod.FileSelector.FileSelectorArgs
+ * @property {boolean} [multiple] - Allow multiple file selections
+ * @property {boolean} [accept] - Sets the "accept" attribute for the input element
+ * @property {boolean} [defaultValue] - Sets the "defaultValue" attribute for the input element
+ * @property {jMod.Element.NewElementData} [button] - Options for button element. Cannot contain <i>object</i>.<b>type</b> or <i>object</i>.<b>EventListeners.click</b> - These options will be ignored
+ * @property {function} [onChange] - Callback function to be fired when file selection changes
+ */
+ 
+/**
+ * Creates a file selector button for reading/uploading local user files.<br>
+ * This can be used for reading in a configuration file, or allowing users to
+ * customize their experience with a local image which can be read as a URL,
+ * and saved using GM_storage or localStorage
+ * @class
+ * @name FileSelector
+ * @memberof jMod
+ * @param {jMod.FileSelector.FileSelectorArgs} data - data
+ */
+jMod.FileSelector = function(data){
+	var _this = this;
+	_this.events = {
+		change: []
+	};
+	
+	// Add Events
+	if(data.onChange)
+		_this.events.change.push(data.onChange);
+	
+	// On Change handler
+	_this.onChange = function(e){
+		for(var i = 0; i < _this.events.change.length; i++)
+			_this.events.change[i].call(this || _this || jMod, e, _this.files(), _this.value());
+	};
+	
+	/**
+	 * Trigger a click event
+	 * @function click
+	 * @memberof jMod.FileSelector#
+	 * @param {boolean} [bubbles]
+	 * @param {boolean} [cancelable]
+	 */
+	_this.click = function(bubbles, cancelable){
+		return fireClick(_this.buttonTriggerElement, _undefined!==typeof bubbles ? bubbles : true, _undefined!==typeof cancelable ? cancelable : true);
+	};
+	
+	/**
+	 * Get the selected files
+	 * @function files
+	 * @memberof jMod.FileSelector#
+	 */
+	_this.files = function(){
+		return _this.inputElement.files;
+	};
+	
+	/**
+	 * Get the current value of the input element
+	 * @function value
+	 * @memberof jMod.FileSelector#
+	 */
+	_this.value = function(){
+		return _this.inputElement.value;
+	};
+	
+	// Input Element
+	var inputElementOpts = {
+		type: 'input',
+		attributes: {
+			type: 'file',
+			multiple: data.multiple ? true : false
+		},
+		style: {
+			position: 'absolute',
+			opacity: '0',
+			'-ms-filter': 'progid:DXImageTransform.Microsoft.Alpha(Opacity=0)',
+			filter: 'alpha(opacity=0)',
+			width: '0'
+		},
+		EventListeners: {
+			change: _this.onChange
+		}
+	};
+	
+	if(data.defaultValue)
+		inputElementOpts.defaultValue = data.defaultValue;
+		
+	if(data.accept)
+		inputElementOpts.attributes.accept = data.accept;
+	
+	/**
+	 * The input element (styled to be hidden)
+	 * @name inputElement
+	 * @type {element}
+	 * @memberof jMod.FileSelector#
+	 */
+	_this.inputElement = createNewElement(inputElementOpts);
+	
+	
+	// Trigger Button
+	var buttonTriggerElementOpts = {
+		type: 'button',
+		EventListeners: {
+			'click': function(e){
+				console.log('Button click triggered');
+				var fileInput = this.previousSibling;
+				fileInput.focus();
+				fireClick(fileInput);
+				eventCancel(e);
+				return false;
+			}
+		}
+	};
+	
+	if(typeof data.button == "object"){
+		/*
+		if(data.button.style)
+			buttonTriggerElementOpts.style = data.button.style;
+			
+		if(data.button.innerHTML || data.button.text)
+			buttonTriggerElementOpts.innerHTML = (data.button.innerHTML || data.button.text);
+		*/
+		if(data.button.type)
+			delete data.button.type;
+		if(data.button.EventListeners && data.button.EventListeners.click)
+			delete data.button.EventListeners.click;
+			
+		buttonTriggerElementOpts = jMod.extend(true, buttonTriggerElementOpts, data.button);
+	}
+	
+	/**
+	 * The button element used to trigger the input dialog
+	 * @name buttonTriggerElement
+	 * @type {element}
+	 * @memberof jMod.FileSelector#
+	 */
+	_this.buttonTriggerElement = createNewElement(buttonTriggerElementOpts);
+
+	var formElementOpts = jMod.extend(true, data.form || {}, {
+		type: 'form',
+		innerHTML: [
+			_this.inputElement,
+			_this.buttonTriggerElement
+		]
+	});
+	/*
+	if(data.form){
+		if(data.form.id)
+			formElementOpts.id = data.form.id;
+			
+		if(data.form.name)
+			formElementOpts.attributes.name = data.form.name;
+	}
+	*/
+	
+	/**
+	 * Form element that acts as a wrapper
+	 * @name formElement
+	 * @type {element}
+	 * @memberof jMod.FileSelector#
+	 */
+	_this.formElement = createNewElement(formElementOpts);
+	
+	jMod.FileSelector.FileSelectorForms.push(_this.formElement);
+}
+jMod.FileSelector.FileSelectorForms = [];
+
+/**
+ * Check for local file read support
+ * @function FileReadSupport
+ * @memberof jMod.FileSelector
+ */
+jMod.FileSelector.FileReadSupport = function(){
+	return (window.File && window.FileReader);
+}
+
+/**
+ * Check for local blob support
+ * @function BlobSupport
+ * @memberof jMod.FileSelector
+ */
+jMod.FileSelector.BlobSupport = function(){
+	return (window.File && window.Blob);
+}
+
+/**
+ * Reads the given file as text
+ * @function ReadFileAsText
+ * @memberof jMod.FileSelector
+ * @param {file} file - File to read
+ * @param {function} callback - Function to call when file read is complete
+ * @param {function} [error_callback] - Function to call if there is an error reading the file
+ * @returns {boolean} - Returns true if there is file read support and the file exists. Otherwise it returns false.
+ */
+jMod.FileSelector.ReadFileAsText = function(file, callback, error_callback){
+	if(!jMod.FileSelector.FileReadSupport){
+		if(jMod.debug) console.log('Error! No Support For File Reading!');
+		return false;
+	}
+	var r = new FileReader();
+	if(file){
+		r.onload = function(e) {
+			return callback.call(this || jMod, e, e.target.result, file);
+		}
+		
+		r.onerror = function(e){
+			if(jMod.debug) console.log('Error reading file', file);
+			return (error_callback || callback)(e, undefined, file);
+		}
+		r.readAsText(file);
+		return true;
+	} else {
+		if(jMod.debug) console.log('Error reading file', file);
+		(error_callback || callback)(e, undefined, file);
+	}
+	return false;
+}
+
+// For Images / Image Preview
+/**
+ * Reads the given file and encodes the result as a base64 string
+ * @function ReadFileAsURL
+ * @memberof jMod.FileSelector
+ * @param {file} file - File to read
+ * @param {function} callback - Function call when file read is complete
+ * @param {function} [error_callback] - Function to call if there is an error reading the file
+ * @returns {boolean} - Returns true if there is file read support and the file exists. Otherwise it returns false.
+ */
+jMod.FileSelector.ReadFileAsURL = function(file, callback, error_callback){
+	if(!jMod.FileSelector.FileReadSupport){
+		if(jMod.debug) console.log('Error! No Support For File Reading!');
+		return false;
+	}
+	var r = new FileReader();
+	if(file){
+		r.onload = function(e) {
+			return callback.call(this || jMod, e, e.target.result, file);
+		}
+		r.onerror = function(e){
+			if(jMod.debug) console.log('Error reading file', file);
+			return (error_callback || callback)(e, undefined, file);
+		}
+		r.readAsDataURL(file);
+		return true;
+	} else {
+		if(jMod.debug) console.log('Error reading file', file);
+		(error_callback || callback)(e, undefined, file);
+	}
+	return false;
+}
+
+/**
+ * Reads the given file and attempts to parse it as a JSON string
+ * @function ReadFileAsJSON
+ * @memberof jMod.FileSelector
+ * @param {file} file - File to parse
+ * @param {function} callback - Function call when file read is complete
+ * @param {function} [error_callback] - Function to call if there is an error reading the file
+ * @returns {boolean} - Returns true if there is file read support and the file exists. Otherwise it returns false.
+ */
+jMod.FileSelector.ReadFileAsJSON = function(file, callback, error_callback){
+	return jMod.FileSelector.ReadFileAsText(file, function(e, content, _file){
+		if(content && content != ''){
+			try{
+				return callback(e, JSON.parse(content), _file);
+			}catch(err){
+				if(jMod.debug) console.log('Error! Cannot parse json file!', err, _file);
+				return (error_callback || callback)(e, undefined, _file);
+			}
+		} else {
+			if(jMod.debug) console.log('Error! JSON file is empty!', _file);
+			return (error_callback || callback)(e, undefined, _file);
+		}
+	});
+}
+
+
 
 	//if(jConfig('debug')) jMod.Log('jMod.Config', jMod.Config);
 
@@ -3024,11 +3644,15 @@ var EventsClass = function(_events){
  * @returns {Object} node The newly created style node
  */
 var addStyle = jMod.API.addStyle = function(css){
-	if (typeof css != _undefined && css != '') {
-		if(typeof GM_addStyle !== _undefined){
-			GM_addStyle(css);
-		} else if(heads = document.getElementsByTagName('head')) {
-			var style = document.createElement('style');
+	if(css && css != ''){
+		if(typeof GM_addStyle !== _undefined)
+			return GM_addStyle(css) || true;
+			
+		var style,
+			win = (window || unsafeWindow),
+			heads = win.document.getElementsByTagName('head');
+		if(heads) {
+			style = win.document.createElement('style');
 			try {
 				style.innerHTML = css;
 			} catch (x) {
@@ -3036,9 +3660,31 @@ var addStyle = jMod.API.addStyle = function(css){
 			}
 			style.type = 'text/css';
 			return heads[0].appendChild(style);
+		} else {
+			if(jMod.debug)
+				jModLogWarning('jMod.API.addStyle', 'Could not add css', css);
 		}
 	}
-	return null;
+}
+
+jMod.API.addStylesheet = function(url){
+	var style,
+		win = (window || unsafeWindow),
+		heads = win.document.getElementsByTagName('head');
+	
+	if(heads){
+		style = win.document.createElement('link');
+		style.setAttribute('rel', 'stylesheet');
+		style.href = url;
+		return heads[0].appendChild(style);
+	} else {
+		if(jMod.debug)
+			jModLogWarning('jMod.API.addStylesheet', 'Could not add stylesheet', url);
+	}
+}
+
+jMod.API.importStylesheet = function(url){
+	jMod.CSS = "@import url("+url+");\n";
 }
 
 	 
@@ -3279,6 +3925,188 @@ jMod.deleteValue = function(key){
 	return API.localStorage.deleteValue.apply(API.localStorage, arguments);
 }
 
+	/***********************************
+	 ** Get Resource
+	 **********************************/
+// http://stackoverflow.com/questions/8778863/downloading-an-image-using-xmlhttprequest-in-a-userscript
+function customBase64Encode(inputStr) {
+	var
+		bbLen			   = 3,
+		enCharLen		   = 4,
+		inpLen			  = inputStr.length,
+		inx				 = 0,
+		jnx,
+		keyStr			  = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+							+ "0123456789+/=",
+		output			  = "",
+		paddingBytes		= 0;
+	var
+		bytebuffer		  = new Array (bbLen),
+		encodedCharIndexes  = new Array (enCharLen);
+
+	while (inx < inpLen) {
+		for (jnx = 0;  jnx < bbLen;  ++jnx) {
+			/*--- Throw away high-order byte, as documented at:
+			  https://developer.mozilla.org/En/Using_XMLHttpRequest#Handling_binary_data
+			*/
+			if (inx < inpLen)
+				bytebuffer[jnx] = inputStr.charCodeAt (inx++) & 0xff;
+			else
+				bytebuffer[jnx] = 0;
+		}
+
+		/*--- Get each encoded character, 6 bits at a time.
+			index 0: first  6 bits
+			index 1: second 6 bits
+						(2 least significant bits from inputStr byte 1
+						 + 4 most significant bits from byte 2)
+			index 2: third  6 bits
+						(4 least significant bits from inputStr byte 2
+						 + 2 most significant bits from byte 3)
+			index 3: forth  6 bits (6 least significant bits from inputStr byte 3)
+		*/
+		encodedCharIndexes[0] = bytebuffer[0] >> 2;
+		encodedCharIndexes[1] = ( (bytebuffer[0] & 0x3) << 4)   |  (bytebuffer[1] >> 4);
+		encodedCharIndexes[2] = ( (bytebuffer[1] & 0x0f) << 2)  |  (bytebuffer[2] >> 6);
+		encodedCharIndexes[3] = bytebuffer[2] & 0x3f;
+
+		//--- Determine whether padding happened, and adjust accordingly.
+		paddingBytes		  = inx - (inpLen - 1);
+		switch (paddingBytes) {
+			case 1:
+				// Set last character to padding char
+				encodedCharIndexes[3] = 64;
+				break;
+			case 2:
+				// Set last 2 characters to padding char
+				encodedCharIndexes[3] = 64;
+				encodedCharIndexes[2] = 64;
+				break;
+			default:
+				break; // No padding - proceed
+		}
+
+		/*--- Now grab each appropriate character out of our keystring,
+			based on our index array and append it to the output string.
+		*/
+		for (jnx = 0;  jnx < enCharLen;  ++jnx)
+			output += keyStr.charAt ( encodedCharIndexes[jnx] );
+	}
+	return output;
+}
+
+jMod.API.getRemoteImageAsURL = function(url, mime, callback){
+	if(_undefined==typeof GM_xmlhttpRequest)
+		return;
+	var mimePatt = /Content-Type:\s*([^\s]+)/i;
+	if(typeof mime === "function" && _undefined===typeof callback){
+		callback = mime;
+		mime = undefined;
+	}
+	return GM_xmlhttpRequest({
+		method: "GET",
+		url: url,
+		overrideMimeType: 'text/plain; charset=x-user-defined',
+		onload: function(response){
+			if(_undefined==typeof mime || mime == null || mime == ''){
+				try{
+					var rMime = mimePatt.exec(response.responseHeaders);
+					if(rMime && rMime.length > 1)
+						mime = rMime[1].trim();
+				}catch(e){}
+			}
+			callback('data:'+(mime && mime != '' ? mime : 'image/png')+';base64,' + customBase64Encode(response.responseText));
+		}
+	});
+}
+
+jMod.API.getResourceText = function(name, callback, useLiveOnFail){
+	if(_undefined!==typeof GM_getResourceText){
+		try {
+			var tmp = GM_getResourceText(name);
+			if(callback) callback(tmp);
+			return tmp;
+		} catch(e) {}
+	}
+	if(useLiveOnFail)
+		return jMod.API.getResourceTextLive(name, callback);
+}
+
+jMod.API.getResourceURL = function(name, callback, useLiveOnFail){
+	if(_undefined!==typeof GM_getResourceURL){
+		try {
+			var tmp = GM_getResourceURL(name);
+			if(callback) callback(tmp);
+			return tmp;
+		} catch(e) {}
+	}
+	if(useLiveOnFail)
+		return jMod.API.getResourceURLLive(name, callback);
+}
+
+jMod.API.getResourceTextLive = function(name, callback){
+	if(_undefined==typeof GM_xmlhttpRequest)
+		return;
+	var resourceObj = jConfig('script.script_info.resource');
+	if(resourceObj && _undefined!==typeof resourceObj[name]){
+		return GM_xmlhttpRequest({
+			method: "GET",
+			url: resourceObj[name],
+			onload: function(response){
+				callback(response.responseText);
+			}
+		});
+	}
+}
+
+
+
+jMod.API.getResourceURLLive = function(name, callback){
+	var resourceObj = jConfig('script.script_info.resource');
+	if(resourceObj && _undefined!==typeof resourceObj[name]){
+		return jMod.API.getRemoteImageAsURL(resourceObj[name], callback);
+	}
+}
+
+jMod.API.addResourceCSS = function(name){
+	if(!jMod.API.getResourceText(name, function(result){if(typeof result === "string" && result != '') jMod.CSS = result;}, false)){
+		var resourceObj = jConfig('script.script_info.resource');
+		if(resourceObj && _undefined!==typeof resourceObj[name]){
+			jMod.API.addStylesheet(resourceObj[name]);
+		}
+	}
+}
+
+jMod.API.addResourceScript = function(name){
+	if(!jMod.API.getResourceText(name, function(result){if(typeof result === "string" && result != ''){jMod.API.addScript({js: result});}}, false)){
+		var resourceObj = jConfig('script.script_info.resource');
+		if(resourceObj && _undefined!==typeof resourceObj[name]){
+			jMod.API.addScript({src: resourceObj[name], async: true, defer: true});
+		}
+	}
+}
+/*
+function getResourceTest(){
+	console.log('getResourceText', jMod.API.getResourceText('jmodicon'));
+	
+	console.log('getResourceURL', jMod.API.getResourceURL('jmodicon'));
+	
+	//jMod.API.getResourceTextLive('jmodicon', function(response){
+		//console.log('getResourceTextLive', response);
+	//});
+	
+	jMod.API.getResourceURLLive('jmodicon', function(response){
+		console.log('getResourceURLLive', response);
+		var img = new Image();
+		document.body.appendChild(img);
+		img.src = response;
+	});
+}
+
+setTimeout(getResourceTest, 500);
+*/
+
+	
 	/***********************************
 	 ** Date
 	 **********************************/
@@ -4756,11 +5584,31 @@ Tabs.show = function(tabGroup, tab){
 	}
 }
 
-Tabs.resize = function(tabsNav){
+function waitForComputeableWidth(el, callback, count){
+	var computedNav = (window || unsafeWindow).getComputedStyle(el, null);
+	if((count || 0) < 20 && isNaN(parseInt(computedNav.width))){
+		setTimeout(function(el, callback, count){
+			waitForComputeableWidth(el, callback, count + 1);
+		}, 20, el, callback, count || 0);
+	} else {
+		callback(el, computedNav);
+	}
+}
+
+function resizeTabs(tabsNav, computedNav){
 	var tabsContent = tabsNav.parentElement.querySelector('.tab-content');
-	var computedNav = window.getComputedStyle(tabsNav, null);
-	var width = parseInt(computedNav.getPropertyValue('width'));
-	tabsContent.style.marginLeft = (width + 11) + 'px';
+	//var width = parseInt(computedNav.getPropertyValue('width'));
+	var width = parseInt(computedNav.width);
+	if(isNaN(width))
+		jModLogWarning('Tabs.resize', 'Tab width is NaN!', tabsNav, tabsContent, computedNav);
+	else if(width > 200)
+		jModLogWarning('Tabs.resize', 'Tab width too wide!', width, tabsNav);
+	else if(width > 50)
+			tabsContent.style.marginLeft = (width + 11) + 'px';
+}
+
+Tabs.resize = function(tabsNav){
+	waitForComputeableWidth(tabsNav, resizeTabs);
 }
 
 	/***********************************
@@ -5323,7 +6171,7 @@ var Settings = jMod.Settings = function(data, data2){
 			
 			Settings.PrefTypes.onChange();
 			
-			unsafeWindow.addEventListener('resize', jMod.Settings.onResize, false );
+			(window || unsafeWindow).addEventListener('resize', jMod.Settings.onResize, false );
 			
 			jMod.Settings.onResize();
 		}
@@ -5349,6 +6197,8 @@ Settings.getDefault = function(prefName){
 
 Settings.get = function(prefName, noDefault){
 	var storedData = Settings._storedData;
+	if(_undefined===typeof prefName)
+		return storedData;
 	return (storedData && storedData[prefName] !== undefined ? storedData[prefName] : (noDefault == true ? undefined : Settings.getDefault(prefName)));
 }
 
@@ -6190,6 +7040,135 @@ Settings.PrefTypes.add('range', {
 });
 
 
+var setBackgroundURI = function(el, uri, innerHTML){
+	el.innerHTML = innerHTML || '';
+	el.style.backgroundImage = 'url('+uri+')';
+	el.setAttribute('data-src', uri);
+	
+	var bgimg = new Image();
+	bgimg.onload = function() {
+		var tmpHeight = parseInt(bgimg.naturalHeight) + 'px';
+		var tmpWidth = parseInt(bgimg.naturalWidth) + 'px';
+		if(!isNaN(bgimg.naturalHeight) && !isNaN(bgimg.naturalWidth)){
+			if(parseInt(tmpHeight) > 300){
+				tmpHeight = '300px';
+				tmpWidth = '100%';
+				el.style.backgroundSize = 'contain';
+			} else {
+				el.style.backgroundSize = '100% 100%';
+			}
+			el.style.height = tmpHeight;
+			el.style.width = tmpWidth;
+		}
+		bgimg.parentElement.removeChild(bgimg);
+	}
+	bgimg.style.position = "absolute";
+	bgimg.style.opacity = "0";
+	(window || unsafeWindow).document.body.appendChild(bgimg);
+	bgimg.src = uri;
+}
+
+Settings.PrefTypes.add('imagefile', {
+	make: function(data){
+		var defaultValue = data['default'] || '';
+		var storedValue = Settings.get(data.name);
+		var currentValue = (storedValue || defaultValue);
+		var hasValidValue = typeof currentValue === "string" && currentValue != '' ? true : false;
+		
+		var fileSelector = new jMod.FileSelector({
+			multiple: false,
+			accept: 'image/*',
+			button: {
+				style: data.style,
+				className: 'btn btn-success',
+				innerHTML: [
+					'<i class="fa ' + (data.buttonIcon || "fa-file-image-o") + '" style="margin-right:10px;"></i>',
+					data.buttonText || 'Select an Image'
+				],
+				attributes: {
+					type: 'button'
+				}
+			},
+			form: {
+				className: 'imagefile-form pref',
+				attributes: {
+					name: data.name,
+					'data-jmod-settings-pref': data.name,
+					'data-jmod-settings-pref-default': data['default'] || null,
+				}
+			},
+			onChange: function(e, files, value){
+				jMod.FileSelector.ReadFileAsURL(files[0],
+					function(e, content, file){
+						var imgContainerEl = fileSelector.formElement.parentElement.lastChild;
+						
+						setBackgroundURI(imgContainerEl, content, '');
+						
+						Settings.PrefTypes.onChange(fileSelector.formElement.getAttribute('name'), content);
+					},
+					function(e, content, file){
+						var imgContainerEl = fileSelector.formElement.parentElement.lastChild;
+						setBackgroundURI(imgContainerEl, '', 'No Preview');
+						Settings.PrefTypes.onChange(fileSelector.formElement.getAttribute('name'), '');
+					}
+				);
+			}
+		});
+		
+		var opts = {
+			type: 'div',
+			className: 'pref-container',
+			innerHTML: [
+				fileSelector.formElement,
+				createNewElement({
+					type: 'div',
+					className: 'image-preview-container',
+					style: {
+						//backgroundImage: hasValidValue ? 'url(' + currentValue + ')' : ''
+					},
+					attributes: {
+						//'data-src': hasValidValue ? currentValue : ''
+					},
+					innerHTML: hasValidValue ? '' : 'No Preview'
+				})
+			]
+		};
+		
+		if(Loading.DOMLoaded){
+			setBackgroundURI(opts.innerHTML[1], hasValidValue ? currentValue : '', hasValidValue ? '' : 'No Preview');
+		} else {
+			setTimeout(setBackgroundURI, 150, opts.innerHTML[1], hasValidValue ? currentValue : '', hasValidValue ? '' : 'No Preview');
+		}
+		
+		if(_undefined!=typeof data['tooltip'] && (_undefined!=typeof data.tooltip['innerHTML'] || _undefined!=typeof data.tooltip['text'])){
+			opts.innerHTML[0] = setTooltipProperties(opts.innerHTML[0], data.tooltip);
+		}
+		
+		return opts;
+	},
+	getValue: function(prefEl, data){
+		try{
+			var imgContainerEl = prefEl.parentElement.lastChild;
+			return imgContainerEl.getAttribute('data-src');
+		}catch(e){
+			return '';
+		}
+	},
+	setValue: function(prefEl, data, value){
+		var imgContainerEl = prefEl.parentElement.lastChild;
+		setBackgroundURI(imgContainerEl, value, value && value != '' ? '' : 'No Preview');
+		return true;
+	},
+	enable: function(prefEl, data){
+		if(prefEl.hasAttribute('disabled'))
+			prefEl.removeAttribute('disabled');
+	},
+	disable: function(prefEl, data){
+		prefEl.setAttribute('disabled', 'disabled');
+	}
+});
+
+
 
 function setTooltipProperties(obj, data){
 	if(!isElement(obj)){
@@ -6469,6 +7448,26 @@ Settings.MakeSettingsModal = function(data){
 		body: settingsBody,
 		footer: [
 			{
+				type: 'span',
+				className: 'powered-by',
+				innerHTML: {
+					type: 'a',
+					innerHTML: [
+						{
+							type: 'img',
+							src: 'http://myuserjs.org/img/favicon/favicon.png',
+							attributes: {
+								height: '16px'
+							}
+						},
+						'Powered by jMod'
+					],
+					attributes: {
+						href: 'http://doc.myuserjs.org'
+					}
+				}
+			},
+			{
 				type: 'a',
 				innerHTML: 'Clear Settings',
 				className: 'btn-clear-settings',
@@ -6487,26 +7486,6 @@ Settings.MakeSettingsModal = function(data){
 							eventCancel(e);
 							return false;
 						}
-					}
-				}
-			},
-			{
-				type: 'span',
-				className: 'powered-by',
-				innerHTML: {
-					type: 'a',
-					innerHTML: [
-						{
-							type: 'img',
-							src: 'http://myuserjs.org/img/favicon/favicon.png',
-							attributes: {
-								height: '16px'
-							}
-						},
-						'Powered by jMod'
-					],
-					attributes: {
-						href: 'http://doc.myuserjs.org'
 					}
 				}
 			}
@@ -6560,10 +7539,10 @@ Settings.onResize = function(){
 	var computedDialog = unsafeWindow.getComputedStyle(settingsDialog, null);
 	var marginTop = parseInt(computedDialog.getPropertyValue('margin-top'));
 	var marginBottom = parseInt(computedDialog.getPropertyValue('margin-bottom'));
-	var maxHeight = (viewportHeight - parseInt(settingsHeader.offsetHeight) - parseInt(settingsFooter.offsetHeight) - marginTop - marginBottom);
+	var maxHeight = (parseInt(viewportHeight) - parseInt(settingsHeader.offsetHeight) - parseInt(settingsFooter.offsetHeight) - marginTop - marginBottom) - 1;
 	settingsBody.style.maxHeight = maxHeight + 'px';
 	
-	var settingsTabs = jMod.$('.nav.nav-tabs', settingsBody);
+	var settingsTabs = jMod.$('.nav-tabs', settingsBody);
 	jMod.Tabs.resize(settingsTabs);
 }
 
@@ -6593,7 +7572,7 @@ Settings.init = function(){
 	Settings.Initialized = true;
 }
 
-jMod.CSS = '.jmod-na .modal-body{min-height:200px;max-height:500px;overflow-y:auto;}.jmod-na .powered-by{font-family:"Sansation",Lato;font-weight:300;font-size:16px;position:absolute;left:0;text-align:center;width:100%;bottom:0;padding-bottom:5px;}.jmod-na .powered-by > a:link,.jmod-na .powered-by > a:visited,.jmod-na .powered-by > a:hover,.jmod-na .powered-by > a:active{text-decoration:none;color:#000;}.jmod-na .powered-by img{margin-right:3px;}.jmod-na .noselect{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}.jmod-na .noselect::selection{background:transparent;}.jmod-na .noselect::-moz-selection{background:transparent;}';
+jMod.CSS = '.jmod-na .modal-body{min-height:200px;max-height:500px;overflow-y:auto;}.jmod-na .powered-by{font-family:"Sansation",Lato;font-weight:300;font-size:16px;position:absolute;left:0;text-align:center;width:100%;bottom:0;padding-bottom:5px;}.jmod-na .powered-by > a:link,.jmod-na .powered-by > a:visited,.jmod-na .powered-by > a:hover,.jmod-na .powered-by > a:active{text-decoration:none;color:#000;}.jmod-na .powered-by img{margin-right:3px;}.jmod-na .noselect{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}.jmod-na .noselect::selection{background:transparent;}.jmod-na .noselect::-moz-selection{background:transparent;}.jmod-na .imagefile-form{display:inline-block;vertical-align:top;}.jmod-na .imagefile-form > button{margin-right:10px;}.jmod-na .image-preview-container{display:inline-flex;color:rgba(0,0,0,0.7);background-repeat:no-repeat;background-position:center center;background-size:100% 100%;max-width:100%;min-width:35px;min-height:35px;max-height:300px;border:solid 1px #000000;padding:5px;text-align:center;vertical-align:center center;align-items:center;justify-content:center;}';
 
 
 
@@ -7217,7 +8196,7 @@ SendMessage._globalResponseCallback = mExportFunction(SendMessage_responseCallba
 	
 		var defaultFilter = function(message, url, linenumber, colNumber, eObj, stackInfo){
 			try{
-				if(jConfig('script.script_info.userscript_file_name') == stackInfo[0].fileName){
+				if(jConfig('script.script_info.userscript_full_file_name') == stackInfo[0].fileName){
 					console.log('Error is from userscript!');
 					
 					switch(eObj.name){
@@ -7400,45 +8379,23 @@ SendMessage._globalResponseCallback = mExportFunction(SendMessage_responseCallba
 	*/
 	//setTimeout(jMod.API.contentEval, 1000, onErrorFunction);
 
+	if(_undefined==typeof jMod.Config.script.script_info && _undefined!=typeof GM_info){
+		ScriptInfo.set();
+	}
+	
 	/***********************************
 	 ** Init
 	 **********************************/
-/*
-try{
-	foobar();
-}catch(e){
-	jModError(e, 'jMod.init', 'I have a message');
-	//jModError(undefined, 'jMod.init', 'I have a message', jMod);
-}
-
-jModInfo('jMod.init', jMod.timeElapsed.toFixed(2) + 'ms');
-
-jModLogTime('jMod.init');
-*/
-
-
-
-
-
 +function(){
 
-if(typeof GM_info !== _undefined && !ScriptInfo.InfoSet){
-	jMod.log.Debug('GM_info', GM_info);
-	jMod({
-		'GM_info': GM_info,
-		'has_GM_info': (typeof GM_info !== _undefined ? true : false),
-		'has_GM_getMetadata': (typeof GM_getMetadata !== _undefined ? true : false)
-	});
-}
-
-var pageLoadTime;
-var totalCallCount = 0;
+var pageLoadTime,
+	totalCallCount = 0;
+	
 const maxCallCount = 200;
 
 var InitHandlers = {
 	DOMLoaded: function(){
 		Loading.DOMLoaded = true;
-		//if(jMod.debug) jMod.Debug('DOM Loaded: %c'+jMod.log.fmt.timePatt+'%c - Begin Init', jMod.log.fmt.time, jMod.timeElapsed, ' ');
 		if(jMod.debug) jModLogTime('DOM Loaded', null, ' - Begin Init');
 		jMod.Events.fire('onDOMReady');
 		//jMod.API.contentEval(onErrorFunction);
@@ -7513,6 +8470,8 @@ function tryInit(e){
 		
 		if(!Loading.performanceReady)
 			InitHandlers.performanceReady();
+			
+		if(jMod.debug) jModLogTime('jMod Finish Init');
 		return;
 	}
 	totalCallCount++;
@@ -7525,8 +8484,6 @@ function checkTimer(){
 	else
 		clearInterval(checkTimer);
 }
-
-setInterval(checkTimer, 40);
 
 // DOM Content Loaded Event
 window.addEventListener('DOMContentLoaded', function(e){
@@ -7563,7 +8520,9 @@ function AfterScriptExec(e){
 }
 window.addEventListener('afterscriptexecute', AfterScriptExec, false);
 
+// Start Init process
 tryInit();
+setInterval(checkTimer, 25);
 
 }();
 
@@ -7573,13 +8532,14 @@ tryInit();
 			jMod.InitializeEndTime = performance.now;
 		}, 0);
 	}
-	jModLogTime('jMod Initialize Time Elapsed');
+	if(jMod.debug) jModLogTime('jMod Initialize Time Elapsed');
 	return jMod;
 }(
-	("undefined"!=typeof window.performance?window.performance.now():0.0),
-	"undefined"!=typeof jQuery?jQuery:undefined,
+	("undefined"!==typeof window.performance?window.performance.now():0.0),
+	"undefined"!==typeof jQuery?jQuery:undefined,
 	console,
-	"undefined"!=typeof unsafeWindow?unsafeWindow:("undefined"!==typeof window?window:this),
+	window,
+	"undefined"!==typeof unsafeWindow?unsafeWindow:("undefined"!==typeof window?window:this),
 	"undefined"
 ));
 

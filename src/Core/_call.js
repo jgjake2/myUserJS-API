@@ -4,8 +4,8 @@
 jMod._call = function(){
 	var type, tmp, arg0, arg1, length = arguments.length;
 	// Try to get the Userscript's file info if jMod() is being called from the script
-	try{if(!ScriptInfo.gotFileInfo)ScriptInfo.getScriptFileInfo();}catch(e){}
-	try{if(_undefined===typeof jMod.Config.script.script_info)ScriptInfo.get();}catch(e){}
+	try{if(jConfig.getScriptFileInfo&&!ScriptInfo.gotFileInfo)ScriptInfo.getScriptFileInfo();}catch(e){} // Try to get information about the userscript if possible
+	//try{if(_undefined===typeof jMod.Config.script.script_info)ScriptInfo.get();}catch(e){}
 	try{
 		if(length > 0){
 			arg0 = arguments[0];

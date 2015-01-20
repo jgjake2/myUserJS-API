@@ -1,5 +1,6 @@
 // +@display_name  Settings
 // +@history (0.0.15) History begins.
+// +@history (0.0.17) Fix resizing bug.
 
 
 /**
@@ -70,7 +71,7 @@ var Settings = jMod.Settings = function(data, data2){
 			
 			Settings.PrefTypes.onChange();
 			
-			unsafeWindow.addEventListener('resize', jMod.Settings.onResize, false );
+			(window || unsafeWindow).addEventListener('resize', jMod.Settings.onResize, false );
 			
 			jMod.Settings.onResize();
 		}
@@ -96,6 +97,8 @@ Settings.getDefault = function(prefName){
 
 Settings.get = function(prefName, noDefault){
 	var storedData = Settings._storedData;
+	if(_undefined===typeof prefName)
+		return storedData;
 	return (storedData && storedData[prefName] !== undefined ? storedData[prefName] : (noDefault == true ? undefined : Settings.getDefault(prefName)));
 }
 
@@ -400,6 +403,8 @@ ImportScript('Core.Settings.textarea');
 
 ImportScript('Core.Settings.range');
 
+ImportScript('Core.Settings.imagefile');
+
 
 function setTooltipProperties(obj, data){
 	if(!isElement(obj)){
@@ -679,6 +684,26 @@ Settings.MakeSettingsModal = function(data){
 		body: settingsBody,
 		footer: [
 			{
+				type: 'span',
+				className: 'powered-by',
+				innerHTML: {
+					type: 'a',
+					innerHTML: [
+						{
+							type: 'img',
+							src: 'http://myuserjs.org/img/favicon/favicon.png',
+							attributes: {
+								height: '16px'
+							}
+						},
+						'Powered by jMod'
+					],
+					attributes: {
+						href: 'http://doc.myuserjs.org'
+					}
+				}
+			},
+			{
 				type: 'a',
 				innerHTML: 'Clear Settings',
 				className: 'btn-clear-settings',
@@ -697,26 +722,6 @@ Settings.MakeSettingsModal = function(data){
 							eventCancel(e);
 							return false;
 						}
-					}
-				}
-			},
-			{
-				type: 'span',
-				className: 'powered-by',
-				innerHTML: {
-					type: 'a',
-					innerHTML: [
-						{
-							type: 'img',
-							src: 'http://myuserjs.org/img/favicon/favicon.png',
-							attributes: {
-								height: '16px'
-							}
-						},
-						'Powered by jMod'
-					],
-					attributes: {
-						href: 'http://doc.myuserjs.org'
 					}
 				}
 			}
@@ -770,10 +775,10 @@ Settings.onResize = function(){
 	var computedDialog = unsafeWindow.getComputedStyle(settingsDialog, null);
 	var marginTop = parseInt(computedDialog.getPropertyValue('margin-top'));
 	var marginBottom = parseInt(computedDialog.getPropertyValue('margin-bottom'));
-	var maxHeight = (viewportHeight - parseInt(settingsHeader.offsetHeight) - parseInt(settingsFooter.offsetHeight) - marginTop - marginBottom);
+	var maxHeight = (parseInt(viewportHeight) - parseInt(settingsHeader.offsetHeight) - parseInt(settingsFooter.offsetHeight) - marginTop - marginBottom) - 1;
 	settingsBody.style.maxHeight = maxHeight + 'px';
 	
-	var settingsTabs = jMod.$('.nav.nav-tabs', settingsBody);
+	var settingsTabs = jMod.$('.nav-tabs', settingsBody);
 	jMod.Tabs.resize(settingsTabs);
 }
 
@@ -813,6 +818,7 @@ jMod.CSS = <><![CDATACSS[
   max-height: 500px;
   overflow-y: auto;
 }
+
 /***********************************
  ** Transition to global css
  **********************************/
@@ -848,6 +854,39 @@ jMod.CSS = <><![CDATACSS[
 
 .jmod-na .noselect::selection { background: transparent; }
 .jmod-na .noselect::-moz-selection { background: transparent; }
+
+.jmod-na .imagefile-form {
+	display: inline-block;
+	vertical-align: top;
+}
+
+.jmod-na .imagefile-form > button {
+	margin-right: 10px;
+}
+
+.jmod-na .image-preview-container {
+	display: inline-flex;
+	color: rgba(0,0,0,0.7);
+	
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-size: 100% 100%;
+	
+	max-width: 100%;
+	min-width: 35px;
+	min-height: 35px;
+	max-height: 300px;
+	border: solid 1px #000000;
+	
+	padding: 5px;
+	
+	text-align: center;
+	vertical-align: center center;
+	align-items: center;
+	justify-content: center;
+}
+
+
 ]]></>;
 
 

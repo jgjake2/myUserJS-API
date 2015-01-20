@@ -1,43 +1,18 @@
 // +@display_name  Initialize
 // +@history (0.0.14) History begins.
 // +@history (0.0.15) Speed improvements.
-
-/*
-try{
-	foobar();
-}catch(e){
-	jModError(e, 'jMod.init', 'I have a message');
-	//jModError(undefined, 'jMod.init', 'I have a message', jMod);
-}
-
-jModInfo('jMod.init', jMod.timeElapsed.toFixed(2) + 'ms');
-
-jModLogTime('jMod.init');
-*/
-
-
-
-
+// +@history (0.0.17) Logging improvements.
 
 +function(){
 
-if(typeof GM_info !== _undefined && !ScriptInfo.InfoSet){
-	jMod.log.Debug('GM_info', GM_info);
-	jMod({
-		'GM_info': GM_info,
-		'has_GM_info': (typeof GM_info !== _undefined ? true : false),
-		'has_GM_getMetadata': (typeof GM_getMetadata !== _undefined ? true : false)
-	});
-}
-
-var pageLoadTime;
-var totalCallCount = 0;
+var pageLoadTime,
+	totalCallCount = 0;
+	
 const maxCallCount = 200;
 
 var InitHandlers = {
 	DOMLoaded: function(){
 		Loading.DOMLoaded = true;
-		//if(jMod.debug) jMod.Debug('DOM Loaded: %c'+jMod.log.fmt.timePatt+'%c - Begin Init', jMod.log.fmt.time, jMod.timeElapsed, ' ');
 		if(jMod.debug) jModLogTime('DOM Loaded', null, ' - Begin Init');
 		jMod.Events.fire('onDOMReady');
 		//jMod.API.contentEval(onErrorFunction);
@@ -112,6 +87,8 @@ function tryInit(e){
 		
 		if(!Loading.performanceReady)
 			InitHandlers.performanceReady();
+			
+		if(jMod.debug) jModLogTime('jMod Finish Init');
 		return;
 	}
 	totalCallCount++;
@@ -124,8 +101,6 @@ function checkTimer(){
 	else
 		clearInterval(checkTimer);
 }
-
-setInterval(checkTimer, 40);
 
 // DOM Content Loaded Event
 window.addEventListener('DOMContentLoaded', function(e){
@@ -162,6 +137,8 @@ function AfterScriptExec(e){
 }
 window.addEventListener('afterscriptexecute', AfterScriptExec, false);
 
+// Start Init process
 tryInit();
+setInterval(checkTimer, 25);
 
 }();

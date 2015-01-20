@@ -10,11 +10,15 @@
  * @returns {Object} node The newly created style node
  */
 var addStyle = jMod.API.addStyle = function(css){
-	if (typeof css != _undefined && css != '') {
-		if(typeof GM_addStyle !== _undefined){
-			GM_addStyle(css);
-		} else if(heads = document.getElementsByTagName('head')) {
-			var style = document.createElement('style');
+	if(css && css != ''){
+		if(typeof GM_addStyle !== _undefined)
+			return GM_addStyle(css) || true;
+			
+		var style,
+			win = (window || unsafeWindow),
+			heads = win.document.getElementsByTagName('head');
+		if(heads) {
+			style = win.document.createElement('style');
 			try {
 				style.innerHTML = css;
 			} catch (x) {
@@ -22,7 +26,29 @@ var addStyle = jMod.API.addStyle = function(css){
 			}
 			style.type = 'text/css';
 			return heads[0].appendChild(style);
+		} else {
+			if(jMod.debug)
+				jModLogWarning('jMod.API.addStyle', 'Could not add css', css);
 		}
 	}
-	return null;
+}
+
+jMod.API.addStylesheet = function(url){
+	var style,
+		win = (window || unsafeWindow),
+		heads = win.document.getElementsByTagName('head');
+	
+	if(heads){
+		style = win.document.createElement('link');
+		style.setAttribute('rel', 'stylesheet');
+		style.href = url;
+		return heads[0].appendChild(style);
+	} else {
+		if(jMod.debug)
+			jModLogWarning('jMod.API.addStylesheet', 'Could not add stylesheet', url);
+	}
+}
+
+jMod.API.importStylesheet = function(url){
+	jMod.CSS = "@import url("+url+");\n";
 }

@@ -317,7 +317,7 @@ var appendChild = jMod.Element.appendChild = function(el, data) {
  */
 
 /** @const */
-const validElementProps = ['checked', 'title', 'async', 'defer', 'src', 'onerror', 'onload', 'responseCallback', 'value', 'max', 'min'];
+const validElementProps = ['checked', 'defaultValue', 'title', 'async', 'defer', 'src', 'onerror', 'onload', 'responseCallback', 'value', 'max', 'min'];
  
 /**
  * Create a new DOM element
@@ -419,7 +419,9 @@ var findParentWithClass = jMod.Element.findParentWithClass = function(el, classN
 }
 
 function fireClick(el, bubbles, cancelable){
-	if(document.createEvent) {
+	if(jMod.jQueryAvailable){
+		$(el).click();
+	} else if(document.createEvent) {
 		var evt = document.createEvent('MouseEvents');
 		evt.initEvent('click', bubbles || true, cancelable || true);
 		el.dispatchEvent(evt);	

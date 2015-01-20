@@ -44,7 +44,7 @@
 	
 		var defaultFilter = function(message, url, linenumber, colNumber, eObj, stackInfo){
 			try{
-				if(jConfig('script.script_info.userscript_file_name') == stackInfo[0].fileName){
+				if(jConfig('script.script_info.userscript_full_file_name') == stackInfo[0].fileName){
 					console.log('Error is from userscript!');
 					
 					switch(eObj.name){

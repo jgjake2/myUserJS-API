@@ -1,6 +1,35 @@
 jMod History
 ============
 
+## Version 0.0.17
+* **Config**
+    * Config function now attempts to get userscript information when called (if enabled).
+* **Core**
+    * Added Observer class.
+    * Added Language framework.
+* **ExportFunction**
+    * Added condition for arrays when normal copying fails.
+    * Added some documentation.
+    * Better support when "exportFunction" is unavailable.
+* **Get Remote Image**
+    * History begins.
+* **Get Resource**
+    * History begins.
+* **Initialize**
+    * Logging improvements.
+* **Language**
+    * History begins.
+* **Log**
+    * Updated format builder to include integer types.
+    * Updated format builder to handle arguments without a type as an object without including it in the format string.
+    * Added a jMod specific Warning and Info logger.
+* **Script Info**
+    * Added enable/disable configuration and logging for "getScriptFileInfo".
+* **Settings**
+    * Fix resizing bug.
+* **Tooltip**
+    * Fix resizing bug that causes content to disappear when tab width is not computable or too large.
+
 ## Version 0.0.16
 * **Add Script**
     * Minor improvements.

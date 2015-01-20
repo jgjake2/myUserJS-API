@@ -21,6 +21,8 @@
 // @grant            GM_deleteValue
 // @unwrap
 // @run-at           document-start
+// +@history         (0.0.17) Added Observer class.
+// +@history         (0.0.17) Added Language framework.
 // +@history         (0.0.16) Major renaming to reduce min size.
 // +@history         (0.0.16) Renamed jMod and changed css namespce to .jmod-na.
 // +@history         (0.0.15) Added GM_Storage for cross-domain storage.
@@ -83,10 +85,11 @@ ImportScript('Core.MacroDoc');
 	if(jMod.debug){
 		jMod.log.groupEnd('jMod Initialize');
 	}
+	window.focus();
 }.call(
 	this,
 	"undefined"!==typeof unsafeWindow?unsafeWindow:("undefined"!==typeof window?window:this),
-function(initStart, $, console, unsafeWindow, _undefined, undefined){
+function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	/**
 	 * Calls jMod._call with the given arguments
 	 * @global
@@ -98,32 +101,38 @@ function(initStart, $, console, unsafeWindow, _undefined, undefined){
 	 * // Get the current value of script.username
 	 * jMod('get', 'script.username')
 	 */
-	var jMod = function(args){return jMod._call.apply(jMod, arguments);};
+	var jMod = function(){return jMod._call.apply(jMod, arguments);};
 	jMod.InitializeStartTime = initStart;
 	jMod.InitializeEndTime = -1;
-	
 	
 	/**
 	 * API Namespace
 	 * @memberOf! jMod
 	 * @namespace jMod.API
 	 */
-	var API = jMod.API = {};
-	var jModReady = -1,
+	var API = jMod.API = {},
 		Slice = Array.prototype.slice,
 		_jQueryAvailable = EXISTS($)?true:false,
-		_css = "@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n"
-		+ ({{{DEBUG}}} ? "@import url(//test2.myuserjs.org/css/smartadmin-production-all-namespaced.css);\n" : "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n")
+		jModReady = -1,
+		//({{{DEBUG}}} ? "@import url(//test2.myuserjs.org/css/smartadmin-production-all-namespaced.css);\n" : "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n")
+		_css = "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n"
+		+"@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n"
 		+"@font-face {font-family: 'Sansation';font-style: normal;font-weight: 400;src: local('Sansation Regular'), local('Sansation-Regular'), url(http://myuserjs.org/fonts/Sansation-Regular.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: normal;font-weight: 300;src: local('Sansation Light'), local('Sansation-Light'), url(http://myuserjs.org/fonts/Sansation-Light.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 300;src: local('Sansation Light Italic'), local('Sansation-LightItalic'), url(http://myuserjs.org/fonts/Sansation-LightItalic.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: normal;font-weight: 700;src: local('Sansation Bold'), local('Sansation-Bold'), url(http://myuserjs.org/fonts/Sansation-Bold.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 400;src: local('Sansation Italic'), local('Sansation-Italic'), url(http://myuserjs.org/fonts/Sansation-Italic.ttf) format('ttf');}\n"
-		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 700;src: local('Sansation Bold Italic'), local('Sansation-BoldItalic'), url(http://myuserjs.org/fonts/Sansation-BoldItalic.ttf) format('ttf');}\n";
+		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 700;src: local('Sansation Bold Italic'), local('Sansation-BoldItalic'), url(http://myuserjs.org/fonts/Sansation-BoldItalic.ttf) format('ttf');}\n",
+		CurrentRunningScript = {
+			id: 'jMod',
+			config: {},
+			el: unsafeWindow.document&&unsafeWindow.document.currentScript?unsafeWindow.document.currentScript:undefined
+		}
+		
 	var DefineLockedProp = function(name, value, target, en){
 		var opts = {
 			configurable: false,
-			enumerable: (EXISTS(en)?en:true)
+			enumerable: en===false?en:true
 		}
 		if(typeof value === "function")
 			opts.get = value;
@@ -133,11 +142,7 @@ function(initStart, $, console, unsafeWindow, _undefined, undefined){
 		}
 		Object.defineProperty(target || jMod, name, opts);
 	}
-	var CurrentRunningScript = {
-		id: 'jMod',
-		config: {},
-		el: unsafeWindow.document&&unsafeWindow.document.currentScript?unsafeWindow.document.currentScript:undefined
-	}
+
 	
 	DefineLockedProp('ScriptElement', function(){return (CurrentRunningScript.el ? CurrentRunningScript : undefined);});
 	
@@ -294,6 +299,11 @@ function(initStart, $, console, unsafeWindow, _undefined, undefined){
 	}
 	
 	/***********************************
+	 ** Language
+	 **********************************/
+	ImportScript('Language.Language');
+	
+	/***********************************
 	 ** _call
 	 **********************************/
 	ImportScript('Core._call');
@@ -317,14 +327,26 @@ function(initStart, $, console, unsafeWindow, _undefined, undefined){
 		jMod.log.group('jMod Start');
 		jMod.log.group('jMod Initialize');
 		
-		if(CurrentRunningScript.el)
+		if(CurrentRunningScript.el){
+			//jConfig.getScriptFileInfo = false;
 			jMod.Info('CurrentRunningScript', CurrentRunningScript);
+		}
 	}
 	
 	/***********************************
 	 ** Events
 	 **********************************/
 	ImportScript('Core.Events');
+	
+	/***********************************
+	 ** Observer
+	 **********************************/
+	ImportScript('Core.Observer');
+	
+	/***********************************
+	 ** File Selector
+	 **********************************/
+	ImportScript('Core.FileSelector');
 
 	//if(jConfig('debug')) jMod.Log('jMod.Config', jMod.Config);
 
@@ -397,6 +419,11 @@ jMod.deleteValue = function(key){
 }
 
 	/***********************************
+	 ** Get Resource
+	 **********************************/
+	ImportScript('API.getResource');
+	
+	/***********************************
 	 ** Date
 	 **********************************/
 	ImportScript('API.Date');
@@ -446,6 +473,10 @@ jMod.deleteValue = function(key){
 	 **********************************/
 	ImportScript('Core.Error');
 
+	if(NOTEXISTS(jMod.Config.script.script_info) && EXISTS(GM_info)){
+		ScriptInfo.set();
+	}
+	
 	/***********************************
 	 ** Init
 	 **********************************/
@@ -456,13 +487,14 @@ jMod.deleteValue = function(key){
 			jMod.InitializeEndTime = performance.now;
 		}, 0);
 	}
-	jModLogTime('jMod Initialize Time Elapsed');
+	if(jMod.debug) jModLogTime('jMod Initialize Time Elapsed');
 	return jMod;
 }(
-	("undefined"!=typeof window.performance?window.performance.now():0.0),
-	"undefined"!=typeof jQuery?jQuery:undefined,
+	("undefined"!==typeof window.performance?window.performance.now():0.0),
+	"undefined"!==typeof jQuery?jQuery:undefined,
 	console,
-	"undefined"!=typeof unsafeWindow?unsafeWindow:("undefined"!==typeof window?window:this),
+	window,
+	"undefined"!==typeof unsafeWindow?unsafeWindow:("undefined"!==typeof window?window:this),
 	"undefined"
 ));
 

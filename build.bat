@@ -8,7 +8,7 @@ set paramIndex=0
 set paramValue=EMPTY
 
 set JMOD_VERSION=0.0.17
-set COPY_OUTPUT_TO=C:\Users\Spud\AppData\Roaming\Mozilla\Firefox\Profiles\hatqckbp.Dev\gm_scripts\Anti-Pagination\MUJS.js
+set COPY_OUTPUT_TO=C:\Users\Spud\AppData\Roaming\Mozilla\Firefox\Profiles\hatqckbp.Dev\gm_scripts\Anti-Pagination\jMod.js
 set JSDOC_DIR=F:\Software\jsdoc
 
 set IS_DEBUG=0

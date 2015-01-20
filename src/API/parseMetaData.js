@@ -18,7 +18,26 @@ jMod.API.ParseMetaData_Types.push(function(name, obj){
 		}
 		return o;
 	}
-	return undefined;
+});
+
+jMod.API.ParseMetaData_Types.push(function(name, obj){
+	if(name.toLowerCase() == "resource"){
+		if(typeof obj !== "object")
+			obj = [obj];
+			
+		var r,
+			i = 0,
+			o = {},
+			resource_patt = /^\s*([\w]+)\s+(.*?)\s*$/;
+			
+		for(i; i < obj.length; i++){
+			if(resource_patt.test(obj[i])){
+				r = resource_patt.exec(obj[i]);
+				o[r[1]] = r[2];
+			}
+		}
+		return o;
+	}
 });
 
 jMod.API.ParseMetaData = function(headerBlock){

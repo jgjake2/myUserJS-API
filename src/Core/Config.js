@@ -3,6 +3,7 @@
 // +@history (0.0.11) Added XMLHttpRequest.
 // +@history (0.0.15) Fixed jMod.Config properties being added twice.
 // +@history (0.0.16) Users can now set configuration from meta block, or from script tag.
+// +@history (0.0.17) Config function now attempts to get userscript information when called (if enabled).
 
 	RequireScript('Core.prototypes');
 	
@@ -18,6 +19,7 @@
 	 * @property {boolean} scopeLock
 	 * @property {boolean} secure
 	 * @property {object} browser
+	 * @property {boolean} getScriptFileInfo - Enable / Disable getting information about the userscript file
 	 * @property {object} script
 	 * @property {string} script.username       - Owner's username hosted on myUserJS
 	 * @property {string} script.script_name    - Script's short-name (can be fount in script's hosted URL on myUserJS)
@@ -41,10 +43,14 @@
 	 * @property {object} API.Storage
 	 * @property {string} API.Storage.prefix - Prefix for all stored values
 	 * @property {string} API.Storage.engine - Default storage engine [GM_Storage or localStorage] (Will default to localStorage when GM_Storage is not available)
+	 * @property {object} Language
+	 * @property {string} Language.Current - Current language
 	 * @property {boolean} debug
 	 * @example
 	 * // Get the current value of script.username
 	 * jMod('get', 'script.username')
+	 * // or
+	 * jMod('script.username')
 	 * // or
 	 * jMod.Config('script.username');
 	 * // or
@@ -53,12 +59,15 @@
 	 * // Set the current value of script.username
 	 * jMod('set', 'script.username', 'foo')
 	 * // or
+	 * jMod('script.username', 'foo')
+	 * // or
 	 * jMod.Config('script.username', 'foo');
 	 * // or
 	 * jMod.Config.script.username = 'foo';
 	 */
 	 
 	var jConfig = jMod.Config = function(key, value){
+		try{if(jConfig.getScriptFileInfo&&!ScriptInfo.gotFileInfo)ScriptInfo.getScriptFileInfo();}catch(e){} // Try to get information about the userscript if possible
 		if(typeof value === _undefined){
 			return (typeof key == "string" ? jMod.Config.SearchForKey(key) : jMod.Config.SearchForKeys(key));
 		} else {
@@ -72,6 +81,7 @@
 		'scopeLock': false,
 		'secure': false,
 		'browser': jMod.Browser.getBrowser(),
+		'getScriptFileInfo': true,
 		'script': {
 			username: undefined,
 			script_name: undefined
@@ -109,6 +119,9 @@
 				'prefix': 'jMod_', // API.localStorage.storage_prefix
 				'engine': 'GM_Storage' // Default storage engine [GM_Storage or localStorage] (Will default to localStorage when GM_Storage is not available)
 			}
+		},
+		'Language': {
+			'Current': 'en'
 		},
 		'debug': {{{DEBUG}}}
 	});

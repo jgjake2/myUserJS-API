@@ -6,6 +6,9 @@
 // +@history (0.0.15) Removed ref to jMod.fn (__proto__ is depreciated).
 // +@history (0.0.16) Consolidated similar functions.
 // +@history (0.0.16) Added dir and dirxml functions.
+// +@history (0.0.17) Updated format builder to include integer types.
+// +@history (0.0.17) Updated format builder to handle arguments without a type as an object without including it in the format string.
+// +@history (0.0.17) Added a jMod specific Warning and Info logger.
 
 /**
  * A logging interface that allows safe console interactions. It can handle permission/scope problems and multiple console instances.<br /><br />
@@ -150,8 +153,9 @@
 		// For commands you can't call .apply on (like when an error object is involved)
 		ScopedConsoleCommand: function(command, value){
 			var isFormatted = (['debug','log','info','warn','error','exception'].indexOf(command)!=-1&&"string"==typeof value&&/(?:\%s|\%c|\%o|\%d|\%f|\%\.\df|\%i)/.test(value)); // Don't use GM_log on formatted logs
-			//var ptr = (!isFormatted && _undefined!=this.wc && _undefined!=this.wc[command] ? this.wc : this.fb);
-			var ptr = (isFormatted || (_undefined!=this.fb && _undefined!=this.fb[command])? this.fb : this.wc);
+			var ptr = (isFormatted || (_undefined!=this.fb && _undefined!=typeof this.fb[command])? this.fb : this.wc);
+			if(_undefined==typeof ptr[command])
+				return false;
 			try{
 			switch(arguments.length){
 				case 1:
@@ -202,8 +206,14 @@
 				case 16:
 					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13], arguments[14], arguments[15]);
 					break;
+				default:
+					return false;
+					break;
 			}
-			}catch(e){}
+			}catch(e){
+				return false;
+			}
+			return true;
 		},
 		
 		ConsoleCommand: function(command, value){
@@ -259,10 +269,22 @@
 		},
 		
 		fmt: {
-			timePatt: '%.3fms',
+			//timePatt: '%.3fms',
 			time: 'font-weight:bold;font-size:120%;color:red;',
 			
-			stchange: 'font-weight:bold;font-size:130%;color:blue;'
+			stchange: 'font-weight:bold;font-size:130%;color:blue;',
+			
+			iconStyle: 'font-size:175%;background-image:url("http://myuserjs.org/img/favicon/favicon.png");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;',
+			
+			infoDefaultStyle: ' ',
+			infoHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
+			infoTitleStyle: 'color:#000;font-size:125%;',
+			infoTextStyle: 'font-weight:bold;font-size:120%;color:blue;',
+			
+			warningDefaultStyle: ' ',
+			warningHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
+			warningTitleStyle: 'color:#000;font-size:125%;',
+			warningTextStyle: 'font-weight:bold;font-size:120%;color:red;'
 		}
 	};
 	
@@ -286,10 +308,32 @@
 		this.args = [];
 		
 		this.add = function(value, type, style){
-			var isUndef = _undefined===typeof value;
+			var isUndef = _undefined===typeof value,
+				origType = typeof type;
 			if(typeof type === _undefined) type = typeof value;
 			var fmtType;
 			switch(type){
+				case "d":
+				case "%d":
+					fmtType = "%d";
+					break;
+				case "i":
+				case "%i":
+					fmtType = "%i";
+					break;
+				case "f":
+				case "%f":
+					fmtType = "%.2f";
+					break;
+				case "number":
+					if(parseInt(value) === value && value === +value){
+						fmtType = "%d";
+						value = parseInt(value);
+					} else {
+						fmtType = "%.2f";
+						value = parseFloat(value);
+					}
+					break;
 				case "s":
 				case "%s":
 					if(value == "\n" || value == " \n"){
@@ -307,9 +351,14 @@
 					break;
 				case "o":
 				case "%o":
+					fmtType = "%o";
+					break;
 				case "object":
 				default:
-					fmtType = "%o";
+					if(origType==_undefined && _undefined==typeof style)
+						fmtType = "";
+					else
+						fmtType = "%o";
 					break;
 			}
 			
@@ -338,18 +387,6 @@
 			return [fmtString].concat(arr);
 		}
 	};
-	
-	/*
-	var fmtBuild = new jMod.API.logFormatBuilder();
-	var tmpObj = {taco: "bell"};
-	fmtBuild.add("foo bar");
-	fmtBuild.add(" \n");
-	fmtBuild.add("mystring text", "string", "color:red;");
-	fmtBuild.add(tmpObj);
-	console.log(fmtBuild.build());
-	*/
-	
-	
 		
 	jMod.log.UpdateAll();
 		
@@ -358,8 +395,8 @@
 var jModError = function(e, title, message){
 	var errorDefaultStyle = '';
 	//var ErrorIconURL = 'http://www.shedworx.com/files/images/error.png';
-	var ErrorIconURL = 'http://myuserjs.org/img/favicon/favicon.png';
-	var errorIconStyle = 'font-size:175%;background-image:url("'+ErrorIconURL+'");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;';
+	//var ErrorIconURL = 'http://myuserjs.org/img/favicon/favicon.png';
+	//var errorIconStyle = 'font-size:175%;background-image:url("'+ErrorIconURL+'");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;';
 	
 	var errorHeaderStyle = 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;';
 	
@@ -374,7 +411,7 @@ var jModError = function(e, title, message){
 			jMod.log.ScopedConsoleCommand.call(jMod.log,
 				'error',
 				'%c%s%cjMod Error%c - %c%s \n%s \n%c%s - %c(line %d)',
-				errorDefaultStyle + errorIconStyle, // Icon Style
+				errorDefaultStyle + jMod.log.fmt.iconStyle, // Icon Style
 				'  ', // Icon
 				errorDefaultStyle + errorHeaderStyle, // Header Style
 				' ', // Header
@@ -391,7 +428,7 @@ var jModError = function(e, title, message){
 			jMod.log.ScopedConsoleCommand.call(jMod.log,
 				'error',
 				'%c%s%cjMod Error%c - %c%s \n%s \n%c%s - %c(line %d)',
-				errorDefaultStyle + errorIconStyle, // Icon Style
+				errorDefaultStyle + jMod.log.fmt.iconStyle, // Icon Style
 				'  ', // Icon
 				errorDefaultStyle + errorHeaderStyle, // Header Style
 				' ', // Header
@@ -410,7 +447,7 @@ var jModError = function(e, title, message){
 		jMod.log.ScopedConsoleCommand.apply(jMod.log,[
 				'error',
 				'%c%s%cjMod Error%c - %c%s \n%s',
-				errorDefaultStyle + errorIconStyle, // Icon Style
+				errorDefaultStyle + jMod.log.fmt.iconStyle, // Icon Style
 				'  ', // Icon
 				errorDefaultStyle + errorHeaderStyle, // Header Style
 				' ', // Header
@@ -423,70 +460,78 @@ var jModError = function(e, title, message){
 	}
 };
 
-var jModInfo = function(title){
-	var infoDefaultStyle = '';
-	//var ErrorIconURL = 'http://www.shedworx.com/files/images/error.png';
-	var infoIconURL = 'http://myuserjs.org/img/favicon/favicon.png';
-	var infoIconStyle = 'font-size:175%;background-image:url("'+infoIconURL+'");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;';
-	
-	var infoHeaderStyle = 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;';
-	
-	var infoTitleStyle = 'color:#000;font-size:125%;';
-	
-	var exArgs = Slice.call(arguments,1);
-	var fmtString = '%c%s%cjMod%c - %c%s';
-	var args = [];
-	if(exArgs.length > 0)
-		fmtString += ' \n%c';
-	for(var i = 0; i < exArgs.length; i++){
-		if(typeof exArgs[i] === "number"){
-			if(parseInt(exArgs[i]) === exArgs[i] && exArgs[i] === +exArgs[i] && exArgs[i] !== (exArgs[i]|0)){
-				fmtString += '%.2f \n';
-			} else {
-				fmtString += '%d \n';
-			}
-			args.push(exArgs[i]);
-		} else if(typeof exArgs[i] === "string"){
-			fmtString += '%s \n';
-			args.push(exArgs[i]);
-		} else {
-			fmtString += '%o\n';
-			args.push(exArgs[i]);
-		}
+var jModLogWarning = function(title, text){
+	if(jMod.log.OUTPUT_TYPES.WARNING.level > jConfig('API.log.verbosity_level'))
+		return;
+		
+	var i = 2,
+		warningDefaultStyle = jMod.log.fmt.warningDefaultStyle,
+		fmtBuild = new jMod.API.logFormatBuilder();
+		
+	fmtBuild.add('  ', "%s", warningDefaultStyle + jMod.log.fmt.iconStyle);
+	fmtBuild.add('jMod Warning', "string", warningDefaultStyle + jMod.log.fmt.warningHeaderStyle);
+	if(_undefined!==typeof text){
+		fmtBuild.add(' - ', "string", warningDefaultStyle);
+		fmtBuild.add(title || ' ', "%s", warningDefaultStyle + jMod.log.fmt.warningTitleStyle);
+		fmtBuild.add(" \n", "string");
+		fmtBuild.add(text || '', "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle);
+	} else {
+		fmtBuild.add(" \n", "string");
+		fmtBuild.add(title || '', "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle);
 	}
 	
-	// Have to get around scope/permission problems when dealing with "e"
-	jMod.Info.apply(jMod.log,[
-	//jMod.log.ScopedConsoleCommand.apply(jMod.log,[
-		//'info',
-		fmtString,
-		infoDefaultStyle + infoIconStyle, // Icon Style
-		'  ', // Icon
-		infoDefaultStyle + infoHeaderStyle, // Header Style
-		' ', // Header
-		infoDefaultStyle + infoTitleStyle, // Title Style
-		(title || ' '), // Title
-		infoDefaultStyle + ' ' // arguments style
-		].concat(args)
-	);
+	if(arguments.length > 2)
+		fmtBuild.add(" \n", "string");
+		
+	for(i; i < arguments.length; i++){
+		fmtBuild.add(arguments[i]);
+	}
+	
+	jMod.Warning.apply(jMod.log,fmtBuild.build());
+}
+
+var jModLogInfo = function(title, text){
+	if(jMod.log.OUTPUT_TYPES.INFO.level > jConfig('API.log.verbosity_level'))
+		return;
+		
+	var i = 2,
+		infoDefaultStyle = jMod.log.fmt.infoDefaultStyle,
+		fmtBuild = new jMod.API.logFormatBuilder();
+		
+	fmtBuild.add('  ', "%s", infoDefaultStyle + jMod.log.fmt.iconStyle);
+	fmtBuild.add('jMod', "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle);
+	if(_undefined!==typeof text){
+		fmtBuild.add(' - ', "string", infoDefaultStyle);
+		fmtBuild.add(title || ' ', "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle);
+		fmtBuild.add(" \n", "string");
+		fmtBuild.add(text || '', "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle);
+	} else {
+		fmtBuild.add(" \n", "string");
+		fmtBuild.add(title || '', "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle);
+	}
+	
+	if(arguments.length > 2)
+		fmtBuild.add(" \n", "string");
+		
+	for(i; i < arguments.length; i++){
+		fmtBuild.add(arguments[i]);
+	}
+	
+	jMod.Info.apply(jMod.log,fmtBuild.build());
 }
 
 var jModLogTime = function(title, prefix, suffix){
+	if(jMod.log.OUTPUT_TYPES.INFO.level > jConfig('API.log.verbosity_level'))
+		return;
 	var text = (prefix || '') +  jMod.timeElapsed.toFixed(2) + 'ms' + (suffix || '');
 	
-	var infoDefaultStyle = ' ';
-	var infoIconURL = 'http://myuserjs.org/img/favicon/favicon.png';
-	var infoIconStyle = 'font-size:175%;background-image:url("'+infoIconURL+'");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;';
-	
-	var infoHeaderStyle = 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;';
-	
-	var infoTitleStyle = 'color:#000;font-size:125%;';
+	var infoDefaultStyle = jMod.log.fmt.infoDefaultStyle;
 	
 	var fmtBuild = new jMod.API.logFormatBuilder();
-	fmtBuild.add('  ', "%s", infoDefaultStyle + infoIconStyle);
-	fmtBuild.add('jMod', "string", infoDefaultStyle + infoHeaderStyle);
+	fmtBuild.add('  ', "%s", infoDefaultStyle + jMod.log.fmt.iconStyle);
+	fmtBuild.add('jMod', "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle);
 	fmtBuild.add(' - ', "string", infoDefaultStyle);
-	fmtBuild.add(title || ' ', "%s", infoDefaultStyle + infoTitleStyle);
+	fmtBuild.add(title || ' ', "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle);
 	fmtBuild.add(' ', "string");
 	fmtBuild.add(text, "%s", infoDefaultStyle + jMod.log.fmt.time);
 	
