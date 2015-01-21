@@ -427,6 +427,16 @@ jMod.deleteValue = function(key){
 	 ** Date
 	 **********************************/
 	ImportScript('API.Date');
+	
+	/***********************************
+	 ** jQuery Extensions
+	 **********************************/
+	ImportScript('jQuery.jQueryExtensions');
+	
+	/***********************************
+	 ** jQuery Ajax
+	 **********************************/
+	ImportScript('jQuery.Ajax');
 
 	/***********************************
 	 ** Tooltip
