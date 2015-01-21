@@ -8,9 +8,9 @@ jMod History
     * Added Observer class.
     * Added Language framework.
 * **ExportFunction**
+    * Better support when "exportFunction" is unavailable.
     * Added condition for arrays when normal copying fails.
     * Added some documentation.
-    * Better support when "exportFunction" is unavailable.
 * **Get Remote Image**
     * History begins.
 * **Get Resource**

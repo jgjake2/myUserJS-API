@@ -25,97 +25,97 @@
 +function(t, e) {
     t.jMod = this.jMod = e, e.debug && e.log.groupEnd("jMod Initialize"), window.focus();
 }.call(this, "undefined" != typeof unsafeWindow ? unsafeWindow : "undefined" != typeof window ? window : this, function(Ct, $, u, p, s, n, o) {
-    function it(r, i, s) {
-        var a = "function" == typeof s ? !0 : !1, e = i;
-        "object" != typeof i && (e = d.call(arguments, 1), a = !1);
-        for (var t = 0; t < e.length; t++) if (typeof r[e[t]] !== n && (!a || a && s(e[t], r[e[t]]))) return e[t];
+    function it(a, i, s) {
+        var r = "function" == typeof s ? !0 : !1, e = i;
+        "object" != typeof i && (e = d.call(arguments, 1), r = !1);
+        for (var t = 0; t < e.length; t++) if (typeof a[e[t]] !== n && (!r || r && s(e[t], a[e[t]]))) return e[t];
         return o;
     }
-    function D(t, a, r) {
+    function D(t, r, a) {
         var e = it.apply(this, arguments);
         return typeof e !== n ? t[e] : o;
     }
-    function K(r) {
-        var e = 0, t = this, a = r.split(".");
-        for (e; e < a.length; e++) {
-            if (typeof t[a[e]] === n) return o;
-            t = t[a[e]];
+    function K(a) {
+        var e = 0, t = this, r = a.split(".");
+        for (e; e < r.length; e++) {
+            if (typeof t[r[e]] === n) return o;
+            t = t[r[e]];
         }
         return t;
     }
-    function bt(r) {
-        var a, t = 0, e = this, n = r.split(".");
+    function bt(a) {
+        var r, t = 0, e = this, n = a.split(".");
         if (0 == n.length) return o;
         for (t; t < n.length; t++) {
-            if (-1 == (a = Object.keys(e).join("|").toLowerCase().split("|").indexOf(n[t].toLowerCase()))) return o;
-            e = e[Object.keys(e)[a]];
+            if (-1 == (r = Object.keys(e).join("|").toLowerCase().split("|").indexOf(n[t].toLowerCase()))) return o;
+            e = e[Object.keys(e)[r]];
         }
         return e;
     }
-    function It(i, s) {
-        var r, a, n = 0, e = i.split("."), t = this;
+    function wt(i, s) {
+        var a, r, n = 0, e = i.split("."), t = this;
         if (0 == e.length) return o;
         for (n; n < e.length; n++) {
-            if (-1 == (a = Object.keys(t).join("|").toLowerCase().split("|").indexOf(e[n].toLowerCase()))) return o;
-            r = t, e[n] = Object.keys(t)[a], t = t[Object.keys(t)[a]];
+            if (-1 == (r = Object.keys(t).join("|").toLowerCase().split("|").indexOf(e[n].toLowerCase()))) return o;
+            a = t, e[n] = Object.keys(t)[r], t = t[Object.keys(t)[r]];
         }
-        return r[e[e.length - 1]] = s, e;
+        return a[e[e.length - 1]] = s, e;
     }
-    function Nt(t) {
-        var n, e = 0, a = "string" == typeof t ? d.call(arguments) : t;
-        for (e; e < a.length; e++) if ((n = K.apply(this, [ a[e] ])) !== o) return n;
+    function It(t) {
+        var n, e = 0, r = "string" == typeof t ? d.call(arguments) : t;
+        for (e; e < r.length; e++) if ((n = K.apply(this, [ r[e] ])) !== o) return n;
         return o;
     }
-    function _t(r, o, i) {
-        var e = 0, t = r.split("."), a = this;
+    function _t(a, o, i) {
+        var e = 0, t = a.split("."), r = this;
         for (e; e < t.length - 1; e++) {
-            if (typeof a[t[e]] === n) {
+            if (typeof r[t[e]] === n) {
                 if (!i) return;
-                a[t[e]] = {};
+                r[t[e]] = {};
             }
-            a = a[t[e]];
+            r = r[t[e]];
         }
-        a[t[t.length - 1]] = o;
+        r[t[t.length - 1]] = o;
     }
     function H(t, i, s) {
         if (typeof cloneInto !== n) {
             try {
                 return cloneInto(t, i, s);
             } catch (c) {}
-            var e, l, a = {};
+            var e, l, r = {};
             for (e in t) if (Object.prototype.hasOwnProperty.call(t, e)) if (l = typeof t[e], 
             [ "string", "number", "boolean" ].indexOf(l)) try {
-                a[e] = cloneInto(t[e], i, s);
+                r[e] = cloneInto(t[e], i, s);
             } catch (c) {} else if ("object" == l) if ("number" != typeof t[e].length) {
-                a[e] = {};
-                for (var r in t[e]) try {
-                    Object.prototype.hasOwnProperty.call(t[e], r) && (a[e][r] = cloneInto(t[e][r], i, s));
+                r[e] = {};
+                for (var a in t[e]) try {
+                    Object.prototype.hasOwnProperty.call(t[e], a) && (r[e][a] = cloneInto(t[e][a], i, s));
                 } catch (c) {}
             } else {
-                a[e] = [];
-                for (var r = 0; r < t[e].length; r++) try {
-                    a[e].push(cloneInto(t[e][r], i, s));
+                r[e] = [];
+                for (var a = 0; a < t[e].length; a++) try {
+                    r[e].push(cloneInto(t[e][a], i, s));
                 } catch (c) {
-                    a[e].push(o);
+                    r[e].push(o);
                 }
             }
             try {
-                return cloneInto(a, i, s);
+                return cloneInto(r, i, s);
             } catch (c) {}
         }
         return t;
     }
-    function ht(e, r, t) {
+    function ht(e, a, t) {
         if (typeof exportFunction !== n) try {
-            return exportFunction(e, r, t);
+            return exportFunction(e, a, t);
         } catch (o) {}
-        var a = "";
-        if (typeof t === n && (t = {}), typeof t.defineAs !== n ? a = t.defineAs : "function" == typeof e && "" != e.name && (a = e.name), 
-        "" != a) try {
-            return r[a] = e, r[a];
+        var r = "";
+        if (typeof t === n && (t = {}), typeof t.defineAs !== n ? r = t.defineAs : "function" == typeof e && "" != e.name && (r = e.name), 
+        "" != r) try {
+            return a[r] = e, a[r];
         } catch (o) {}
     }
-    function B(e) {
+    function G(e) {
         if (!e) {
             if (!p.event) return;
             e = p.event;
@@ -123,17 +123,17 @@
         null != e.cancelBubble && (e.cancelBubble = !0), e.stopPropagation && e.stopPropagation(), 
         e.preventDefault && e.preventDefault(), p.event && (e.returnValue = !1), null != e.cancel && (e.cancel = !0);
     }
-    function lt(e, a, r) {
+    function lt(e, r, a) {
         if (t.jQueryAvailable) $(e).click(); else if (document.createEvent) {
             var n = document.createEvent("MouseEvents");
-            n.initEvent("click", a || !0, r || !0), e.dispatchEvent(n);
+            n.initEvent("click", r || !0, a || !0), e.dispatchEvent(n);
         } else document.createEventObject ? e.fireEvent("onclick") : "function" == typeof e.onclick && e.onclick();
     }
     function Ot(l) {
-        for (var i = 3, o = 4, r = l.length, a = 0, e, c = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=", s = "", u = 0, n = Array(i), t = Array(o); r > a; ) {
-            for (e = 0; i > e; ++e) n[e] = r > a ? 255 & l.charCodeAt(a++) : 0;
+        for (var i = 3, o = 4, a = l.length, r = 0, e, c = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=", s = "", u = 0, n = Array(i), t = Array(o); a > r; ) {
+            for (e = 0; i > e; ++e) n[e] = a > r ? 255 & l.charCodeAt(r++) : 0;
             switch (t[0] = n[0] >> 2, t[1] = (3 & n[0]) << 4 | n[1] >> 4, t[2] = (15 & n[1]) << 2 | n[2] >> 6, 
-            t[3] = 63 & n[2], u = a - (r - 1)) {
+            t[3] = 63 & n[2], u = r - (a - 1)) {
               case 1:
                 t[3] = 64;
                 break;
@@ -156,7 +156,7 @@
             }
         };
         typeof e.background !== n && (t.style.background = e.background), t.style.backgroundColor = typeof e["background-color"] !== n ? e["background-color"] : "rgb(50, 118, 177)";
-        var a = {
+        var r = {
             type: "div",
             className: "",
             innerHTML: [ {
@@ -165,8 +165,8 @@
                 className: "botClose fa fa-times",
                 EventListeners: {
                     click: function(t) {
-                        var e = t.target.parentElement.parentElement, n = parseInt(e.getAttribute("data-jmod-notification")), a = parseInt(e.getAttribute("data-jmod-large-notification"));
-                        l.close(e, "large", n, a, t);
+                        var e = t.target.parentElement.parentElement, n = parseInt(e.getAttribute("data-jmod-notification")), r = parseInt(e.getAttribute("data-jmod-large-notification"));
+                        l.close(e, "large", n, r, t);
                     }
                 }
             } ],
@@ -176,13 +176,13 @@
                 "data-jmod-large-notification": l.LargeCount
             }
         };
-        return typeof e.title !== n && a.innerHTML.push({
+        return typeof e.title !== n && r.innerHTML.push({
             type: "span",
             innerHTML: e.title
-        }), a.innerHTML.push({
+        }), r.innerHTML.push({
             type: "div",
             innerHTML: e.body
-        }), typeof e.icon !== n && a.innerHTML.push({
+        }), typeof e.icon !== n && r.innerHTML.push({
             type: "div",
             className: "jmod-na bigboxicon",
             style: {
@@ -195,80 +195,83 @@
                     color: "#fff"
                 }
             }
-        }), t.innerHTML = a, g(t);
+        }), t.innerHTML = r, g(t);
     }
     function jt(e) {
-        var a = document.createElement("div");
-        a.setAttribute("data-jmod-notification", l.count), a.setAttribute("data-jmod-small-notification", l.SmallCount), 
-        a.className = "jModSmallNotification SmallBox animated fadeIn", typeof e.background !== n && (a.style.background = e.background), 
-        a.style.backgroundColor = typeof e["background-color"] !== n ? e["background-color"] : "rgb(41, 97, 145)";
+        var r = document.createElement("div");
+        r.setAttribute("data-jmod-notification", l.count), r.setAttribute("data-jmod-small-notification", l.SmallCount), 
+        r.className = "jModSmallNotification SmallBox animated fadeIn", typeof e.background !== n && (r.style.background = e.background), 
+        r.style.backgroundColor = typeof e["background-color"] !== n ? e["background-color"] : "rgb(41, 97, 145)";
         var m = l.CurrentSmallCount;
         if (m > 0) {
             for (var p = 25 * m, g = l("getElement", "notificationsSmallWrapper"), d = t.$$("div[data-jmod-small-notification]", g), f = 0; f < d.length; f++) p += parseInt(d[f].offsetHeight);
-            a.style.top = p + 20 + "px";
+            r.style.top = p + 20 + "px";
         }
-        a.addEventListener("click", function(t) {
+        r.addEventListener("click", function(t) {
             for (var n = 0, e = t.target; !e.hasAttribute("data-jmod-small-notification") && null != e && 10 > n; ) e = e.parentElement, 
             n++;
             if (null != e) {
-                var a = parseInt(e.getAttribute("data-jmod-notification")), r = parseInt(e.getAttribute("data-jmod-small-notification"));
-                l.close(e, "small", a, r, t);
+                var r = parseInt(e.getAttribute("data-jmod-notification")), a = parseInt(e.getAttribute("data-jmod-small-notification"));
+                l.close(e, "small", r, a, t);
             }
         }, !1);
-        var r = document.createElement("div");
-        if (typeof e.footer === n) r.className = "textoFull"; else {
-            r.className = "textoFoto";
+        var a = document.createElement("div");
+        if (typeof e.footer === n) a.className = "textoFull"; else {
+            a.className = "textoFoto";
             var s = document.createElement("div");
             s.className = "foto", y(e.icon) ? s.appendChild(e.icon) : s.innerHTML = '<i class="fa ' + e.icon + " " + (e.iconAnimation || "bounce") + ' animated"> </i>', 
-            a.appendChild(s);
+            r.appendChild(s);
         }
         var i = document.createElement("span");
         i.className = "", typeof e.title !== n && (y(e.title) ? i.appendChild(e.title) : i.innerHTML = e.title), 
-        r.appendChild(i);
+        a.appendChild(i);
         var o = document.createElement("p");
         if (o.className = "", typeof e.body !== n && (y(e.body) ? o.appendChild(e.body) : o.innerHTML = e.body), 
-        r.appendChild(o), typeof e.footer !== n) {
+        a.appendChild(o), typeof e.footer !== n) {
             var u = document.createElement("p");
             u.className = "text-align-right", y(e.footer) ? u = e.footer : u.innerHTML = e.footer, 
-            r.appendChild(u);
+            a.appendChild(u);
         }
-        if (a.appendChild(r), typeof e.footer === n && typeof e.icon !== n) {
+        if (r.appendChild(a), typeof e.footer === n && typeof e.icon !== n) {
             var c = document.createElement("div");
             c.setAttribute("class", "miniIcono"), y(e.icon) ? c.appendChild(e.icon) : c.innerHTML = '<i class="miniPic fa ' + e.icon + ' bounce animated"> </i>', 
-            a.appendChild(c);
+            r.appendChild(c);
         }
-        return a;
+        return r;
     }
     function gt(e, t, n) {
-        var a = (p || s).getComputedStyle(e, null);
-        20 > (n || 0) && isNaN(parseInt(a.width)) ? setTimeout(function(e, t, n) {
+        var r = (p || s).getComputedStyle(e, null);
+        20 > (n || 0) && isNaN(parseInt(r.width)) ? setTimeout(function(e, t, n) {
             gt(e, t, n + 1);
-        }, 20, e, t, n || 0) : t(e, a);
+        }, 20, e, t, n || 0) : t(e, r);
     }
-    function wt(t, n) {
-        var a = t.parentElement.querySelector(".tab-content"), e = parseInt(n.width);
-        isNaN(e) ? tt("Tabs.resize", "Tab width is NaN!", t, a, n) : e > 200 ? tt("Tabs.resize", "Tab width too wide!", e, t) : e > 50 && (a.style.marginLeft = e + 11 + "px");
+    function xt(t, r) {
+        var n = t.parentElement.querySelector(".tab-content");
+        if (null !== n.offsetParent) {
+            var e = parseInt(r.width);
+            isNaN(e) ? tt("Tabs.resize", "Tab width is NaN!", t, n, r) : e > 200 ? tt("Tabs.resize", "Tab width too wide!", e, t) : e > 50 && (n.style.marginLeft = e + 11 + "px");
+        }
     }
     function pt(t) {
-        var e = t.name, a = e.split(" ");
-        -1 == a.indexOf("fa") && -1 == a.indexOf("glyphicon") && (-1 != e.indexOf("fa-") ? e = "fa " + e : -1 != e.indexOf("glyphicon-") && (e = "glyphicon " + e));
+        var e = t.name, r = e.split(" ");
+        -1 == r.indexOf("fa") && -1 == r.indexOf("glyphicon") && (-1 != e.indexOf("fa-") ? e = "fa " + e : -1 != e.indexOf("glyphicon-") && (e = "glyphicon " + e));
         var n = {
             type: "i",
             className: e,
             attributes: {}
         };
-        return t.tooltip && (n = N(n, t.tooltip)), n;
+        return t.tooltip && (n = I(n, t.tooltip)), n;
     }
-    function N(t, e) {
+    function I(t, e) {
         if (y(t)) {
-            if (I(t, a(_)), t.setAttribute(a(P), e.innerHTML || e.text || null), t.setAttribute(a(rt), e.placement || "top"), 
+            if (w(t, a(_)), t.setAttribute(a(P), e.innerHTML || e.text || null), t.setAttribute(a(at), e.placement || "top"), 
             n != typeof e.margin) {
                 var r = a("Tooltip.attributeNames.margin");
                 n != typeof e.margin.left && t.setAttribute(r + "-left", e.margin.left), n != typeof e.margin.right && t.setAttribute(r + "-right", e.margin.right), 
                 n != typeof e.margin.top && t.setAttribute(r + "-top", e.margin.top), n != typeof e.margin.bottom && t.setAttribute(r + "-bottom", e.margin.bottom);
             }
         } else if (t.className = (t.className || "") + " " + a(_), typeof t.attributes === n && (t.attributes = {}), 
-        t.attributes[a(P)] = e.innerHTML || e.text || null, t.attributes[a(rt)] = e.placement || "top", 
+        t.attributes[a(P)] = e.innerHTML || e.text || null, t.attributes[a(at)] = e.placement || "top", 
         n != typeof e.margin) {
             var r = a("Tooltip.attributeNames.margin");
             n != typeof e.margin.left && (t.attributes[r + "-left"] = e.margin.left), n != typeof e.margin.right && (t.attributes[r + "-right"] = e.margin.right), 
@@ -295,10 +298,10 @@
     function kt(e) {
         h.execCallback(document.currentScript.getAttribute("data-callback-index"), document.currentScript, e, document.currentScript);
     }
-    function ft(e, n, a, r, i) {
-        u.log("jModListenError", e, n, a, r);
+    function ft(e, n, r, a, i) {
+        u.log("jModListenError", e, n, r, a);
         var s = t.parseStack(i.stack);
-        return s.length > 0 ? t.ERROR.catchError(e, n, a, r, i, s) : o;
+        return s.length > 0 ? t.ERROR.catchError(e, n, r, a, i, s) : o;
     }
     var t = function() {
         return t._call.apply(t, arguments);
@@ -308,16 +311,16 @@
         id: "jMod",
         config: {},
         el: s.document && s.document.currentScript ? s.document.currentScript : o
-    }, V = function(r, n, o, a) {
+    }, V = function(a, n, o, r) {
         var e = {
             configurable: !1,
-            enumerable: !1 === a ? a : !0
+            enumerable: !1 === r ? r : !0
         };
-        "function" == typeof n ? e.get = n : (e.value = n, e.writable = !1), Object.defineProperty(o || t, r, e);
+        "function" == typeof n ? e.get = n : (e.value = n, e.writable = !1), Object.defineProperty(o || t, a, e);
     };
     V("ScriptElement", function() {
         return M.el ? M : o;
-    }), V("version", "0.0.17"), V("build_time", "1421789040000"), V("build_type", "release"), 
+    }), V("version", "0.0.17"), V("build_time", "1421823017000"), V("build_type", "release"), 
     V("_debug", !1), Object.defineProperty(t, "debug", {
         get: function() {
             try {
@@ -346,12 +349,12 @@
         return t.jQueryAvailable ? $ : o;
     });
     var S = new function() {
-        var e, a = function() {
+        var e, r = function() {
             return e === o && (e = typeof s.performance !== n && typeof s.performance.timing !== n ? s.performance : o), 
             e;
         };
         this.__defineGetter__("performanceObject", function() {
-            return a();
+            return r();
         }), this.__defineGetter__("available", function() {
             return this.performanceObject === o ? !1 : !0;
         }), this.__defineGetter__("now", function() {
@@ -360,20 +363,20 @@
             } catch (e) {
                 t.Warning("Performance not available!");
             }
-        }), this.get = function(r) {
-            var e = 0, a = r.split("."), t = this.performanceObject;
+        }), this.get = function(a) {
+            var e = 0, r = a.split("."), t = this.performanceObject;
             if (t !== o) {
-                for (e; e < a.length; e++) {
-                    if (typeof t[a[e]] === n) return;
-                    t = t[a[e]];
+                for (e; e < r.length; e++) {
+                    if (typeof t[r[e]] === n) return;
+                    t = t[r[e]];
                 }
                 return t;
             }
         }, this.getAllTiming = function(t) {
             t === o && (t = []);
-            var a = [], n = this.performanceObject;
-            for (var e in n.timing) isNaN(n.timing[e]) || -1 != t.indexOf(e) || (a[e] = n.timing[e]);
-            return a;
+            var r = [], n = this.performanceObject;
+            for (var e in n.timing) isNaN(n.timing[e]) || -1 != t.indexOf(e) || (r[e] = n.timing[e]);
+            return r;
         }, this.pageLoadTime = function() {
             try {
                 var e = this.performanceObject.timing;
@@ -412,7 +415,7 @@
             enumerable: !1
         },
         SearchForKeys: {
-            value: Nt,
+            value: It,
             enumerable: !1
         },
         setKeyValue: {
@@ -424,13 +427,13 @@
             enumerable: !1
         },
         setKeyValueI: {
-            value: It,
+            value: wt,
             enumerable: !1
         }
     };
     t.parseStack = function(n) {
-        for (var t = [], a = /(([^\s]*)\@file\:\/\/\/([^\s]+?(?:\/([^\/]+?\.(user\.js|js|json|php|htm|html|asp)))?):(\d+)(?:\:(\d+))?)/gi, e; null != (e = a.exec(n)); ) {
-            var r = {
+        for (var t = [], r = /(([^\s]*)\@file\:\/\/\/([^\s]+?(?:\/([^\/]+?\.(user\.js|js|json|php|htm|html|asp)))?):(\d+)(?:\:(\d+))?)/gi, e; null != (e = r.exec(n)); ) {
+            var a = {
                 line: e[1],
                 functionName: e[2],
                 fullFileName: e[3],
@@ -439,7 +442,7 @@
                 lineNumber: e[6],
                 columnNumber: e[7]
             };
-            t.push(r);
+            t.push(a);
         }
         return t;
     };
@@ -452,24 +455,24 @@
     };
     t.Versions = {
         parseVersion: function(n) {
-            var r = /^\s*(.*?)\s*((?:[\d]+\.)*[\d]+)\s*(.*?)\s*$/i, i = /([\d]+)\.?/gi, e, t = {
+            var a = /^\s*(.*?)\s*((?:[\d]+\.)*[\d]+)\s*(.*?)\s*$/i, i = /([\d]+)\.?/gi, e, t = {
                 fullVersion: n.trim(),
                 versionStr: null,
                 prefixStr: null,
                 suffixStr: null,
                 version: []
             };
-            if (e = r.exec(n.trim())) {
+            if (e = a.exec(n.trim())) {
                 t.prefixStr = e[1], t.versionStr = e[2], t.suffixStr = e[3];
-                var a = e[2].split(".");
-                for (var o in a) t.version.push(parseInt(a[o]));
+                var r = e[2].split(".");
+                for (var o in r) t.version.push(parseInt(r[o]));
             }
             return t;
         },
-        compare: function(n, a) {
-            var r = n, o = a;
-            "string" == typeof n && (r = this.parseVersion(n)), "string" == typeof a && (o = this.parseVersion(a));
-            for (var i = [].concat(r.version), s = [].concat(o.version); ;) {
+        compare: function(n, r) {
+            var a = n, o = r;
+            "string" == typeof n && (a = this.parseVersion(n)), "string" == typeof r && (o = this.parseVersion(r));
+            for (var i = [].concat(a.version), s = [].concat(o.version); ;) {
                 var e = i.shift(), t = s.shift();
                 if (null == e || null == t) {
                     if (null != e && null == t) return 1;
@@ -509,8 +512,8 @@
 
               case "map":
               case "object":
-                var n = D(t[e], [ "name", "key" ]), a = D(t[e], [ "value" ]);
-                n && a && this.addArg(n, a);
+                var n = D(t[e], [ "name", "key" ]), r = D(t[e], [ "value" ]);
+                n && r && this.addArg(n, r);
             }
             return this;
         }, this.buildArgs = function() {
@@ -523,7 +526,7 @@
         var e;
         try {
             (t.constructor === {}.constructor || t) && (e = t);
-        } catch (a) {
+        } catch (r) {
             e = H(t, s, {
                 cloneFunctions: !0,
                 wrapReflectors: !0
@@ -533,7 +536,7 @@
             if (typeof e === n) return n;
             if ("number" == typeof e && 1 == isNaN(e)) return "nan";
             if ("object" == typeof e) return null === e ? "null" : e.constructor === {}.constructor ? "map" : e.constructor === [].constructor ? "array" : e.constructor === new Date().constructor ? isNaN(e.getTime()) ? "invaliddate" : "date" : e.constructor === RegExp().constructor ? "regex" : Object.prototype.toString.call(e).replace(/^\[object |\]$/g, "").toLowerCase();
-        } catch (a) {}
+        } catch (r) {}
         return typeof e;
     }, Z = function(e) {
         try {
@@ -559,14 +562,14 @@
             if (t.constructor === [].constructor) return !0;
         }
         return !1;
-    }, qt = function(e) {
+    }, Wt = function(e) {
         return "function" == typeof e;
     };
     t.extend = function() {
-        var c, i, a, n, l, s, e = arguments[0] || {}, r = 1, f = arguments.length, u = !1;
-        for ("boolean" == typeof e && (u = e, e = arguments[r] || {}, r++), "object" != typeof e && "function" != typeof e && (e = {}), 
-        r === f && (e = this, r--); f > r; r++) if (null != (c = arguments[r])) for (i in c) if (a = e[i], 
-        n = c[i], e !== n) if (u && n && (Z(n) || (l = Q(n)))) l ? (l = !1, s = a && Q(a) ? a : []) : s = a && Z(a) ? a : {}, 
+        var c, i, r, n, l, s, e = arguments[0] || {}, a = 1, f = arguments.length, u = !1;
+        for ("boolean" == typeof e && (u = e, e = arguments[a] || {}, a++), "object" != typeof e && "function" != typeof e && (e = {}), 
+        a === f && (e = this, a--); f > a; a++) if (null != (c = arguments[a])) for (i in c) if (r = e[i], 
+        n = c[i], e !== n) if (u && n && (Z(n) || (l = Q(n)))) l ? (l = !1, s = r && Q(r) ? r : []) : s = r && Z(r) ? r : {}, 
         e[i] = t.extend(u, s, n); else if (n !== o) try {
             e[i] = n;
         } catch (d) {
@@ -577,34 +580,34 @@
         }
         return e;
     }, t.extendp = function() {
-        var i, a, n, t, c, s, d, e = arguments[0] || {}, r = 1, u = arguments.length, l = !1;
-        for ("boolean" == typeof e && (l = e, e = arguments[r] || {}, r++), "object" != typeof e && "function" != typeof e && (e = {}), 
-        r === u && (e = this, r--); u > r; r++) if (null != (i = arguments[r])) for (a in i) if (n = e[a], 
-        t = i[a], e !== t) if (l && t && (Z(t) || (c = Q(t)))) {
+        var i, r, n, t, c, s, d, e = arguments[0] || {}, a = 1, u = arguments.length, l = !1;
+        for ("boolean" == typeof e && (l = e, e = arguments[a] || {}, a++), "object" != typeof e && "function" != typeof e && (e = {}), 
+        a === u && (e = this, a--); u > a; a++) if (null != (i = arguments[a])) for (r in i) if (n = e[r], 
+        t = i[r], e !== t) if (l && t && (Z(t) || (c = Q(t)))) {
             if (c) {
-                if (Q(n) && Array.prototype.push.apply(e[a], t)) continue;
+                if (Q(n) && Array.prototype.push.apply(e[r], t)) continue;
                 s = n && Q(n) ? n : [];
             } else s = n && Z(n) ? n : {};
-            e[a] = jQuery.extendp(l, s, t);
+            e[r] = jQuery.extendp(l, s, t);
         } else if (t !== o) try {
-            e[a] = t;
+            e[r] = t;
         } catch (f) {
-            e[a] = H(t, e, {
+            e[r] = H(t, e, {
                 cloneFunctions: !0,
                 wrapReflectors: !0
             });
         }
         return e;
     }, function() {
-        var i = "", u = "?", l = "function", f = "undefined", o = "object", e = "major", s = "model", n = "name", c = "type", r = "vendor", a = "version", d = "architecture", p = "console", m = "mobile", g = "tablet", y = "smarttv", h = "wearable", b = "embedded";
+        var i = "", u = "?", l = "function", f = "undefined", o = "object", e = "major", s = "model", n = "name", c = "type", a = "vendor", r = "version", d = "architecture", p = "console", m = "mobile", g = "tablet", y = "smarttv", h = "wearable", b = "embedded";
         t.Browser = {
             getAgent: function() {
                 return navigator.userAgent;
             },
             get: function() {},
             getRegexMatches: function(s, t) {
-                for (var r, o = [], e = 0; e < t.length; e += 2) {
-                    for (var i = t[e], n = [], a = 0; a < i.length; a++) (r = i[a].exec(s)) && n.push(r);
+                for (var a, o = [], e = 0; e < t.length; e += 2) {
+                    for (var i = t[e], n = [], r = 0; r < i.length; r++) (a = i[r].exec(s)) && n.push(a);
                     n.length > 0 && o.push({
                         matches: n,
                         map: t[e + 1]
@@ -613,19 +616,19 @@
                 return o;
             },
             getRegexFirstMatch: function(o, t) {
-                for (var a, e = 0; e < t.length; e += 2) for (var r = t[e], i = [], n = 0; n < r.length; n++) if (a = r[n].exec(o)) return [ a, t[e + 1] ];
+                for (var r, e = 0; e < t.length; e += 2) for (var a = t[e], i = [], n = 0; n < a.length; n++) if (r = a[n].exec(o)) return [ r, t[e + 1] ];
                 return [];
             },
             getBrowser: function() {
                 var n = {};
                 try {
-                    var a = this.getAgent(), e = this.getRegexFirstMatch(a, this.regexes.browser);
+                    var r = this.getAgent(), e = this.getRegexFirstMatch(r, this.regexes.browser);
                     if (e.length > 1) for (var t = 0; t < e[1].length; t++) n[e[1][t]] = e[0][t + 1];
-                } catch (r) {}
+                } catch (a) {}
                 return n;
             },
             regexes: {
-                browser: [ [ /(opera\smini)\/((\d+)?[\w\.-]+)/i, /(opera\s[mobiletab]+).+version\/((\d+)?[\w\.-]+)/i, /(opera).+version\/((\d+)?[\w\.]+)/i, /(opera)[\/\s]+((\d+)?[\w\.]+)/i ], [ n, a, e ], [ /\s(opr)\/((\d+)?[\w\.]+)/i ], [ [ n, "Opera" ], a, e ], [ /(trident).+rv[:\s]((\d+)?[\w\.]+).+like\sgecko/i ], [ [ n, "IE" ], a, e ], [ /(yabrowser)\/((\d+)?[\w\.]+)/i ], [ [ n, "Yandex" ], a, e ], [ /(comodo_dragon)\/((\d+)?[\w\.]+)/i ], [ [ n, /_/g, " " ], a, e ], [ /(chrome|omniweb|arora|[tizenoka]{5}\s?browser)\/v?((\d+)?[\w\.]+)/i, /(uc\s?browser|qqbrowser)[\/\s]?((\d+)?[\w\.]+)/i ], [ n, a, e ], [ /((?:android.+)crmo|crios)\/((\d+)?[\w\.]+)/i ], [ [ n, "Chrome" ], a, e ], [ /version\/((\d+)?[\w\.]+).+?mobile\/\w+\s(safari)/i ], [ a, e, [ n, "Mobile Safari" ] ], [ /version\/((\d+)?[\w\.]+).+?(mobile\s?safari|safari)/i ], [ a, e, n ], [ /(konqueror)\/((\d+)?[\w\.]+)/i, /(webkit|khtml)\/((\d+)?[\w\.]+)/i ], [ n, a, e ], [ /(navigator|netscape)\/((\d+)?[\w\.-]+)/i ], [ [ n, "Netscape" ], a, e ], [ /(swiftfox)/i, /(firefox|seamonkey|k-meleon|icecat|iceape|firebird|phoenix)\/((\d+)?[\w\.-]+)/i, /(mozilla)\/((\d+)?[\w\.]+).+rv\:.+gecko\/\d+/i ], [ n, a, e ] ]
+                browser: [ [ /(opera\smini)\/((\d+)?[\w\.-]+)/i, /(opera\s[mobiletab]+).+version\/((\d+)?[\w\.-]+)/i, /(opera).+version\/((\d+)?[\w\.]+)/i, /(opera)[\/\s]+((\d+)?[\w\.]+)/i ], [ n, r, e ], [ /\s(opr)\/((\d+)?[\w\.]+)/i ], [ [ n, "Opera" ], r, e ], [ /(trident).+rv[:\s]((\d+)?[\w\.]+).+like\sgecko/i ], [ [ n, "IE" ], r, e ], [ /(yabrowser)\/((\d+)?[\w\.]+)/i ], [ [ n, "Yandex" ], r, e ], [ /(comodo_dragon)\/((\d+)?[\w\.]+)/i ], [ [ n, /_/g, " " ], r, e ], [ /(chrome|omniweb|arora|[tizenoka]{5}\s?browser)\/v?((\d+)?[\w\.]+)/i, /(uc\s?browser|qqbrowser)[\/\s]?((\d+)?[\w\.]+)/i ], [ n, r, e ], [ /((?:android.+)crmo|crios)\/((\d+)?[\w\.]+)/i ], [ [ n, "Chrome" ], r, e ], [ /version\/((\d+)?[\w\.]+).+?mobile\/\w+\s(safari)/i ], [ r, e, [ n, "Mobile Safari" ] ], [ /version\/((\d+)?[\w\.]+).+?(mobile\s?safari|safari)/i ], [ r, e, n ], [ /(konqueror)\/((\d+)?[\w\.]+)/i, /(webkit|khtml)\/((\d+)?[\w\.]+)/i ], [ n, r, e ], [ /(navigator|netscape)\/((\d+)?[\w\.-]+)/i ], [ [ n, "Netscape" ], r, e ], [ /(swiftfox)/i, /(firefox|seamonkey|k-meleon|icecat|iceape|firebird|phoenix)\/((\d+)?[\w\.-]+)/i, /(mozilla)\/((\d+)?[\w\.]+).+rv\:.+gecko\/\d+/i ], [ n, r, e ] ]
             }
         };
     }(), s.viewportSize = {}, s.viewportSize.getHeight = function() {
@@ -634,16 +637,16 @@
         return vt("Width");
     };
     var vt = function(e) {
-        var r, l = e.toLowerCase(), i = s.document, t = i.documentElement;
-        if (s["inner" + e] === o) r = t["client" + e]; else if (s["inner" + e] != t["client" + e]) {
+        var a, l = e.toLowerCase(), i = s.document, t = i.documentElement;
+        if (s["inner" + e] === o) a = t["client" + e]; else if (s["inner" + e] != t["client" + e]) {
             var n = i.createElement("body");
             n.id = "vpw-test-b", n.style.cssText = "overflow:scroll";
-            var a = i.createElement("div");
-            a.id = "vpw-test-d", a.style.cssText = "position:absolute;top:-1000px", a.innerHTML = "<style>@media(" + l + ":" + t["client" + e] + "px){body#vpw-test-b div#vpw-test-d{" + l + ":7px!important}}</style>", 
-            n.appendChild(a), t.insertBefore(n, i.head), r = 7 == a["offset" + e] ? t["client" + e] : s["inner" + e], 
+            var r = i.createElement("div");
+            r.id = "vpw-test-d", r.style.cssText = "position:absolute;top:-1000px", r.innerHTML = "<style>@media(" + l + ":" + t["client" + e] + "px){body#vpw-test-b div#vpw-test-d{" + l + ":7px!important}}</style>", 
+            n.appendChild(r), t.insertBefore(n, i.head), a = 7 == r["offset" + e] ? t["client" + e] : s["inner" + e], 
             t.removeChild(n);
-        } else r = s["inner" + e];
-        return r;
+        } else a = s["inner" + e];
+        return a;
     }, a = t.Config = function(e, r) {
         try {
             a.getScriptFileInfo && !b.gotFileInfo && b.getScriptFileInfo();
@@ -696,13 +699,13 @@
         debug: !1
     }), "object" == typeof s.jMOD_CONFIGURATION && (t.Config = t.extend(!0, t.Config, s.jMOD_CONFIGURATION)), 
     Object.defineProperties(t.Config, ut);
-    var G = function(e, a) {
-        return typeof a === n ? t.Config.SearchForKeyI(e) : t.Config.setKeyValueI(e, a);
+    var B = function(e, r) {
+        return typeof r === n ? t.Config.SearchForKeyI(e) : t.Config.setKeyValueI(e, r);
     };
-    if (a.scanElement = function(r) {
-        if (r && y(r)) {
-            var i = {}, a = 0, n, e, s, c = /^(?:data-)?(.*?)$/i, o = r.attributes;
-            for (a; a < o.length; a++) if (n = o[a].nodeName, n = c.exec(n)[1], e = o[a].value) {
+    if (a.scanElement = function(a) {
+        if (a && y(a)) {
+            var i = {}, r = 0, n, e, s, c = /^(?:data-)?(.*?)$/i, o = a.attributes;
+            for (r; r < o.length; r++) if (n = o[r].nodeName, n = c.exec(n)[1], e = o[r].value) {
                 switch (n.toLowerCase()) {
                   case "src":
                   case "type":
@@ -729,29 +732,29 @@
                     try {
                         e = JSON.parse(e), e && t.extend(!0, t.Config, e);
                     } catch (l) {
-                        u.error('Error parsing "' + o[a].nodeName + '"', r, l);
+                        u.error('Error parsing "' + o[r].nodeName + '"', a, l);
                         continue;
                     }
                     break;
 
                   default:
-                    switch (n = n.split("-").join("."), s = G(n), typeof s) {
+                    switch (n = n.split("-").join("."), s = B(n), typeof s) {
                       case "number":
-                        G(n, parseInt(e));
+                        B(n, parseInt(e));
                         break;
 
                       case "boolean":
-                        G(n, "true" == e.trim().toLowerCase() ? !0 : !1);
+                        B(n, "true" == e.trim().toLowerCase() ? !0 : !1);
                         break;
 
                       case "string":
-                        G(n, e);
+                        B(n, e);
 
                       case "object":
                         try {
-                            e = JSON.parse(e), e && G(n, e);
+                            e = JSON.parse(e), e && B(n, e);
                         } catch (l) {
-                            u.error('Error parsing "' + o[a].nodeName + '"', r, l);
+                            u.error('Error parsing "' + o[r].nodeName + '"', a, l);
                             continue;
                         }
                         break;
@@ -773,29 +776,29 @@
     }
     t.API.ParseMetaData_Types = [], t.API.ParseMetaData_Types.push(function(s, e) {
         if ("history" == s.toLowerCase() && "object" == typeof e) {
-            for (var o = /\(([0-9\.]+)\)\s+(.*?)$/i, t = {}, a = 0; a < e.length; a++) if (o.test(e[a])) {
-                var i = o.exec(e[a]), r = i[1], l = i[2];
-                typeof t[r] === n && (t[r] = []), t[r].push(l);
+            for (var o = /\(([0-9\.]+)\)\s+(.*?)$/i, t = {}, r = 0; r < e.length; r++) if (o.test(e[r])) {
+                var i = o.exec(e[r]), a = i[1], l = i[2];
+                typeof t[a] === n && (t[a] = []), t[a].push(l);
             }
             return t;
         }
     }), t.API.ParseMetaData_Types.push(function(o, e) {
         if ("resource" == o.toLowerCase()) {
             "object" != typeof e && (e = [ e ]);
-            var n, t = 0, a = {}, r = /^\s*([\w]+)\s+(.*?)\s*$/;
-            for (t; t < e.length; t++) r.test(e[t]) && (n = r.exec(e[t]), a[n[1]] = n[2]);
-            return a;
+            var n, t = 0, r = {}, a = /^\s*([\w]+)\s+(.*?)\s*$/;
+            for (t; t < e.length; t++) a.test(e[t]) && (n = a.exec(e[t]), r[n[1]] = n[2]);
+            return r;
         }
     }), t.API.ParseMetaData = function(o) {
-        var i, s, r, e, a = {}, l = /@([\S]+)\s+(.*?)$/i;
-        for ("string" == typeof o && (o = o.split(/\r?\n/i)), r = 0; r < o.length; r++) l.test(o[r]) && (e = l.exec(o[r]), 
-        typeof a[e[1]] === n ? a[e[1]] = e[2] : "string" != typeof a[e[1]] ? a[e[1]].push(e[2]) : (i = a[e[1]], 
-        a[e[1]] = [], a[e[1]].push(i), a[e[1]].push(e[2])));
-        for (s in a) for (r = 0; r < t.API.ParseMetaData_Types.length; r++) if (typeof (i = t.API.ParseMetaData_Types[r](s, a[s])) !== n) {
-            a[s] = i;
+        var i, s, a, e, r = {}, l = /@([\S]+)\s+(.*?)$/i;
+        for ("string" == typeof o && (o = o.split(/\r?\n/i)), a = 0; a < o.length; a++) l.test(o[a]) && (e = l.exec(o[a]), 
+        typeof r[e[1]] === n ? r[e[1]] = e[2] : "string" != typeof r[e[1]] ? r[e[1]].push(e[2]) : (i = r[e[1]], 
+        r[e[1]] = [], r[e[1]].push(i), r[e[1]].push(e[2])));
+        for (s in r) for (a = 0; a < t.API.ParseMetaData_Types.length; a++) if (typeof (i = t.API.ParseMetaData_Types[a](s, r[s])) !== n) {
+            r[s] = i;
             break;
         }
-        return a;
+        return r;
     };
     var b = t.ScriptInfo = function() {
         if (0 == arguments.length) return t.ScriptInfo.get();
@@ -872,11 +875,11 @@
                     var p = JSON.parse(i.jMod);
                     p && t.extend(!0, t.Config, p);
                 } catch (f) {
-                    w(f, "ScriptInfo.set", "Error parsing options in MetaBlock");
+                    x(f, "ScriptInfo.set", "Error parsing options in MetaBlock");
                 }
             }
         } catch (f) {
-            w(f, "ScriptInfo.set");
+            x(f, "ScriptInfo.set");
         }
         return Object.defineProperty(t.Config.script, "script_info", {
             value: Object.freeze(r),
@@ -889,10 +892,10 @@
         return typeof e != n ? e : b.set.apply(this, arguments);
     }, n == typeof t.Config.script.script_info && n != typeof GM_info && b.set();
     var Mt = function(n, e) {
-        function a(a, u, i, s, l, f) {
-            if ("%%" == a) return "%";
+        function r(r, u, i, s, l, f) {
+            if ("%%" == r) return "%";
             if (e[++t] === o) return o;
-            var a = s ? parseInt(s.substr(1)) : o, r = l ? parseInt(l.substr(1)) : o, n;
+            var r = s ? parseInt(s.substr(1)) : o, a = l ? parseInt(l.substr(1)) : o, n;
             switch (f) {
               case "s":
                 n = e[t];
@@ -903,36 +906,36 @@
                 break;
 
               case "f":
-                n = parseFloat(e[t]).toFixed(a);
+                n = parseFloat(e[t]).toFixed(r);
                 break;
 
               case "p":
-                n = parseFloat(e[t]).toPrecision(a);
+                n = parseFloat(e[t]).toPrecision(r);
                 break;
 
               case "e":
-                n = parseFloat(e[t]).toExponential(a);
+                n = parseFloat(e[t]).toExponential(r);
                 break;
 
               case "x":
-                n = parseInt(e[t]).toString(r ? r : 16);
+                n = parseInt(e[t]).toString(a ? a : 16);
                 break;
 
               case "d":
-                n = parseFloat(parseInt(e[t], r ? r : 10).toPrecision(a)).toFixed(0);
+                n = parseFloat(parseInt(e[t], a ? a : 10).toPrecision(r)).toFixed(0);
             }
-            n = "object" == typeof n ? JSON.stringify(n) : n.toString(r);
+            n = "object" == typeof n ? JSON.stringify(n) : n.toString(a);
             for (var d = parseInt(i), c = i && "0" == i[0] ? "0" : " "; n.length < d; ) n = u !== o ? n + c : c + n;
             return n;
         }
-        var t = -1, r = /%(-)?(0?[0-9]+)?([.][0-9]+)?([#][0-9]+)?([scfpexd])/g;
-        return n.replace(r, a);
-    }, E = t.Language = function(r) {
-        var t, e, a = E.getLanguage(E.Current, !0);
-        if (a) {
-            if (e = K.call(a, r), t = typeof e, n == t) {
+        var t = -1, a = /%(-)?(0?[0-9]+)?([.][0-9]+)?([#][0-9]+)?([scfpexd])/g;
+        return n.replace(a, r);
+    }, E = t.Language = function(a) {
+        var t, e, r = E.getLanguage(E.Current, !0);
+        if (r) {
+            if (e = K.call(r, a), t = typeof e, n == t) {
                 if (E.Current === E.Default) return;
-                if (a = E.getLanguage(E.Default), e = K.call(a, r), t = typeof e, n == t) return;
+                if (r = E.getLanguage(E.Default), e = K.call(r, a), t = typeof e, n == t) return;
             }
             return 1 == arguments.length || "string" !== t ? e : Mt.call(Mt, e, d.call(arguments, 1));
         }
@@ -984,36 +987,36 @@
                 a("debug") && t.Warning("Unable to process jMod() call:", d.call(arguments));
             }
         } catch (l) {}
-    }, t.$ = function(a, e, r) {
+    }, t.$ = function(r, e, a) {
         n === typeof e && (e = s.document);
         try {
-            if (t.jQueryAvailable && !0 !== r) try {
-                return $(a, e).first()[0];
+            if (t.jQueryAvailable && !0 !== a) try {
+                return $(r, e).first()[0];
             } catch (o) {
                 return;
             }
-            if ("string" != typeof a) return;
-            return e.querySelector(a);
+            if ("string" != typeof r) return;
+            return e.querySelector(r);
         } catch (o) {
             t.Exception("jMod.Query", "Error!", o);
         }
-    }, t.$$ = function(a, e, o) {
+    }, t.$$ = function(r, e, o) {
         e || (e = n !== typeof document ? document : s.document);
         try {
             if (t.jQueryAvailable && !0 !== o) try {
-                return $(a, e).toArray();
+                return $(r, e).toArray();
             } catch (i) {
                 return;
             }
-            if ("string" != typeof a) return;
-            var r = e.querySelectorAll(a);
-            return r ? [].map.call(r, function(e) {
+            if ("string" != typeof r) return;
+            var a = e.querySelectorAll(r);
+            return a ? [].map.call(a, function(e) {
                 return e;
             }) : [];
         } catch (i) {
             t.Exception("jMod.Query", "Error!", i);
         }
-    }, t.Element = function(e, r) {
+    }, t.Element = function(e, a) {
         try {
             var n = d.call(arguments);
             switch (A(e)) {
@@ -1029,8 +1032,8 @@
               default:
                 t.Element.isElement(e);
             }
-        } catch (a) {
-            w(a, "jMod.Element");
+        } catch (r) {
+            x(r, "jMod.Element");
         }
     }, t.Element._call = function(e) {
         return "function" == typeof t.Element[e] ? t.Element[e].apply(t.Element, d.call(arguments, 1)) : o;
@@ -1038,29 +1041,29 @@
     var C = t.Element.hasClass = function(e, t) {
         var n = e.className.split(" ");
         return -1 == n.indexOf(t) ? !1 : !0;
-    }, Wt = t.Element.hasClasses = function(r, e) {
-        var n = [], o = r.className.split(" "), t = "string" == typeof e ? e.split(" ") : e;
-        for (var a in t) -1 != o.indexOf(t[a]) && n.push(t[a]);
+    }, qt = t.Element.hasClasses = function(a, e) {
+        var n = [], o = a.className.split(" "), t = "string" == typeof e ? e.split(" ") : e;
+        for (var r in t) -1 != o.indexOf(t[r]) && n.push(t[r]);
         return n;
-    }, $t = t.Element.missingClasses = function(r, e) {
-        var n = [], o = r.className.split(" "), t = "string" == typeof e ? e.split(" ") : e;
-        for (var a in t) -1 == o.indexOf(t[a]) && n.push(t[a]);
+    }, $t = t.Element.missingClasses = function(a, e) {
+        var n = [], o = a.className.split(" "), t = "string" == typeof e ? e.split(" ") : e;
+        for (var r in t) -1 == o.indexOf(t[r]) && n.push(t[r]);
         return n;
-    }, I = t.Element.addClass = function(e, t) {
+    }, w = t.Element.addClass = function(e, t) {
         return C(e, t) || (e.className = (e.className + " " + t).trim()), e;
     }, zt = t.Element.addClasses = function(t, n) {
-        for (var a = "string" == typeof n ? n.split(" ") : n, r = t.className.split(" "), e = 0; e < a.length; e++) -1 == r.indexOf(a[e]) && r.push(a[e]);
-        return t.className = r.join(" "), t;
-    }, L = t.Element.removeClass = function(e, a) {
-        var r = e.className, t = r.split(" "), n = t.indexOf(a);
+        for (var r = "string" == typeof n ? n.split(" ") : n, a = t.className.split(" "), e = 0; e < r.length; e++) -1 == a.indexOf(r[e]) && a.push(r[e]);
+        return t.className = a.join(" "), t;
+    }, L = t.Element.removeClass = function(e, r) {
+        var a = e.className, t = a.split(" "), n = t.indexOf(r);
         return -1 == n ? e : (t.splice(n, 1), e.className = t.join(" "), e);
-    }, Ft = t.Element.removeClasses = function(e, a) {
+    }, Ft = t.Element.removeClasses = function(e, r) {
         var t;
-        t = "string" == typeof a ? d.call(arguments, 1) : a;
+        t = "string" == typeof r ? d.call(arguments, 1) : r;
         var o = e.className, n = o.split(" ");
         for (var i in t) {
-            var r = n.indexOf(t[i]);
-            -1 != r && n.splice(r, 1);
+            var a = n.indexOf(t[i]);
+            -1 != a && n.splice(a, 1);
         }
         return e.className = n.join(" "), e;
     }, Ut = function(e, t) {
@@ -1084,7 +1087,7 @@
                     break;
 
                   case "array":
-                    for (var r = 0; r < t.length; r++) e = k(e, t[r]);
+                    for (var a = 0; a < t.length; a++) e = k(e, t[a]);
                     break;
 
                   case "object":
@@ -1100,44 +1103,44 @@
                   default:
                     var s = document.createElement("div");
                     s.innerHTML = t;
-                    for (var l = s.childNodes, r = 0; r < l.length; r++) e.appendChild(l[r]);
+                    for (var l = s.childNodes, a = 0; a < l.length; a++) e.appendChild(l[a]);
                 }
             } else {
-                var a;
-                e.innerHTML !== o && (a = "innerHTML"), e.text !== o && (a = "text"), a ? "array" == A(e[a]) ? e[a].push(t) : e[a] = [ e[a], t ] : e.innerHTML = [ t ];
+                var r;
+                e.innerHTML !== o && (r = "innerHTML"), e.text !== o && (r = "text"), r ? "array" == A(e[r]) ? e[r].push(t) : e[r] = [ e[r], t ] : e.innerHTML = [ t ];
             }
         } catch (c) {
-            w(c, "jMod.Element.appendChild");
+            x(c, "jMod.Element.appendChild");
         } finally {
             return e;
         }
     };
     const Y = [ "checked", "defaultValue", "title", "async", "defer", "src", "onerror", "onload", "responseCallback", "value", "max", "min" ];
     var g = t.Element.createNewElement = function(e) {
-        var t, i = e.EventListeners || e.eventListeners, a = document.createElement(e.type || "div");
-        if (e.id !== o && (a.id = e.id), e.className !== o ? a.className = e.className : e["class"] !== o && (a.className = e["class"]), 
-        "string" == typeof e.style) a.style = e.style; else if ("object" == typeof e.style) for (t in e.style) a.style[t] = e.style[t];
-        for (t = 0; t < Y.length; t++) e[Y[t]] !== o && (a[Y[t]] = e[Y[t]]);
-        if (e.attributes !== o) for (t in e.attributes) typeof e.attributes[t] !== n && null !== e.attributes[t] && a.setAttribute(t, e.attributes[t]);
-        if (i) for (var r in i) if ("function" == typeof i[r]) a.addEventListener(r, i[r]); else if ("object" == typeof i[r]) {
-            var l = i[r].useCapture || i[r].Capture || i[r].capture || !1, s = i[r].callback || i[r]["function"];
-            if (s) if ("array" == A(s)) for (t in s) a.addEventListener(r, s[t], l); else a.addEventListener(r, s, l);
+        var t, i = e.EventListeners || e.eventListeners, r = document.createElement(e.type || "div");
+        if (e.id !== o && (r.id = e.id), e.className !== o ? r.className = e.className : e["class"] !== o && (r.className = e["class"]), 
+        "string" == typeof e.style) r.style = e.style; else if ("object" == typeof e.style) for (t in e.style) r.style[t] = e.style[t];
+        for (t = 0; t < Y.length; t++) e[Y[t]] !== o && (r[Y[t]] = e[Y[t]]);
+        if (e.attributes !== o) for (t in e.attributes) typeof e.attributes[t] !== n && null !== e.attributes[t] && r.setAttribute(t, e.attributes[t]);
+        if (i) for (var a in i) if ("function" == typeof i[a]) r.addEventListener(a, i[a]); else if ("object" == typeof i[a]) {
+            var l = i[a].useCapture || i[a].Capture || i[a].capture || !1, s = i[a].callback || i[a]["function"];
+            if (s) if ("array" == A(s)) for (t in s) r.addEventListener(a, s[t], l); else r.addEventListener(a, s, l);
         }
-        return k(a, D(e, [ "innerHTML", "text" ])), a;
-    }, xt = t.Element.getOffset = function(t) {
-        var n = t.getBoundingClientRect(), e = t.ownerDocument, a = e.documentElement, r = null != e && e === e.window ? e : 9 === e.nodeType && e.defaultView;
+        return k(r, D(e, [ "innerHTML", "text" ])), r;
+    }, Nt = t.Element.getOffset = function(t) {
+        var n = t.getBoundingClientRect(), e = t.ownerDocument, r = e.documentElement, a = null != e && e === e.window ? e : 9 === e.nodeType && e.defaultView;
         return {
-            top: parseInt(n.top + r.pageYOffset - a.clientTop),
-            left: parseInt(n.left + r.pageXOffset - a.clientLeft),
+            top: parseInt(n.top + a.pageYOffset - r.clientTop),
+            left: parseInt(n.left + a.pageXOffset - r.clientLeft),
             bottom: n.bottom,
             height: parseInt(n.height || parseInt(t.offsetHeight) - parseInt(t.clientHeight) + parseInt(t.scrollHeight)),
             width: parseInt(t.offsetWidth)
         };
-    }, Lt = t.Element.isNamespaced = function(n, a) {
-        for (var e = n; e.parentElement; ) if (e = e.parentElement, t.Element.hasClass(e, a)) return !0;
+    }, Lt = t.Element.isNamespaced = function(n, r) {
+        for (var e = n; e.parentElement; ) if (e = e.parentElement, t.Element.hasClass(e, r)) return !0;
         return !1;
-    }, Gt = t.Element.findParentWithClass = function(n, a) {
-        for (var e = n; e.parentElement; ) if (e = e.parentElement, t.Element.hasClass(e, a)) return e;
+    }, Bt = t.Element.findParentWithClass = function(n, r) {
+        for (var e = n; e.parentElement; ) if (e = e.parentElement, t.Element.hasClass(e, r)) return e;
     };
     +function() {
         function r(e) {
@@ -1209,8 +1212,8 @@
             UpdateAll: function() {
                 this.updateFB(h()), this.updateC2(b()), this.updateWC(E());
             },
-            ScopedConsoleCommand: function(t, a) {
-                var r = -1 != [ "debug", "log", "info", "warn", "error", "exception" ].indexOf(t) && "string" == typeof a && /(?:\%s|\%c|\%o|\%d|\%f|\%\.\df|\%i)/.test(a), e = r || n != this.fb && n != typeof this.fb[t] ? this.fb : this.wc;
+            ScopedConsoleCommand: function(t, r) {
+                var a = -1 != [ "debug", "log", "info", "warn", "error", "exception" ].indexOf(t) && "string" == typeof r && /(?:\%s|\%c|\%o|\%d|\%f|\%\.\df|\%i)/.test(r), e = a || n != this.fb && n != typeof this.fb[t] ? this.fb : this.wc;
                 if (n == typeof e[t]) return !1;
                 try {
                     switch (arguments.length) {
@@ -1329,11 +1332,11 @@
         }(i[e]);
         for (e = 0; e < l.length; e++) t[l[e]] = t.log[l[e]].bind(t.API.log);
         t.API.logFormatBuilder = function() {
-            this.args = [], this.add = function(e, a, r) {
-                var i = n === typeof e, s = typeof a;
-                typeof a === n && (a = typeof e);
+            this.args = [], this.add = function(e, r, a) {
+                var i = n === typeof e, s = typeof r;
+                typeof r === n && (r = typeof e);
                 var t;
-                switch (a) {
+                switch (r) {
                   case "d":
                   case "%d":
                     t = "%d";
@@ -1355,7 +1358,7 @@
 
                   case "s":
                   case "%s":
-                    "\n" == e || " \n" == e ? (t = " \n", e = o, r = o, i = !1) : t = "%s";
+                    "\n" == e || " \n" == e ? (t = " \n", e = o, a = o, i = !1) : t = "%s";
                     break;
 
                   case "string":
@@ -1369,13 +1372,13 @@
 
                   case "object":
                   default:
-                    t = s == n && n == typeof r ? "" : "%o";
+                    t = s == n && n == typeof a ? "" : "%o";
                 }
                 this.args.push({
                     valueIsUndefined: i,
                     value: e,
                     fmtString: t,
-                    style: r
+                    style: a
                 });
             }, this.build = function() {
                 for (var n = "", t = [], e = 0; e < this.args.length; e++) n += (o !== this.args[e].style ? "%c" : "") + this.args[e].fmtString, 
@@ -1385,9 +1388,9 @@
             };
         }, t.log.UpdateAll();
     }();
-    var w = function(a, r, o) {
+    var x = function(r, a, o) {
         var e = "", i = 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;', s = "color:#000;font-size:125%;", l = "color:blue;";
-        typeof a !== n && null !== a ? arguments.length <= 3 ? t.log.ScopedConsoleCommand.call(t.log, "error", "%c%s%cjMod Error%c - %c%s \n%s \n%c%s - %c(line %d)", e + t.log.fmt.iconStyle, "  ", e + i, " ", e + s, r || " ", o || " ", e + " ", a.message, e + l, a.lineNumber, a) : t.log.ScopedConsoleCommand.call(t.log, "error", "%c%s%cjMod Error%c - %c%s \n%s \n%c%s - %c(line %d)", e + t.log.fmt.iconStyle, "  ", e + i, " ", e + s, r || " ", o || " ", e + " ", a.message, e + l, a.lineNumber, a, arguments[3]) : t.log.ScopedConsoleCommand.apply(t.log, [ "error", "%c%s%cjMod Error%c - %c%s \n%s", e + t.log.fmt.iconStyle, "  ", e + i, " ", e + s, r || " ", o || " " ].concat(d.call(arguments, 3)));
+        typeof r !== n && null !== r ? arguments.length <= 3 ? t.log.ScopedConsoleCommand.call(t.log, "error", "%c%s%cjMod Error%c - %c%s \n%s \n%c%s - %c(line %d)", e + t.log.fmt.iconStyle, "  ", e + i, " ", e + s, a || " ", o || " ", e + " ", r.message, e + l, r.lineNumber, r) : t.log.ScopedConsoleCommand.call(t.log, "error", "%c%s%cjMod Error%c - %c%s \n%s \n%c%s - %c(line %d)", e + t.log.fmt.iconStyle, "  ", e + i, " ", e + s, a || " ", o || " ", e + " ", r.message, e + l, r.lineNumber, r, arguments[3]) : t.log.ScopedConsoleCommand.apply(t.log, [ "error", "%c%s%cjMod Error%c - %c%s \n%s", e + t.log.fmt.iconStyle, "  ", e + i, " ", e + s, a || " ", o || " " ].concat(d.call(arguments, 3)));
     }, tt = function(i, s) {
         if (!(t.log.OUTPUT_TYPES.WARNING.level > a("API.log.verbosity_level"))) {
             var o = 2, r = t.log.fmt.warningDefaultStyle, e = new t.API.logFormatBuilder();
@@ -1421,9 +1424,9 @@
     M.el && t.Info("CurrentRunningScript", M)), t.Events = {
         e: {},
         fired: {},
-        addEvent: function(e, a) {
+        addEvent: function(e, r) {
             this.e[e] = {
-                recordEvent: typeof a !== n ? a : !0,
+                recordEvent: typeof r !== n ? r : !0,
                 listeners: []
             }, Object.defineProperty(t, e, new function(e) {
                 return {
@@ -1437,8 +1440,8 @@
                 };
             }(e));
         },
-        addListener: function(e, a, t) {
-            this.e[e].listeners.push(a), t = typeof t !== n ? t : !0, t && typeof this.fired[e] !== n && typeof this.fired[e].args !== n && a.apply(this.fired[e]._this, this.fired[e].args);
+        addListener: function(e, r, t) {
+            this.e[e].listeners.push(r), t = typeof t !== n ? t : !0, t && typeof this.fired[e] !== n && typeof this.fired[e].args !== n && r.apply(this.fired[e]._this, this.fired[e].args);
         },
         fire: function(e, t) {
             if (typeof this.e[e] !== n) {
@@ -1447,11 +1450,11 @@
                     args: o,
                     _this: null
                 });
-                var a, r = null;
-                "object" == typeof t && typeof t._this !== n && typeof t.args !== n ? (r = t._this, 
-                a = t.args) : a = d.call(arguments, 1), this.e[e].recordEvent && (this.fired[e].args = a, 
-                this.fired[e]._this = r);
-                for (var i = []; O = this.e[e].listeners.pop(); ) O.apply(r, a) || i.push(O);
+                var r, a = null;
+                "object" == typeof t && typeof t._this !== n && typeof t.args !== n ? (a = t._this, 
+                r = t.args) : r = d.call(arguments, 1), this.e[e].recordEvent && (this.fired[e].args = r, 
+                this.fired[e]._this = a);
+                for (var i = []; O = this.e[e].listeners.pop(); ) O.apply(a, r) || i.push(O);
                 this.e[e].listeners = i, this.fired[e].count++;
             }
         }
@@ -1461,18 +1464,18 @@
     t.Events.addEvent("beforescriptexecute", !1);
     var mt = function(t) {
         var e = {};
-        this.events = t || [], this.add = function(t, a, r) {
-            -1 == this.events.indexOf(a) && this.events.push(a), typeof e[t] === n && (e[t] = {}), 
-            typeof e[t][a] === n && (e[t][a] = []), e[t][a].push(r);
+        this.events = t || [], this.add = function(t, r, a) {
+            -1 == this.events.indexOf(r) && this.events.push(r), typeof e[t] === n && (e[t] = {}), 
+            typeof e[t][r] === n && (e[t][r] = []), e[t][r].push(a);
         }, this.addAll = function(t, n) {
             for (var e in this.events) "function" == typeof t[this.events[e]] && this.add(n, this.events[e], t[this.events[e]]);
         }, this.fire = function(o, t, i, s) {
-            var r, a, t = e[t || "0"];
+            var a, r, t = e[t || "0"];
             try {
-                if (typeof t !== n && typeof (a = t[o]) !== n) for (r in a) if (!1 === a[r].apply(i || null, s || [])) return u.log("fire canceled"), 
+                if (typeof t !== n && typeof (r = t[o]) !== n) for (a in r) if (!1 === r[a].apply(i || null, s || [])) return u.log("fire canceled"), 
                 !1;
             } catch (l) {
-                w(l, "jMod.EventsClass.fire");
+                x(l, "jMod.EventsClass.fire");
             }
         };
     };
@@ -1484,29 +1487,29 @@
                 fireOnce: !0 === n ? !0 : !1
             });
         }, this.filterMutation = function(o) {
-            var e, r, i, n, a = 0;
-            for (a; a < this.filters.length; a++) if (e = this.filters[a].data, r = !1, !e.type || ("string" == typeof e.type && (e.type = [ e.type ]), 
+            var e, a, i, n, r = 0;
+            for (r; r < this.filters.length; r++) if (e = this.filters[r].data, a = !1, !e.type || ("string" == typeof e.type && (e.type = [ e.type ]), 
             -1 != e.type.indexOf(o.type))) {
                 if ("object" == typeof e.target) {
                     if (e.target.hasClass) {
                         for ("string" == typeof e.target.hasClass && (e.target.hasClass = [ e.target.hasClass ]), 
                         n = 0; n < e.target.hasClass.length; n++) if (!C(o.target, e.target.hasClass[n])) {
-                            r = !0;
+                            a = !0;
                             break;
                         }
-                        if (r) continue;
+                        if (a) continue;
                     }
                     if (e.target.hasChildren) {
                         for ("string" == typeof e.target.hasChildren && (e.target.hasChildren = [ e.target.hasChildren ]), 
                         n = 0; n < e.target.hasChildren.length; n++) if (i = t.$$(e.target.hasChildren[n], o.target), 
                         !i || 0 == i.length) {
-                            r = !0;
+                            a = !0;
                             break;
                         }
-                        if (r) continue;
+                        if (a) continue;
                     }
                 }
-                if (this.filters[a].callback(o, this), this.filters[a].fireOnce) return;
+                if (this.filters[r].callback(o, this), this.filters[r].fireOnce) return;
             }
         }, this.MutationObserver = new MutationObserver(function(t) {
             for (var e = 0; e < t.length; e++) this.filterMutation(t[e]);
@@ -1520,24 +1523,24 @@
         }, this.disconnect = function() {
             this.MutationObserver.disconnect();
         };
-    }, t.FileSelector = function(a) {
+    }, t.FileSelector = function(r) {
         var e = this;
         e.events = {
             change: []
-        }, a.onChange && e.events.change.push(a.onChange), e.onChange = function(a) {
-            for (var n = 0; n < e.events.change.length; n++) e.events.change[n].call(this || e || t, a, e.files(), e.value());
-        }, e.click = function(t, a) {
-            return lt(e.buttonTriggerElement, n !== typeof t ? t : !0, n !== typeof a ? a : !0);
+        }, r.onChange && e.events.change.push(r.onChange), e.onChange = function(r) {
+            for (var n = 0; n < e.events.change.length; n++) e.events.change[n].call(this || e || t, r, e.files(), e.value());
+        }, e.click = function(t, r) {
+            return lt(e.buttonTriggerElement, n !== typeof t ? t : !0, n !== typeof r ? r : !0);
         }, e.files = function() {
             return e.inputElement.files;
         }, e.value = function() {
             return e.inputElement.value;
         };
-        var r = {
+        var a = {
             type: "input",
             attributes: {
                 type: "file",
-                multiple: a.multiple ? !0 : !1
+                multiple: r.multiple ? !0 : !1
             },
             style: {
                 position: "absolute",
@@ -1550,21 +1553,21 @@
                 change: e.onChange
             }
         };
-        a.defaultValue && (r.defaultValue = a.defaultValue), a.accept && (r.attributes.accept = a.accept), 
-        e.inputElement = g(r);
+        r.defaultValue && (a.defaultValue = r.defaultValue), r.accept && (a.attributes.accept = r.accept), 
+        e.inputElement = g(a);
         var o = {
             type: "button",
             EventListeners: {
                 click: function(t) {
                     u.log("Button click triggered");
                     var e = this.previousSibling;
-                    return e.focus(), lt(e), B(t), !1;
+                    return e.focus(), lt(e), G(t), !1;
                 }
             }
         };
-        "object" == typeof a.button && (a.button.type && delete a.button.type, a.button.EventListeners && a.button.EventListeners.click && delete a.button.EventListeners.click, 
-        o = t.extend(!0, o, a.button)), e.buttonTriggerElement = g(o);
-        var i = t.extend(!0, a.form || {}, {
+        "object" == typeof r.button && (r.button.type && delete r.button.type, r.button.EventListeners && r.button.EventListeners.click && delete r.button.EventListeners.click, 
+        o = t.extend(!0, o, r.button)), e.buttonTriggerElement = g(o);
+        var i = t.extend(!0, r.form || {}, {
             type: "form",
             innerHTML: [ e.inputElement, e.buttonTriggerElement ]
         });
@@ -1573,69 +1576,69 @@
         return p.File && p.FileReader;
     }, t.FileSelector.BlobSupport = function() {
         return p.File && p.Blob;
-    }, t.FileSelector.ReadFileAsText = function(n, a, i) {
+    }, t.FileSelector.ReadFileAsText = function(n, r, i) {
         if (!t.FileSelector.FileReadSupport) return t.debug && u.log("Error! No Support For File Reading!"), 
         !1;
-        var r = new FileReader();
-        return n ? (r.onload = function(e) {
-            return a.call(this || t, e, e.target.result, n);
-        }, r.onerror = function(e) {
-            return t.debug && u.log("Error reading file", n), (i || a)(e, o, n);
-        }, r.readAsText(n), !0) : (t.debug && u.log("Error reading file", n), (i || a)(e, o, n), 
+        var a = new FileReader();
+        return n ? (a.onload = function(e) {
+            return r.call(this || t, e, e.target.result, n);
+        }, a.onerror = function(e) {
+            return t.debug && u.log("Error reading file", n), (i || r)(e, o, n);
+        }, a.readAsText(n), !0) : (t.debug && u.log("Error reading file", n), (i || r)(e, o, n), 
         !1);
-    }, t.FileSelector.ReadFileAsURL = function(n, a, i) {
+    }, t.FileSelector.ReadFileAsURL = function(n, r, i) {
         if (!t.FileSelector.FileReadSupport) return t.debug && u.log("Error! No Support For File Reading!"), 
         !1;
-        var r = new FileReader();
-        return n ? (r.onload = function(e) {
-            return a.call(this || t, e, e.target.result, n);
-        }, r.onerror = function(e) {
-            return t.debug && u.log("Error reading file", n), (i || a)(e, o, n);
-        }, r.readAsDataURL(n), !0) : (t.debug && u.log("Error reading file", n), (i || a)(e, o, n), 
+        var a = new FileReader();
+        return n ? (a.onload = function(e) {
+            return r.call(this || t, e, e.target.result, n);
+        }, a.onerror = function(e) {
+            return t.debug && u.log("Error reading file", n), (i || r)(e, o, n);
+        }, a.readAsDataURL(n), !0) : (t.debug && u.log("Error reading file", n), (i || r)(e, o, n), 
         !1);
-    }, t.FileSelector.ReadFileAsJSON = function(a, e, n) {
-        return t.FileSelector.ReadFileAsText(a, function(r, i, a) {
-            if (!i || "" == i) return t.debug && u.log("Error! JSON file is empty!", a), (n || e)(r, o, a);
+    }, t.FileSelector.ReadFileAsJSON = function(r, e, n) {
+        return t.FileSelector.ReadFileAsText(r, function(a, i, r) {
+            if (!i || "" == i) return t.debug && u.log("Error! JSON file is empty!", r), (n || e)(a, o, r);
             try {
-                return e(r, JSON.parse(i), a);
+                return e(a, JSON.parse(i), r);
             } catch (s) {
-                return t.debug && u.log("Error! Cannot parse json file!", s, a), (n || e)(r, o, a);
+                return t.debug && u.log("Error! Cannot parse json file!", s, r), (n || e)(a, o, r);
             }
         });
     };
     var St = t.API.addStyle = function(e) {
         if (e && "" != e) {
             if (typeof GM_addStyle !== n) return GM_addStyle(e) || !0;
-            var a, r = p || s, o = r.document.getElementsByTagName("head");
+            var r, a = p || s, o = a.document.getElementsByTagName("head");
             if (o) {
-                a = r.document.createElement("style");
+                r = a.document.createElement("style");
                 try {
-                    a.innerHTML = e;
+                    r.innerHTML = e;
                 } catch (i) {
-                    a.innerText = e;
+                    r.innerText = e;
                 }
-                return a.type = "text/css", o[0].appendChild(a);
+                return r.type = "text/css", o[0].appendChild(r);
             }
             t.debug && tt("jMod.API.addStyle", "Could not add css", e);
         }
     };
     t.API.addStylesheet = function(n) {
-        var e, a = p || s, r = a.document.getElementsByTagName("head");
-        return r ? (e = a.document.createElement("link"), e.setAttribute("rel", "stylesheet"), 
-        e.href = n, r[0].appendChild(e)) : (t.debug && tt("jMod.API.addStylesheet", "Could not add stylesheet", n), 
+        var e, r = p || s, a = r.document.getElementsByTagName("head");
+        return a ? (e = r.document.createElement("link"), e.setAttribute("rel", "stylesheet"), 
+        e.href = n, a[0].appendChild(e)) : (t.debug && tt("jMod.API.addStylesheet", "Could not add stylesheet", n), 
         o);
     }, t.API.importStylesheet = function(e) {
         t.CSS = "@import url(" + e + ");\n";
-    }, t.API.addScript = function(a, o, i, s, l, c) {
-        var t, r, e;
-        if (e = "object" == typeof a ? a : {
-            js: a,
+    }, t.API.addScript = function(r, o, i, s, l, c) {
+        var t, a, e;
+        if (e = "object" == typeof r ? r : {
+            js: r,
             src: o,
             id: i,
             type: s,
             async: l,
             defer: c
-        }, r = document.getElementsByTagName("head")) {
+        }, a = document.getElementsByTagName("head")) {
             if (t = document.createElement("script"), typeof e.id !== n) try {
                 t.id = e.id;
             } catch (u) {}
@@ -1650,7 +1653,7 @@
                 t.src = e.src;
             } catch (u) {}
             try {
-                return r[0].appendChild(t);
+                return a[0].appendChild(t);
             } catch (u) {}
         }
         return null;
@@ -1691,34 +1694,34 @@
         return "GM_Storage" == a("API.Storage.engine") && n != typeof GM_setValue ? T.GM_Storage.setValue.apply(T.GM_Storage, arguments) : T.localStorage.setValue.apply(T.localStorage, arguments);
     }, t.deleteValue = function(e) {
         return "GM_Storage" == a("API.Storage.engine") && n != typeof GM_deleteValue ? T.GM_Storage.deleteValue.apply(T.GM_Storage, arguments) : T.localStorage.deleteValue.apply(T.localStorage, arguments);
-    }, t.API.getRemoteImageAsURL = function(a, e, t) {
+    }, t.API.getRemoteImageAsURL = function(r, e, t) {
         if (n != typeof GM_xmlhttpRequest) {
-            var r = /Content-Type:\s*([^\s]+)/i;
+            var a = /Content-Type:\s*([^\s]+)/i;
             return "function" == typeof e && n === typeof t && (t = e, e = o), GM_xmlhttpRequest({
                 method: "GET",
-                url: a,
+                url: r,
                 overrideMimeType: "text/plain; charset=x-user-defined",
                 onload: function(o) {
                     if (n == typeof e || null == e || "" == e) try {
-                        var a = r.exec(o.responseHeaders);
-                        a && a.length > 1 && (e = a[1].trim());
+                        var r = a.exec(o.responseHeaders);
+                        r && r.length > 1 && (e = r[1].trim());
                     } catch (i) {}
                     t("data:" + (e && "" != e ? e : "image/png") + ";base64," + Ot(o.responseText));
                 }
             });
         }
-    }, t.API.getResourceText = function(a, e, i) {
+    }, t.API.getResourceText = function(r, e, i) {
         if (n !== typeof GM_getResourceText) try {
-            var r = GM_getResourceText(a);
-            return e && e(r), r;
+            var a = GM_getResourceText(r);
+            return e && e(a), a;
         } catch (s) {}
-        return i ? t.API.getResourceTextLive(a, e) : o;
-    }, t.API.getResourceURL = function(a, e, i) {
+        return i ? t.API.getResourceTextLive(r, e) : o;
+    }, t.API.getResourceURL = function(r, e, i) {
         if (n !== typeof GM_getResourceURL) try {
-            var r = GM_getResourceURL(a);
-            return e && e(r), r;
+            var a = GM_getResourceURL(r);
+            return e && e(a), a;
         } catch (s) {}
-        return i ? t.API.getResourceURLLive(a, e) : o;
+        return i ? t.API.getResourceURLLive(r, e) : o;
     }, t.API.getResourceTextLive = function(t, r) {
         if (n != typeof GM_xmlhttpRequest) {
             var e = a("script.script_info.resource");
@@ -1772,18 +1775,66 @@
         } else if ("date" == A(t)) return new Date(t);
         return null;
     }, t.API.Date.getScriptTimeDiff = function(e) {
-        var a;
-        if ("string" == typeof e ? a = t.API.Date.parseUTCDate(e) : "object" == typeof e && typeof e.scriptUploadTimestamp !== n && (a = t.API.Date.parseUTCDate(e.scriptUploadTimestamp)), 
-        !a) return null;
-        var r = Date.now(), o = Math.abs(r - a), i = o / 1e3 / 60, s = i / 60, l = s / 24;
+        var r;
+        if ("string" == typeof e ? r = t.API.Date.parseUTCDate(e) : "object" == typeof e && typeof e.scriptUploadTimestamp !== n && (r = t.API.Date.parseUTCDate(e.scriptUploadTimestamp)), 
+        !r) return null;
+        var a = Date.now(), o = Math.abs(a - r), i = o / 1e3 / 60, s = i / 60, l = s / 24;
         return {
-            date: a,
-            now: r,
+            date: r,
+            now: a,
             milliseconds: o,
             minutes: i,
             hours: s,
             days: l
         };
+    }, t.jQueryExtensions = {}, t.jQueryExtensions.addCrossDomainSupport = function(e) {
+        n != typeof GM_xmlhttpRequest && (e || (e = t.jQuery), e.ajaxTransport("* text html xml json", function(e, r, i) {
+            if (n !== typeof GM_xmlhttpRequest) {
+                var a = t.extend(!0, {}, e, r), o = {
+                    context: "context",
+                    overrideMimeType: "overrideMimeType",
+                    timeout: "timeout",
+                    username: "user",
+                    password: "password"
+                };
+                return {
+                    send: function(u, f) {
+                        function l(e, t, n) {
+                            var r = 200 === e ? "success" : "error";
+                            f(e, r, t, n);
+                        }
+                        var i = (r.dataType || "").toLowerCase(), c = {
+                            method: e.type || "GET",
+                            url: e.url,
+                            data: t.extend({}, e.data || {}, r.data || {}),
+                            headers: u,
+                            onload: function(e) {
+                                var t = {
+                                    text: e.responseText
+                                }, n = "", r = /Content-Type:\s*([^\s]+)/i;
+                                try {
+                                    n = r.exec(e.responseHeaders)[1];
+                                } catch (a) {}
+                                if ("html" === i || /text\/html/i.test(n)) t.html = e.responseText; else if ("json" === i || "text" !== i && /\/json/i.test(n)) try {
+                                    t.json = $.parseJSON(e.responseText);
+                                } catch (a) {} else if ("xml" == i || "text" !== i && /\/xml/i.test(n)) try {
+                                    t.xml = new DOMParser().parseFromString(e.responseText, "text/xml");
+                                } catch (a) {}
+                                l(200, t, e.responseHeaders);
+                            },
+                            onerror: function(e) {
+                                l(404, {
+                                    text: e.responseText
+                                }, e.responseHeaders);
+                            }
+                        };
+                        for (var s in o) n !== typeof a[s] && (c[o[s]] = a[s]);
+                        GM_xmlhttpRequest(c);
+                    },
+                    abort: function() {}
+                };
+            }
+        }));
     }, t.Config.Tooltip = t.extend({
         enabled: !1,
         containerId: "jModTooltipContainer",
@@ -1798,7 +1849,7 @@
             tooltip: "tooltip"
         }
     }, t.Config.Tooltip || {});
-    var ot = "Tooltip.containerId", U = "Tooltip.attributeNames.id", P = "Tooltip.attributeNames.tooltip", rt = "Tooltip.attributeNames.placement", Dt = "Tooltip.attributeNames.margin", _ = "Tooltip.classNames.tooltipTarget", at = "Tooltip.classNames.tooltip", c = t.Tooltip = function(e, n) {
+    var ot = "Tooltip.containerId", U = "Tooltip.attributeNames.id", P = "Tooltip.attributeNames.tooltip", at = "Tooltip.attributeNames.placement", Dt = "Tooltip.attributeNames.margin", _ = "Tooltip.classNames.tooltipTarget", rt = "Tooltip.classNames.tooltip", c = t.Tooltip = function(e, n) {
         y(e) && t.Tooltip.AddTooltipsToElement.apply(t.Tooltip, arguments);
     }, z;
     Object.defineProperties(c, {
@@ -1821,7 +1872,7 @@
         get: {
             value: function(e) {
                 var n, r, o, t = a(U);
-                if (y(e)) return C(e, a(at)) ? document.querySelector("." + a(_) + " [" + t + '="' + e.id + '"]') : (C(e, a(_)) && e.hasAttribute(t) ? n = e.getAttribute(t) : this.TooltipContainer && null !== (o = this.TooltipContainer.querySelector("." + a(_) + " [" + t + "]")) && (n = o.getAttribute(t)), 
+                if (y(e)) return C(e, a(rt)) ? document.querySelector("." + a(_) + " [" + t + '="' + e.id + '"]') : (C(e, a(_)) && e.hasAttribute(t) ? n = e.getAttribute(t) : this.TooltipContainer && null !== (o = this.TooltipContainer.querySelector("." + a(_) + " [" + t + "]")) && (n = o.getAttribute(t)), 
                 document.getElementById(n));
                 if ("string" == typeof e) {
                     if (null !== (r = document.getElementById(e))) return r;
@@ -1830,7 +1881,7 @@
             }.bind(c)
         }
     });
-    var q = 200;
+    var W = 200;
     c.MoveTooltip = function(e, t, n) {
         "top" in n ? t.style.top = n.top : "bottom" in n && (t.style.bottom = n.bottom), 
         "left" in n ? t.style.left = n.left : "right" in n && (t.style.right = n.right);
@@ -1841,11 +1892,11 @@
         e.hasAttribute(r + "-right") && (t.style.marginRight = e.getAttribute(r + "-right"));
     }, c.MoveTooltipToTarget = function(i, o, l) {
         var t, n, r, u, f;
-        if (C(i, a(at))) t = i; else {
+        if (C(i, a(rt))) t = i; else {
             if (!i.hasAttribute(a(U))) return;
             t = document.getElementById(i.getAttribute(a(U)));
         }
-        var s = o.getAttribute(a(rt)) || "top", e = xt(o);
+        var s = o.getAttribute(a(at)) || "top", e = Nt(o);
         switch (s) {
           case "left-top":
             n = parseInt(e.top), r = e.left - parseInt(t.offsetWidth), c.MoveTooltip(o, t, {
@@ -1938,14 +1989,14 @@
             });
         }
     }, c.HideAllExcept = function(i) {
-        for (var r = [], e, o = t.$$(".jmod-na ." + a(at) + ".in"), n = 0; n < o.length; n++) e = o[n], 
+        for (var r = [], e, o = t.$$(".jmod-na ." + a(rt) + ".in"), n = 0; n < o.length; n++) e = o[n], 
         "block" == e.style.display && e !== i && (L(e, "in"), r.push(e));
         setTimeout(function(t) {
             for (var e = 0; e < t.length; e++) C(t[e], "in") || (t[e].style.display = "none");
-        }, q, r);
+        }, W, r);
     }, c.handler = {
         mouseenter: function(i) {
-            var n = this.getAttribute(a(U)), r = this.getAttribute(a(P)), e = this.getAttribute(a(rt)) || "top", o = c.TooltipContainer;
+            var n = this.getAttribute(a(U)), r = this.getAttribute(a(P)), e = this.getAttribute(a(at)) || "top", o = c.TooltipContainer;
             switch (e) {
               case "top-left":
               case "top-right":
@@ -1970,32 +2021,32 @@
             t || (t = g({
                 type: "div",
                 id: n,
-                className: a(at) + " " + e + " fade slow",
+                className: a(rt) + " " + e + " fade slow",
                 style: {
                     display: "none"
                 },
                 innerHTML: [ '<div class="tooltip-arrow"></div>', '<div class="tooltip-inner">' + r + "</div>" ]
             }), t.addEventListener("mouseenter", function(t) {
                 var e = p.getComputedStyle(this, null).getPropertyValue("opacity");
-                e > .2 && (I(this, "in"), c.HideAllExcept(this));
+                e > .2 && (w(this, "in"), c.HideAllExcept(this));
             }), t.addEventListener("mouseleave", function(e) {
                 var t = p.getComputedStyle(this, null).getPropertyValue("opacity");
                 L(this, "in"), setTimeout(function(e) {
                     C(e, "in") || (e.style.display = "none");
-                }, q, this);
+                }, W, this);
             }), t.addEventListener("click", function(e) {
                 L(this, "in"), setTimeout(function(e) {
                     C(e, "in") || (e.style.display = "none");
-                }, q, this);
+                }, W, this);
             }), o.appendChild(t)), c.HideAllExcept(t), t.style.display = "block", setTimeout(function(t, e) {
-                I(e, "in"), c.MoveTooltipToTarget(e, t);
+                w(e, "in"), c.MoveTooltipToTarget(e, t);
             }, 1, this, t);
         },
         mouseleave: function(t) {
             var e = c.get(this);
             e && (L(e, "in"), setTimeout(function(e) {
                 C(e, "in") || (e.style.display = "none");
-            }, q, e));
+            }, W, e));
         },
         scroll: function(i) {
             var e, o, n;
@@ -2019,7 +2070,7 @@
         var e = document.getElementById(a(ot));
         null == e && (e = document.createElement("div"), e.id = a(ot), e.className = "jModTooltipContainer jmod-na jmod-fa", 
         document.body.appendChild(e), z = e);
-    }, t.CSS = ".jmod-na .fade.slow {transition: opacity " + (q / 1e3).toFixed(2) + "s linear 0s;}", 
+    }, t.CSS = ".jmod-na .fade.slow {transition: opacity " + (W / 1e3).toFixed(2) + "s linear 0s;}", 
     t.Config.Notifications = {
         enabled: !0
     };
@@ -2121,7 +2172,7 @@
     }, l.getElement = function(e) {
         var t = l.getElementId(e);
         return document.getElementById(null != t ? t : e);
-    }, l.remove = function(t, a) {
+    }, l.remove = function(t, r) {
         if (null != t) {
             if (t.hasAttribute("data-jmod-small-notification")) {
                 var e = t, n = parseInt(t.style.top || 0);
@@ -2131,8 +2182,8 @@
             }
             t.parentElement.removeChild(t);
         }
-    }, l.close = function(e, a, t, r, n) {
-        if (null != e) switch (l.Events.fire(t, "onBeforeClose", e, n), a.toLowerCase()) {
+    }, l.close = function(e, r, t, a, n) {
+        if (null != e) switch (l.Events.fire(t, "onBeforeClose", e, n), r.toLowerCase()) {
           case "large":
             e.setAttribute("class", "jModLargeNotification bigBox animated fadeOut fast"), setTimeout(function(e, t, n) {
                 l.remove(e, t), l.Events.fire(t, "onAfterClose", e, n);
@@ -2148,18 +2199,18 @@
     }, l.Events = {
         eventListeners: {},
         events: [ "onBeforeClose", "onAfterClose" ],
-        add: function(e, t, a) {
+        add: function(e, t, r) {
             typeof this.eventListeners[e] === n && (this.eventListeners[e] = {}), typeof this.eventListeners[e][t] === n && (this.eventListeners[e][t] = []), 
-            this.eventListeners[e][t].push(a);
+            this.eventListeners[e][t].push(r);
         },
         addAll: function(t, n) {
             for (var e in this.events) "function" == typeof t[this.events[e]] && this.add(n, this.events[e], t[this.events[e]]);
         },
-        fire: function(t, r, o) {
-            var a, e, i;
-            if (typeof this.eventListeners[t] !== n && typeof this.eventListeners[t][r] !== n) for (typeof o !== n && y(o) ? (e = o, 
-            a = d.call(arguments, 3)) : (e = document.querySelector('div[data-jmod-notification="' + t + '"]'), 
-            null == e && (e = s), a = d.call(arguments, 2)), a.unshift(r); typeof (i = this.eventListeners[t][r].shift()) !== n; ) i.apply(e, a);
+        fire: function(t, a, o) {
+            var r, e, i;
+            if (typeof this.eventListeners[t] !== n && typeof this.eventListeners[t][a] !== n) for (typeof o !== n && y(o) ? (e = o, 
+            r = d.call(arguments, 3)) : (e = document.querySelector('div[data-jmod-notification="' + t + '"]'), 
+            null == e && (e = s), r = d.call(arguments, 2)), r.unshift(a); typeof (i = this.eventListeners[t][a].shift()) !== n; ) i.apply(e, r);
         }
     }, l.count = 0, l.LargeCount = 0, l.SmallCount = 0, Object.defineProperties(l, {
         CurrentLargeCount: {
@@ -2202,7 +2253,7 @@
     }, t.Config.Tabs || {});
     var m = t.Tabs = function(e) {};
     m.Initialized = !1, m.GroupCount = 0;
-    var x = m.att = {}, ct = m.cn = {};
+    var N = m.att = {}, ct = m.cn = {};
     Object.defineProperties(m.att, {
         li: {
             get: function() {
@@ -2239,27 +2290,27 @@
         click: function(n) {
             var e = n.target, l = e.parentElement;
             if (this.contains(e) && "A" == e.nodeName) {
-                var a = this.parentElement.querySelector("." + ct.ct), r = j(e, "href");
-                if (r) {
-                    var o = a.querySelector(".tab-pane.active"), i = this.querySelector("li.active"), t = a.querySelector(r);
+                var r = this.parentElement.querySelector("." + ct.ct), a = j(e, "href");
+                if (a) {
+                    var o = r.querySelector(".tab-pane.active"), i = this.querySelector("li.active"), t = r.querySelector(a);
                     if (t) {
-                        var s = j(this, x.ul);
+                        var s = j(this, N.ul);
                         !1 !== m.Events.fire("onBeforeShow", parseInt(s), this, [ e, t ]) && (i && L(i, "active"), 
-                        o && L(o, "active"), I(l, "active"), I(t, "active"), m.Events.fire("onAfterShow", parseInt(s), this, [ e, t ]));
+                        o && L(o, "active"), w(l, "active"), w(t, "active"), m.Events.fire("onAfterShow", parseInt(s), this, [ e, t ]));
                     }
                 }
-                B(n);
+                G(n);
             }
         }
     }, m.load = function(e) {
-        var a, n, s;
+        var r, n, s;
         if (y(e)) n = e; else {
             if ("object" != typeof e || !e.target) return;
             n = e.target, s = e.EventListeners;
         }
-        if (a = C(n, "tabbable") ? [ n ] : t.$$("div.tabbable", n)) for (var r = 0; r < a.length; r++) {
-            var o = a[r].querySelector(".nav." + ct.nav), i = a[r].querySelector("." + ct.ct);
-            o && i && (o.setAttribute(x.ul, m.GroupCount), i.setAttribute(x.ct, m.GroupCount), 
+        if (r = C(n, "tabbable") ? [ n ] : t.$$("div.tabbable", n)) for (var a = 0; a < r.length; a++) {
+            var o = r[a].querySelector(".nav." + ct.nav), i = r[a].querySelector("." + ct.ct);
+            o && i && (o.setAttribute(N.ul, m.GroupCount), i.setAttribute(N.ct, m.GroupCount), 
             "object" == typeof e && m.Events.addAll(e, m.GroupCount), o.addEventListener("click", m.handler.click), 
             m.GroupCount++);
         }
@@ -2278,7 +2329,7 @@
             },
             attributes: e.attributes || {}
         };
-        return t.attributes[x.li] = e.index || -1, t;
+        return t.attributes[N.li] = e.index || -1, t;
     }, m.makeContentElement = function(e) {
         var t = {
             type: "div",
@@ -2287,21 +2338,21 @@
             innerHTML: e.innerHTML || e.text || "",
             attributes: e.attributes || {}
         };
-        return t.attributes[x.pane] = e.index || -1, t;
+        return t.attributes[N.pane] = e.index || -1, t;
     }, m.show = function(e, n) {
-        var r, o, a;
-        if ("number" == typeof e && (e = document.querySelector("ul[" + x.ul + '="' + e + '"]')), 
+        var a, o, r;
+        if ("number" == typeof e && (e = document.querySelector("ul[" + N.ul + '="' + e + '"]')), 
         y(e)) {
-            if (Et(e, x.li)) a = e; else if ("number" == typeof n) a = t.$$("li[" + x.li + "]", e)[n]; else if ("string" == typeof n) {
-                for (o = t.$$("li[" + x.li + "]", e), r = 0; r < o.length; r++) if (o[r].innerHTML == n) {
-                    a = o[r];
+            if (Et(e, N.li)) r = e; else if ("number" == typeof n) r = t.$$("li[" + N.li + "]", e)[n]; else if ("string" == typeof n) {
+                for (o = t.$$("li[" + N.li + "]", e), a = 0; a < o.length; a++) if (o[a].innerHTML == n) {
+                    r = o[a];
                     break;
                 }
-            } else y(n) && Et(n, x.li) && (a = n);
-            if (a && y(a)) return lt(a.querySelector('a[data-toggle="tab"]'));
+            } else y(n) && Et(n, N.li) && (r = n);
+            if (r && y(r)) return lt(r.querySelector('a[data-toggle="tab"]'));
         }
     }, m.resize = function(e) {
-        gt(e, wt);
+        gt(e, xt);
     }, t.Config.Modal = t.extend({
         enabled: !0,
         cn: {
@@ -2340,7 +2391,7 @@
                             capture: !1,
                             callback: function(e) {
                                 return e.target === this ? (this.style.display = "none", L(document.body, "jmod-modal-open"), 
-                                B(e), !1) : o;
+                                G(e), !1) : o;
                             }
                         }
                     }
@@ -2354,7 +2405,7 @@
                 r;
             }
         } catch (u) {
-            w(u, "jMod.Modal");
+            x(u, "jMod.Modal");
         }
     }, et;
     Object.defineProperties(f, {
@@ -2401,38 +2452,38 @@
                 u.log("Tabs onBeforeShow: ", arguments);
             }
         }), n.enableTooltips && c(e);
-    }, f.show = function(e, t, a) {
+    }, f.show = function(e, t, r) {
         try {
-            if ("number" == typeof e && "number" != typeof t && (typeof a === n && typeof t !== n && (a = t), 
+            if ("number" == typeof e && "number" != typeof t && (typeof r === n && typeof t !== n && (r = t), 
             t = e), (typeof e === n || null == e) && typeof t === n) return;
             if (typeof e !== n && null != e && "number" != typeof e || "number" != typeof t ? typeof e !== n && null != e && typeof t === n && (t = j(e, "data-jmod-modal")) : e = document.querySelector('div[data-jmod-modal="' + t + '"]'), 
             -1 != f.CurrentModal && f.CurrentModal != t && f.hide(), e) {
-                var r = document.querySelector('div[data-jmod-modal-backdrop="' + t + '"]'), o = f.Events.fire("onBeforeShow", t, e, [ a || null ]);
-                f.CurrentModal = t, I(document.body, "jmod-modal-open"), r.style.display = "block", 
+                var a = document.querySelector('div[data-jmod-modal-backdrop="' + t + '"]'), o = f.Events.fire("onBeforeShow", t, e, [ r || null ]);
+                f.CurrentModal = t, w(document.body, "jmod-modal-open"), a.style.display = "block", 
                 e.style.display = "block", setTimeout(function(e, t) {
-                    I(t, "in"), I(e, "in");
-                }, 1, e, r), setTimeout(function(e, t, n) {
+                    w(t, "in"), w(e, "in");
+                }, 1, e, a), setTimeout(function(e, t, n) {
                     f.Events.fire("onAfterShow", t, e, [ n || null ]);
-                }, yt, e, t, a || null);
+                }, yt, e, t, r || null);
             }
-        } catch (a) {
-            w(a, "jMod.Modal.show");
+        } catch (r) {
+            x(r, "jMod.Modal.show");
         }
-    }, f.hide = function(t, e, a) {
+    }, f.hide = function(t, e, r) {
         try {
             if (typeof t === n && typeof e === n && -1 != f.CurrentModal && (e = f.CurrentModal, 
-            t = f.getModal(f.CurrentModal)), "number" == typeof t && "number" != typeof e && (typeof a === n && typeof e !== n && (a = e), 
+            t = f.getModal(f.CurrentModal)), "number" == typeof t && "number" != typeof e && (typeof r === n && typeof e !== n && (r = e), 
             e = t), typeof t === n && typeof e === n) return;
             if (y(t) || "number" != typeof e ? typeof t !== n && typeof e === n && (e = j(t, "data-jmod-modal")) : t = f.getModal(e), 
             t) {
-                var r = document.querySelector('div[data-jmod-modal-backdrop="' + e + '"]'), o = f.Events.fire("onBeforeHide", e, t, [ a || null ]);
-                f.CurrentModal = -1, L(document.body, "jmod-modal-open"), L(t, "in"), L(r, "in"), 
-                setTimeout(function(e, t, n, a) {
-                    e.style.display = "none", a.style.display = "none", f.Events.fire("onAfterHide", t, e, [ n || null ]);
-                }, yt, t, e, a || null, r);
+                var a = document.querySelector('div[data-jmod-modal-backdrop="' + e + '"]'), o = f.Events.fire("onBeforeHide", e, t, [ r || null ]);
+                f.CurrentModal = -1, L(document.body, "jmod-modal-open"), L(t, "in"), L(a, "in"), 
+                setTimeout(function(e, t, n, r) {
+                    e.style.display = "none", r.style.display = "none", f.Events.fire("onAfterHide", t, e, [ n || null ]);
+                }, yt, t, e, r || null, a);
             }
-        } catch (a) {
-            w(a, "jMod.Modal.hide");
+        } catch (r) {
+            x(r, "jMod.Modal.hide");
         }
     }, f.Events = new mt([ "onBeforeShow", "onAfterShow", "onBeforeHide", "onAfterHide" ]), 
     f.createModal = function(e) {
@@ -2454,7 +2505,7 @@
                     callback: function(e) {
                         if (e.target === this) {
                             var t = e.target, n = parseInt(j(t, "data-jmod-modal"));
-                            return f.hide(t, n, e), B(e), !1;
+                            return f.hide(t, n, e), G(e), !1;
                         }
                     }
                 }
@@ -2465,26 +2516,26 @@
         });
         if (typeof e.style !== n) for (var c in e.style) i.style[c] = e.style[c];
         u.appendChild(i);
-        var r = g({
+        var a = g({
             type: "div",
             className: "modal-content"
         });
-        i.appendChild(r);
+        i.appendChild(a);
         var s = g({
             type: "div",
             className: "modal-header"
         });
-        r.appendChild(s);
+        a.appendChild(s);
         var d = g({
             type: "div",
             className: "modal-body"
         });
-        r.appendChild(d);
+        a.appendChild(d);
         var o = g({
             type: "div",
             className: "modal-footer"
         });
-        r.appendChild(o), k(s, e.title);
+        a.appendChild(o), k(s, e.title);
         var y = g({
             type: "div",
             className: "yt-close-btn-wrapper",
@@ -2503,11 +2554,11 @@
             var m = t.extend(!0, {
                 type: "button",
                 text: "button"
-            }, e.buttons[p]), a = g(m);
-            a && (C(a, "btn") || I(a, "brn"), /btn\-(default|primary|success|info|warning|danger)/i.test(a.className) || I(a, "btn-default"), 
-            o.appendChild(a));
+            }, e.buttons[p]), r = g(m);
+            r && (C(r, "btn") || w(r, "brn"), /btn\-(default|primary|success|info|warning|danger)/i.test(r.className) || w(r, "btn-default"), 
+            o.appendChild(r));
         } catch (h) {
-            w(h, "jMod.Modal.createModal", "footer buttons");
+            x(h, "jMod.Modal.createModal", "footer buttons");
         }
         var b = g({
             type: "button",
@@ -2522,7 +2573,7 @@
                     callback: function(e) {
                         if (e.target === this) {
                             var t = e.target.parentElement.parentElement.parentElement.parentElement, n = parseInt(j(t, "data-jmod-modal"));
-                            return f.hide(t, n, e), B(e), !1;
+                            return f.hide(t, n, e), G(e), !1;
                         }
                     }
                 }
@@ -2544,7 +2595,7 @@
             modal: "jModSettingsModal"
         }
     }, t.Config.Settings || {});
-    var Bt = "Settings.id.modal", Pt = "Settings.cn.modal", i = t.Settings = function(e, n) {
+    var Gt = "Settings.id.modal", Pt = "Settings.cn.modal", i = t.Settings = function(e, n) {
         if (!a("Settings.enabled")) return !1;
         if (t.Settings.Initialized || t.Settings.init(), "string" == typeof e) switch (e.toLowerCase()) {
           case "":        } else "object" == typeof e && (i._data = e, t.Settings.__storedData = o, 
@@ -2554,9 +2605,9 @@
     i.Initialized = !1, i.getDefault = function(n) {
         var t = 0, e = i._data;
         if (e && (e = e.settings)) for (t; t < e.length; t++) if (e[t].name == n) return e[t]["default"];
-    }, i.get = function(e, a) {
+    }, i.get = function(e, r) {
         var t = i._storedData;
-        return n === typeof e ? t : t && t[e] !== o ? t[e] : 1 == a ? o : i.getDefault(e);
+        return n === typeof e ? t : t && t[e] !== o ? t[e] : 1 == r ? o : i.getDefault(e);
     }, i.set = function(t, n) {
         var e = i._storedData || {};
         e[t] = n, i._storedData = e;
@@ -2602,7 +2653,7 @@
         }
     }), i.PrefTypes = {
         _types: {},
-        _call: function(t, e, a) {
+        _call: function(t, e, r) {
             return typeof this._types[e] !== n && "function" == typeof this._types[e][t] ? this._types[e][t].apply(this._types[e], d.call(arguments, 2)) : o;
         },
         add: function(e, t) {
@@ -2619,7 +2670,7 @@
             var t, e = 0;
             try {
                 t = i._data.settings;
-            } catch (a) {
+            } catch (r) {
                 return;
             }
             for (e; e < t.length; e++) if (t[e].name == n) return this.getValue(t[e]);
@@ -2628,56 +2679,56 @@
             var t, e = 0;
             try {
                 t = i._data.settings;
-            } catch (a) {
+            } catch (r) {
                 return;
             }
             for (e; e < t.length; e++) if (t[e].name == n) return t[e];
         },
-        setValue: function(e, a) {
+        setValue: function(e, r) {
             var n = t.$('#jModSettingsModal [name="' + e.name + '"]');
-            return n ? this._call("setValue", e.type, n, e, a) : o;
+            return n ? this._call("setValue", e.type, n, e, r) : o;
         },
-        enable: function(a) {
-            var e, r, s, n = 0;
-            if ("object" == typeof a) e = a; else if ("string" == typeof a) {
+        enable: function(r) {
+            var e, a, s, n = 0;
+            if ("object" == typeof r) e = r; else if ("string" == typeof r) {
                 try {
-                    r = i._data.settings;
+                    a = i._data.settings;
                 } catch (l) {
                     return;
                 }
-                for (n; n < r.length; n++) if (r[n].name == a) {
-                    e = r[n];
+                for (n; n < a.length; n++) if (a[n].name == r) {
+                    e = a[n];
                     break;
                 }
             }
             return e ? (s = t.$('#jModSettingsModal [name="' + e.name + '"]'), s ? this._call("enable", e.type, s, e) : o) : o;
         },
-        disable: function(a) {
-            var e, r, s, n = 0;
-            if ("object" == typeof a) e = a; else if ("string" == typeof a) {
+        disable: function(r) {
+            var e, a, s, n = 0;
+            if ("object" == typeof r) e = r; else if ("string" == typeof r) {
                 try {
-                    r = i._data.settings;
+                    a = i._data.settings;
                 } catch (l) {
                     return;
                 }
-                for (n; n < r.length; n++) if (r[n].name == a) {
-                    e = r[n];
+                for (n; n < a.length; n++) if (a[n].name == r) {
+                    e = a[n];
                     break;
                 }
             }
             return e ? (s = t.$('#jModSettingsModal [name="' + e.name + '"]'), s ? this._call("disable", e.type, s, e) : o) : o;
         },
         onChange: function(f, g) {
-            var a, r, c, s, l, o = !0, p, d, u = !1, e = 0;
+            var r, a, c, s, l, o = !0, p, d, u = !1, e = 0;
             try {
-                a = i._data.settings;
+                r = i._data.settings;
             } catch (y) {
                 return;
             }
-            for (e; e < a.length; e++) if (o = !0, a[e].depend && ("function" == typeof a[e].depend || n == typeof f || n !== typeof a[e].depend[f])) {
-                if ("function" == typeof a[e].depend) d = t.$('#jModSettingsModal [name="' + a[e].name + '"]'), 
-                o = a[e].depend(d, a[e]); else for (c in a[e].depend) {
-                    r = a[e].depend[c], p = typeof r;
+            for (e; e < r.length; e++) if (o = !0, r[e].depend && ("function" == typeof r[e].depend || n == typeof f || n !== typeof r[e].depend[f])) {
+                if ("function" == typeof r[e].depend) d = t.$('#jModSettingsModal [name="' + r[e].name + '"]'), 
+                o = r[e].depend(d, r[e]); else for (c in r[e].depend) {
+                    a = r[e].depend[c], p = typeof a;
                     var m = i.PrefTypes.getDataByName(c);
                     try {
                         u = 1 == i.PrefTypes._types[m.type].multiValue;
@@ -2687,16 +2738,16 @@
                     switch (f == c ? s = g : n == typeof (s = this.getValueByName(c)) && (s = i.get(c)), 
                     u && (s = s.split(",")), p) {
                       case "function":
-                        o = r(t.$('#jModSettingsModal [name="' + a[e].name + '"]'), a[e], s, m);
+                        o = a(t.$('#jModSettingsModal [name="' + r[e].name + '"]'), r[e], s, m);
                         break;
 
                       case "object":
-                        if ("array" == A(r)) if (u) {
-                            for (l = 0; l < r.length; l++) if (-1 == s.indexOf(r[l])) {
+                        if ("array" == A(a)) if (u) {
+                            for (l = 0; l < a.length; l++) if (-1 == s.indexOf(a[l])) {
                                 o = !1;
                                 break;
                             }
-                        } else for (o = !1, l = 0; l < r.length; l++) if (r[l] == s) {
+                        } else for (o = !1, l = 0; l < a.length; l++) if (a[l] == s) {
                             o = !0;
                             break;
                         }
@@ -2704,19 +2755,19 @@
 
                       case "string":
                         if (u) {
-                            for (r = r.split(","), l = 0; l < r.length; l++) if (-1 == s.indexOf(r[l])) {
+                            for (a = a.split(","), l = 0; l < a.length; l++) if (-1 == s.indexOf(a[l])) {
                                 o = !1;
                                 break;
                             }
-                        } else s != r && (o = !1);
+                        } else s != a && (o = !1);
                         break;
 
                       case "number":
-                        u ? s.length < r && (o = !1) : parseInt(s) != parseInt(r) && (o = !1);
+                        u ? s.length < a && (o = !1) : parseInt(s) != parseInt(a) && (o = !1);
                     }
                     if (!o) break;
                 }
-                o ? i.PrefTypes.enable(a[e]) : i.PrefTypes.disable(a[e]);
+                o ? i.PrefTypes.enable(r[e]) : i.PrefTypes.disable(r[e]);
             }
         }
     }, i.getElementId = function(e) {
@@ -2732,16 +2783,16 @@
         return document.getElementById(null != t ? t : e);
     }, i.PrefTypes.add("select", {
         make: function(e) {
-            var c = e.description || e.name, s = e["default"] || null, l = i.get(e.name), r = l || s, o = [];
+            var c = e.description || e.name, s = e["default"] || null, l = i.get(e.name), a = l || s, o = [];
             for (var t in e.options) o.push({
                 type: "option",
                 innerHTML: e.options[t],
                 attributes: {
                     value: t,
-                    selected: r && r == t ? !0 : null
+                    selected: a && a == t ? !0 : null
                 }
             });
-            var a = {
+            var r = {
                 type: "div",
                 className: "pref-container",
                 innerHTML: {
@@ -2762,13 +2813,13 @@
                     }
                 }
             };
-            return n == typeof e.tooltip || n == typeof e.tooltip.innerHTML && n == typeof e.tooltip.text || (a.innerHTML = N(a.innerHTML, e.tooltip)), 
-            a;
+            return n == typeof e.tooltip || n == typeof e.tooltip.innerHTML && n == typeof e.tooltip.text || (r.innerHTML = I(r.innerHTML, e.tooltip)), 
+            r;
         },
         getValue: function(e, t) {
             return e.options[e.selectedIndex].value;
         },
-        setValue: function(t, a, n) {
+        setValue: function(t, r, n) {
             for (var e = 0; e < t.options.length; e++) if (t.options[e].value == n) return t.selectedIndex = e, 
             !0;
             return !1;
@@ -2782,11 +2833,11 @@
     }), i.PrefTypes.add("checkbox", {
         multiValue: !0,
         make: function(e) {
-            var u = e.description || e.name, s = e["default"] || "", l = i.get(e.name), a = l || s;
-            "object" != typeof a && (a = a.split(","));
+            var u = e.description || e.name, s = e["default"] || "", l = i.get(e.name), r = l || s;
+            "object" != typeof r && (r = r.split(","));
             var o = [];
             for (var t in e.options) {
-                var r = {
+                var a = {
                     type: "label",
                     className: "checkbox-inline",
                     innerHTML: [ {
@@ -2797,7 +2848,7 @@
                             type: "checkbox",
                             value: t
                         },
-                        checked: -1 != a.indexOf(t) ? !0 : !1,
+                        checked: -1 != r.indexOf(t) ? !0 : !1,
                         EventListeners: {
                             CheckboxStateChange: function(t) {
                                 var e = t.target.parentElement.parentElement.getAttribute("name"), n = i.PrefTypes.getValueByName(e);
@@ -2811,8 +2862,8 @@
                     } ],
                     attributes: {}
                 };
-                n == typeof e.options[t].tooltip || n == typeof e.options[t].tooltip.innerHTML && n == typeof e.options[t].tooltip.text || (r.innerHTML[1] = N(r.innerHTML[1], e.options[t].tooltip)), 
-                o.push(r);
+                n == typeof e.options[t].tooltip || n == typeof e.options[t].tooltip.innerHTML && n == typeof e.options[t].tooltip.text || (a.innerHTML[1] = I(a.innerHTML[1], e.options[t].tooltip)), 
+                o.push(a);
             }
             var c = {
                 type: "div",
@@ -2824,25 +2875,25 @@
             };
             return c;
         },
-        getValue: function(r, o) {
-            for (var n = [], a = t.$$("input:checked", r), e = 0; e < a.length; e++) n.push(a[e].value);
+        getValue: function(a, o) {
+            for (var n = [], r = t.$$("input:checked", a), e = 0; e < r.length; e++) n.push(r[e].value);
             return n.join(",");
         },
-        setValue: function(t, r, n) {
-            for (var a = n.split(","), e = 0; e < t.options.length; e++) t.options[e].checked = -1 != a.indexOf(j(t.options[e], "name")) ? !0 : !1;
+        setValue: function(t, a, n) {
+            for (var r = n.split(","), e = 0; e < t.options.length; e++) t.options[e].checked = -1 != r.indexOf(j(t.options[e], "name")) ? !0 : !1;
             return !0;
         },
-        enable: function(a, r) {
-            for (var n = t.$$("input", a), e = 0; e < n.length; e++) n[e].hasAttribute("disabled") && n[e].removeAttribute("disabled");
+        enable: function(r, a) {
+            for (var n = t.$$("input", r), e = 0; e < n.length; e++) n[e].hasAttribute("disabled") && n[e].removeAttribute("disabled");
         },
-        disable: function(a, r) {
-            for (var n = t.$$("input", a), e = 0; e < n.length; e++) n[e].setAttribute("disabled", "disabled");
+        disable: function(r, a) {
+            for (var n = t.$$("input", r), e = 0; e < n.length; e++) n[e].setAttribute("disabled", "disabled");
         }
     }), i.PrefTypes.add("radio", {
         make: function(e) {
-            var u = e.description || e.name, o = e["default"] || "", s = i.get(e.name), l = s || o, r = [];
+            var u = e.description || e.name, o = e["default"] || "", s = i.get(e.name), l = s || o, a = [];
             for (var t in e.options) {
-                var a = {
+                var r = {
                     type: "label",
                     className: "radio radio-inline",
                     innerHTML: [ {
@@ -2867,13 +2918,13 @@
                     } ],
                     attributes: {}
                 };
-                n == typeof e.options[t].tooltip || n == typeof e.options[t].tooltip.innerHTML && n == typeof e.options[t].tooltip.text || (a.innerHTML[1] = N(a.innerHTML[1], e.options[t].tooltip)), 
-                r.push(a);
+                n == typeof e.options[t].tooltip || n == typeof e.options[t].tooltip.innerHTML && n == typeof e.options[t].tooltip.text || (r.innerHTML[1] = I(r.innerHTML[1], e.options[t].tooltip)), 
+                a.push(r);
             }
             var c = {
                 type: "div",
                 className: "form-group pref-container",
-                innerHTML: r,
+                innerHTML: a,
                 attributes: {
                     name: e.name
                 }
@@ -2883,22 +2934,22 @@
         getValue: function(e, t) {
             return e.querySelector("input:checked").value;
         },
-        setValue: function(t, a, n) {
+        setValue: function(t, r, n) {
             for (var e = 0; e < t.options.length; e++) t.options[e].checked = j(t.options[e], "name") == n ? !0 : !1;
             return !0;
         },
-        enable: function(a, r) {
-            for (var n = t.$$("input", a), e = 0; e < n.length; e++) n[e].hasAttribute("disabled") && n[e].removeAttribute("disabled");
+        enable: function(r, a) {
+            for (var n = t.$$("input", r), e = 0; e < n.length; e++) n[e].hasAttribute("disabled") && n[e].removeAttribute("disabled");
         },
-        disable: function(a, r) {
-            for (var n = t.$$("input", a), e = 0; e < n.length; e++) n[e].setAttribute("disabled", "disabled");
+        disable: function(r, a) {
+            for (var n = t.$$("input", r), e = 0; e < n.length; e++) n[e].setAttribute("disabled", "disabled");
         }
     }), i.PrefTypes.add("toggle", {
         multiValue: !0,
         make: function(e) {
-            var u = e.description || e.name, o = e["default"] || "", s = i.get(e.name), l = s || o, r = [];
+            var u = e.description || e.name, o = e["default"] || "", s = i.get(e.name), l = s || o, a = [];
             for (var t in e.options) {
-                var a = {
+                var r = {
                     type: "label",
                     className: "toggle " + (e.options[t].className || ""),
                     innerHTML: [ {
@@ -2926,36 +2977,36 @@
                     }, e.options[t].label ],
                     attributes: {}
                 };
-                n == typeof e.options[t].tooltip || n == typeof e.options[t].tooltip.innerHTML && n == typeof e.options[t].tooltip.text || (a.innerHTML[1] = N(a.innerHTML[1], e.options[t].tooltip)), 
-                r.push(a);
+                n == typeof e.options[t].tooltip || n == typeof e.options[t].tooltip.innerHTML && n == typeof e.options[t].tooltip.text || (r.innerHTML[1] = I(r.innerHTML[1], e.options[t].tooltip)), 
+                a.push(r);
             }
             var c = {
                 type: "div",
                 className: "form-group pref-container",
-                innerHTML: r,
+                innerHTML: a,
                 attributes: {
                     name: e.name
                 }
             };
             return c;
         },
-        getValue: function(r, o) {
-            for (var n = [], a = t.$$("input:checked", r), e = 0; e < a.length; e++) n.push(a[e].value);
+        getValue: function(a, o) {
+            for (var n = [], r = t.$$("input:checked", a), e = 0; e < r.length; e++) n.push(r[e].value);
             return n.join(",");
         },
-        setValue: function(t, r, n) {
-            for (var a = n.split(","), e = 0; e < t.options.length; e++) t.options[e].checked = -1 != a.indexOf(j(t.options[e], "name")) ? !0 : !1;
+        setValue: function(t, a, n) {
+            for (var r = n.split(","), e = 0; e < t.options.length; e++) t.options[e].checked = -1 != r.indexOf(j(t.options[e], "name")) ? !0 : !1;
             return !0;
         },
-        enable: function(a, r) {
-            for (var n = t.$$("input", a), e = 0; e < n.length; e++) n[e].hasAttribute("disabled") && n[e].removeAttribute("disabled");
+        enable: function(r, a) {
+            for (var n = t.$$("input", r), e = 0; e < n.length; e++) n[e].hasAttribute("disabled") && n[e].removeAttribute("disabled");
         },
-        disable: function(a, r) {
-            for (var n = t.$$("input", a), e = 0; e < n.length; e++) n[e].setAttribute("disabled", "disabled");
+        disable: function(r, a) {
+            for (var n = t.$$("input", r), e = 0; e < n.length; e++) n[e].setAttribute("disabled", "disabled");
         }
     }), i.PrefTypes.add("input", {
         make: function(e) {
-            var s = e.description || e.name, a = e["default"] || "", r = i.get(e.name), t = {
+            var s = e.description || e.name, r = e["default"] || "", a = i.get(e.name), t = {
                 type: "div",
                 className: "pref-container",
                 innerHTML: [ {
@@ -2964,7 +3015,7 @@
                     innerHTML: "",
                     style: e.style,
                     attributes: {
-                        value: r || a,
+                        value: a || r,
                         name: e.name,
                         type: "text",
                         "data-jmod-settings-pref": e.name,
@@ -2977,7 +3028,7 @@
                     }
                 } ]
             };
-            if (n == typeof e.tooltip || n == typeof e.tooltip.innerHTML && n == typeof e.tooltip.text || (t.innerHTML[0] = N(t.innerHTML[0], e.tooltip)), 
+            if (n == typeof e.tooltip || n == typeof e.tooltip.innerHTML && n == typeof e.tooltip.text || (t.innerHTML[0] = I(t.innerHTML[0], e.tooltip)), 
             n != typeof e.icon) {
                 t.className += " input-icon-right";
                 var o = pt(e.icon);
@@ -2999,13 +3050,13 @@
         }
     }), i.PrefTypes.add("textarea", {
         make: function(e) {
-            var s = e.description || e.name, r = e["default"] || "", o = i.get(e.name), t = {
+            var s = e.description || e.name, a = e["default"] || "", o = i.get(e.name), t = {
                 type: "div",
                 className: "pref-container",
                 innerHTML: [ {
                     type: "textarea",
                     className: "form-control pref",
-                    innerHTML: o || r,
+                    innerHTML: o || a,
                     style: e.style,
                     attributes: {
                         name: e.name,
@@ -3020,10 +3071,10 @@
                     }
                 } ]
             };
-            if (n == typeof e.tooltip || n == typeof e.tooltip.innerHTML && n == typeof e.tooltip.text || (t.innerHTML[0] = N(t.innerHTML[0], e.tooltip)), 
+            if (n == typeof e.tooltip || n == typeof e.tooltip.innerHTML && n == typeof e.tooltip.text || (t.innerHTML[0] = I(t.innerHTML[0], e.tooltip)), 
             n != typeof e.icon) {
-                var a = pt(e.icon);
-                a.className += " icon-append", t.innerHTML.unshift(a);
+                var r = pt(e.icon);
+                r.className += " icon-append", t.innerHTML.unshift(r);
             }
             return t;
         },
@@ -3041,7 +3092,7 @@
         }
     }), i.PrefTypes.add("range", {
         make: function(e) {
-            var o = e.description || e.name, a = e["default"] || "", r = i.get(e.name), t = {
+            var o = e.description || e.name, r = e["default"] || "", a = i.get(e.name), t = {
                 type: "div",
                 className: "pref-container",
                 innerHTML: [ {
@@ -3052,7 +3103,7 @@
                     min: parseInt(e.min || "0"),
                     max: parseInt(e.max || "100"),
                     step: parseInt(e.step || "1"),
-                    value: parseInt(r || a),
+                    value: parseInt(a || r),
                     attributes: {
                         name: e.name,
                         type: "range",
@@ -3074,7 +3125,7 @@
                     className: "form-control pref disabled range-value",
                     innerHTMLL: "",
                     attributes: {
-                        value: r || a,
+                        value: a || r,
                         disabled: "disabled"
                     },
                     EventListeners: {
@@ -3084,7 +3135,7 @@
                     }
                 } ]
             };
-            return n == typeof e.tooltip || n == typeof e.tooltip.innerHTML && n == typeof e.tooltip.text || (t.innerHTML[0] = N(t.innerHTML[0], e.tooltip)), 
+            return n == typeof e.tooltip || n == typeof e.tooltip.innerHTML && n == typeof e.tooltip.text || (t.innerHTML[0] = I(t.innerHTML[0], e.tooltip)), 
             t;
         },
         getValue: function(e, t) {
@@ -3100,20 +3151,20 @@
             e.setAttribute("disabled", "disabled");
         }
     });
-    var W = function(t, n, a) {
-        t.innerHTML = a || "", t.style.backgroundImage = "url(" + n + ")", t.setAttribute("data-src", n);
+    var q = function(t, n, r) {
+        t.innerHTML = r || "", t.style.backgroundImage = "url(" + n + ")", t.setAttribute("data-src", n);
         var e = new Image();
         e.onload = function() {
-            var n = parseInt(e.naturalHeight) + "px", a = parseInt(e.naturalWidth) + "px";
+            var n = parseInt(e.naturalHeight) + "px", r = parseInt(e.naturalWidth) + "px";
             isNaN(e.naturalHeight) || isNaN(e.naturalWidth) || (parseInt(n) > 300 ? (n = "300px", 
-            a = "100%", t.style.backgroundSize = "contain") : t.style.backgroundSize = "100% 100%", 
-            t.style.height = n, t.style.width = a), e.parentElement.removeChild(e);
+            r = "100%", t.style.backgroundSize = "contain") : t.style.backgroundSize = "100% 100%", 
+            t.style.height = n, t.style.width = r), e.parentElement.removeChild(e);
         }, e.style.position = "absolute", e.style.opacity = "0", (p || s).document.body.appendChild(e), 
         e.src = n;
     };
     i.PrefTypes.add("imagefile", {
         make: function(e) {
-            var l = e["default"] || "", c = i.get(e.name), s = c || l, a = "string" == typeof s && "" != s ? !0 : !1, r = new t.FileSelector({
+            var l = e["default"] || "", c = i.get(e.name), s = c || l, r = "string" == typeof s && "" != s ? !0 : !1, a = new t.FileSelector({
                 multiple: !1,
                 accept: "image/*",
                 button: {
@@ -3132,41 +3183,41 @@
                         "data-jmod-settings-pref-default": e["default"] || null
                     }
                 },
-                onChange: function(n, e, a) {
-                    t.FileSelector.ReadFileAsURL(e[0], function(n, e, a) {
-                        var t = r.formElement.parentElement.lastChild;
-                        W(t, e, ""), i.PrefTypes.onChange(r.formElement.getAttribute("name"), e);
-                    }, function(t, n, a) {
-                        var e = r.formElement.parentElement.lastChild;
-                        W(e, "", "No Preview"), i.PrefTypes.onChange(r.formElement.getAttribute("name"), "");
+                onChange: function(n, e, r) {
+                    t.FileSelector.ReadFileAsURL(e[0], function(n, e, r) {
+                        var t = a.formElement.parentElement.lastChild;
+                        q(t, e, ""), i.PrefTypes.onChange(a.formElement.getAttribute("name"), e);
+                    }, function(t, n, r) {
+                        var e = a.formElement.parentElement.lastChild;
+                        q(e, "", "No Preview"), i.PrefTypes.onChange(a.formElement.getAttribute("name"), "");
                     });
                 }
             }), o = {
                 type: "div",
                 className: "pref-container",
-                innerHTML: [ r.formElement, g({
+                innerHTML: [ a.formElement, g({
                     type: "div",
                     className: "image-preview-container",
                     style: {},
                     attributes: {},
-                    innerHTML: a ? "" : "No Preview"
+                    innerHTML: r ? "" : "No Preview"
                 }) ]
             };
-            return v.DOMLoaded ? W(o.innerHTML[1], a ? s : "", a ? "" : "No Preview") : setTimeout(W, 150, o.innerHTML[1], a ? s : "", a ? "" : "No Preview"), 
-            n == typeof e.tooltip || n == typeof e.tooltip.innerHTML && n == typeof e.tooltip.text || (o.innerHTML[0] = N(o.innerHTML[0], e.tooltip)), 
+            return v.DOMLoaded ? q(o.innerHTML[1], r ? s : "", r ? "" : "No Preview") : setTimeout(q, 150, o.innerHTML[1], r ? s : "", r ? "" : "No Preview"), 
+            n == typeof e.tooltip || n == typeof e.tooltip.innerHTML && n == typeof e.tooltip.text || (o.innerHTML[0] = I(o.innerHTML[0], e.tooltip)), 
             o;
         },
         getValue: function(e, n) {
             try {
                 var t = e.parentElement.lastChild;
                 return t.getAttribute("data-src");
-            } catch (a) {
+            } catch (r) {
                 return "";
             }
         },
-        setValue: function(t, a, e) {
+        setValue: function(t, r, e) {
             var n = t.parentElement.lastChild;
-            return W(n, e, e && "" != e ? "" : "No Preview"), !0;
+            return q(n, e, e && "" != e ? "" : "No Preview"), !0;
         },
         enable: function(e, t) {
             e.hasAttribute("disabled") && e.removeAttribute("disabled");
@@ -3185,22 +3236,22 @@
                 innerHTML: y(e) ? e : e.innerHTML || e.options || e["default"]
             }
         }, g(t);
-        var a = i.PrefTypes.make(e.type, e);
-        if (a) {
-            var r = At(e);
+        var r = i.PrefTypes.make(e.type, e);
+        if (r) {
+            var a = At(e);
             switch (e.type) {
               case "radio":
               case "checkbox":
               case "toggle":
-                n == typeof e.tooltip || n == typeof e.tooltip.innerHTML && n == typeof e.tooltip.text || (t = N(r.innerHTML, e.tooltip));
+                n == typeof e.tooltip || n == typeof e.tooltip.innerHTML && n == typeof e.tooltip.text || (t = I(a.innerHTML, e.tooltip));
             }
             return t = {
                 type: "div",
                 className: "row form-group section-row",
-                innerHTML: [ r, {
+                innerHTML: [ a, {
                     type: "div",
                     className: "col-md-8",
-                    innerHTML: a
+                    innerHTML: r
                 } ]
             }, g(t);
         }
@@ -3241,7 +3292,7 @@
             l[e].contentHeader && h.push(l[e].contentHeader);
             for (var d in l[e].sections) {
                 h.push('<div class="row section-title-row"><div class="col-md-12"><h3 class="section-title">' + d + "</h3></div></div>");
-                for (var w in l[e].sections[d]) h.push(i.MakePref(l[e].sections[d][w]));
+                for (var x in l[e].sections[d]) h.push(i.MakePref(l[e].sections[d][x]));
             }
             l[e].contentFooter && h.push(l[e].contentFooter), v = m.makeContentElement({
                 name: e,
@@ -3302,7 +3353,7 @@
                         capture: !1,
                         callback: function(e) {
                             var t = confirm("Are you sure?");
-                            return t && i.clear(), B(e), !1;
+                            return t && i.clear(), G(e), !1;
                         }
                     }
                 }
@@ -3330,7 +3381,7 @@
         return typeof r.onBeforeHide !== n && (T.onBeforeHide = r.onBeforeHide), typeof r.onAfterHide !== n && (T.onAfterHide = r.onAfterHide), 
         t.Modal(T);
     }, i.onResize = function() {
-        var e = t.Settings.settingsModalElement, i = t.$(".modal-dialog", e), n = t.$(".modal-body", e), r = t.$(".modal-footer", e), o = t.$(".modal-header", e), d = s.viewportSize.getHeight(), a = s.getComputedStyle(i, null), c = parseInt(a.getPropertyValue("margin-top")), u = parseInt(a.getPropertyValue("margin-bottom")), f = parseInt(d) - parseInt(o.offsetHeight) - parseInt(r.offsetHeight) - c - u - 1;
+        var e = t.Settings.settingsModalElement, i = t.$(".modal-dialog", e), n = t.$(".modal-body", e), a = t.$(".modal-footer", e), o = t.$(".modal-header", e), d = s.viewportSize.getHeight(), r = s.getComputedStyle(i, null), c = parseInt(r.getPropertyValue("margin-top")), u = parseInt(r.getPropertyValue("margin-bottom")), f = parseInt(d) - parseInt(o.offsetHeight) - parseInt(a.offsetHeight) - c - u - 1;
         n.style.maxHeight = f + "px";
         var l = t.$(".nav-tabs", n);
         t.Tabs.resize(l);
@@ -3340,27 +3391,27 @@
         t.Modal.hide(i.settingsModalElement);
     }, i.save = function() {
         u.log("Saving");
-        for (var e = i._data, a = {}, t = 0; t < e.settings.length; t++) {
+        for (var e = i._data, r = {}, t = 0; t < e.settings.length; t++) {
             var n = e.settings[t];
             if (!y(e) && "element" != n.type) {
-                var r = i.PrefTypes.getValue(n);
-                a[n.name] = r;
+                var a = i.PrefTypes.getValue(n);
+                r[n.name] = a;
             }
         }
-        i._storedData = a;
+        i._storedData = r;
     }, i.init = function() {
         i.Initialized = !0;
     }, t.CSS = '.jmod-na .modal-body{min-height:200px;max-height:500px;overflow-y:auto;}.jmod-na .powered-by{font-family:"Sansation",Lato;font-weight:300;font-size:16px;position:absolute;left:0;text-align:center;width:100%;bottom:0;padding-bottom:5px;}.jmod-na .powered-by > a:link,.jmod-na .powered-by > a:visited,.jmod-na .powered-by > a:hover,.jmod-na .powered-by > a:active{text-decoration:none;color:#000;}.jmod-na .powered-by img{margin-right:3px;}.jmod-na .noselect{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}.jmod-na .noselect::selection{background:transparent;}.jmod-na .noselect::-moz-selection{background:transparent;}.jmod-na .imagefile-form{display:inline-block;vertical-align:top;}.jmod-na .imagefile-form > button{margin-right:10px;}.jmod-na .image-preview-container{display:inline-flex;color:rgba(0,0,0,0.7);background-repeat:no-repeat;background-position:center center;background-size:100% 100%;max-width:100%;min-width:35px;min-height:35px;max-height:300px;border:solid 1px #000000;padding:5px;text-align:center;vertical-align:center center;align-items:center;justify-content:center;}', 
     t.getDOMTiming = function() {
-        var a, e = {};
+        var r, e = {};
         try {
             if (S.available) {
                 var c = [ "unloadEventStart", "unloadEventEnd", "navigationStart" ];
-                a = S.getAllTiming();
+                r = S.getAllTiming();
                 var s = S.get("timing.navigationStart");
-                for (var n in a) e[n] = a[n] - s, (e[n] <= 0 || isNaN(e[n])) && delete e[n];
-                var r = (S.get("timing.loadEventEnd") || S.get("timing.loadEventStart")) - S.get("timing.navigationStart");
-                r > 0 && (e.pageLoadTime = r);
+                for (var n in r) e[n] = r[n] - s, (e[n] <= 0 || isNaN(e[n])) && delete e[n];
+                var a = (S.get("timing.loadEventEnd") || S.get("timing.loadEventStart")) - S.get("timing.navigationStart");
+                a > 0 && (e.pageLoadTime = a);
                 var o = S.get("timing.responseEnd") - S.get("timing.fetchStart");
                 o >= 0 && (e.NetworkLatency = o);
                 var i = S.now;
@@ -3369,7 +3420,7 @@
                 X > 0 && X - t.InitializeStartTime > 0 && (e.jModReadyTime = X - t.InitializeStartTime));
             }
         } catch (l) {
-            return w(l, "jMod.getDOMTiming"), {};
+            return x(l, "jMod.getDOMTiming"), {};
         }
         return e;
     };
@@ -3411,12 +3462,12 @@
             $.getJSON("" + e.url, {
                 async: !0,
                 format: "json"
-            }).done(function(e, n, a) {
-                h.execCallback(t, null, e, n, a);
-            }).fail(function(e, n, a) {
-                h.execErrorCallback(t, null, e, n, a);
+            }).done(function(e, n, r) {
+                h.execCallback(t, null, e, n, r);
+            }).fail(function(e, n, r) {
+                h.execErrorCallback(t, null, e, n, r);
             });
-        } catch (a) {
+        } catch (r) {
             return !1;
         }
         return !0;
@@ -3433,11 +3484,11 @@
                     onload: function(e, t) {
                         return function(n) {
                             if ("json" != t.toLowerCase()) return h.execCallback(e, null, n.responseText, n);
-                            var a;
+                            var r;
                             try {
-                                a = JSON.parse(n.responseText);
-                            } catch (r) {} finally {
-                                return h.execCallback(e, null, a, n);
+                                r = JSON.parse(n.responseText);
+                            } catch (a) {} finally {
+                                return h.execCallback(e, null, r, n);
                             }
                         };
                     }(t, e.responseType || "json"),
@@ -3448,8 +3499,8 @@
                     }(t)
                 }), !0;
             }
-        } catch (a) {
-            u.log("Error! getXMLHttpRequest", a);
+        } catch (r) {
+            u.log("Error! getXMLHttpRequest", r);
         } finally {
             return !1;
         }
@@ -3463,10 +3514,10 @@
             }
         });
         try {
-            var a = document.head || document.getElementsByTagName("head")[0];
-            a.appendChild(n), n.src = "" + e.url;
-        } catch (r) {
-            return h.execErrorCallback(t, null, r);
+            var r = document.head || document.getElementsByTagName("head")[0];
+            r.appendChild(n), n.src = "" + e.url;
+        } catch (a) {
+            return h.execErrorCallback(t, null, a);
             return !1;
         }
         return !0;
@@ -3475,23 +3526,23 @@
             complete: e.callback,
             error: e.onerror
         }) - 1;
-    }, h.execCallback = function(a, t) {
+    }, h.execCallback = function(r, t) {
         try {
-            var e = h._callbacks[a].complete;
+            var e = h._callbacks[r].complete;
             if (typeof e === n) return !1;
             if ("function" == typeof e) return e.apply(t || null, d.call(arguments, 2));
             if ("string" == typeof e && "function" == typeof s[e]) return s[e].apply(t || null, d.call(arguments, 2));
-        } catch (r) {
-            return u.log("Error SendMessage.execCallback!", r), !1;
+        } catch (a) {
+            return u.log("Error SendMessage.execCallback!", a), !1;
         }
-    }, h.execErrorCallback = function(a, t) {
+    }, h.execErrorCallback = function(r, t) {
         try {
-            var e = h._callbacks[a].onerror;
+            var e = h._callbacks[r].onerror;
             if (typeof e === n) return !1;
             if ("function" == typeof e) return e.apply(t || null, d.call(arguments, 2));
             if ("string" == typeof e && "function" == typeof s[e]) return s[e].apply(t || null, d.call(arguments, 2));
-        } catch (r) {
-            return u.log("Error SendMessage.execErrorCallback!", r), !1;
+        } catch (a) {
+            return u.log("Error SendMessage.execErrorCallback!", a), !1;
         }
     }, h._globalResponseCallback = ht(kt, s, {
         defineAs: st,
@@ -3603,8 +3654,8 @@
                 return o === e.args && (e.args = {}), o === e.args.scriptError && (e.args.scriptError = "1"), 
                 o === e.args.scriptErrorCode && (e.args.scriptErrorCode = "-1"), e.getType = "none", 
                 e.noDownload = !0, t.UPDATE.sendRequest(e);
-            } catch (a) {
-                return u.log("Error! Error.send: ", a), o;
+            } catch (r) {
+                return u.log("Error! Error.send: ", r), o;
             }
         }, this.catchError = function(c, f, r, i, n, s) {
             try {
@@ -3640,7 +3691,7 @@
             try {
                 n = "" + e.stack;
             } catch (e) {}
-            var a = {
+            var r = {
                 message: e.message,
                 name: e.name,
                 fileName: e.fileName,
@@ -3648,7 +3699,7 @@
                 columnNumber: e.columnNumber,
                 stack: n
             };
-            return t.ERROR.catchError(e.message, e.fileName, e.lineNumber, e.columnNumber, a, t.parseStack(n));
+            return t.ERROR.catchError(e.message, e.fileName, e.lineNumber, e.columnNumber, r, t.parseStack(n));
         };
     }(), ht(ft, s, {
         defineAs: "jModListenError",
@@ -3656,7 +3707,7 @@
         allowCrossOriginArguments: !0
     });
     var Qt = function() {
-        p.oldHandle = p.onerror, p.onerror = function(n, a, r, o, e) {
+        p.oldHandle = p.onerror, p.onerror = function(n, r, a, o, e) {
             try {
                 var t = "";
                 try {
@@ -3670,7 +3721,7 @@
                     columnNumber: e.columnNumber,
                     stack: t
                 };
-                ft(n, a, r, o, i);
+                ft(n, r, a, o, i);
             } catch (s) {}
             return p.oldHandle ? p.oldHandle.apply(this, arguments) : !1;
         };
@@ -3680,15 +3731,15 @@
         function n(n) {
             return v.DOMLoaded || -1 != [ "interactive", "complete" ].indexOf(document.readyState.toLowerCase()) && e.DOMLoaded(), 
             v.DOMLoaded && (v.documentComplete || "complete" != document.readyState || e.documentComplete(), 
-            v.performanceReady || (r = S.pageLoadTime(), (!isNaN(r) && r > 0 || !S.available) && e.performanceReady()), 
-            v.performanceReady && v.documentComplete) ? (v.Complete = !0, clearInterval(a), 
-            t.debug && R("jMod Finish Init"), o) : i > f ? (v.Complete = !0, clearInterval(a), 
+            v.performanceReady || (a = S.pageLoadTime(), (!isNaN(a) && a > 0 || !S.available) && e.performanceReady()), 
+            v.performanceReady && v.documentComplete) ? (v.Complete = !0, clearInterval(r), 
+            t.debug && R("jMod Finish Init"), o) : i > f ? (v.Complete = !0, clearInterval(r), 
             v.DOMLoaded || e.DOMLoaded(), v.documentComplete || e.documentComplete(), v.performanceReady || e.performanceReady(), 
             t.debug && R("jMod Finish Init"), o) : (i++, t.debug && t.log.count("Try Init"), 
             o);
         }
-        function a() {
-            v.Complete ? clearInterval(a) : n("checkTimer");
+        function r() {
+            v.Complete ? clearInterval(r) : n("checkTimer");
         }
         function s(e) {
             t.Events.fire.apply(t.Events, [ "load", {
@@ -3708,7 +3759,7 @@
                 args: arguments
             } ]);
         }
-        var r, i = 0;
+        var a, i = 0;
         const f = 200;
         var e = {
             DOMLoaded: function() {
@@ -3737,7 +3788,7 @@
                 args: arguments
             } ]), t.debug && t.Debug("onreadystatechange %c%s%c %o", t.log.fmt.stchange, document.readyState, " ", e);
         }, p.addEventListener("load", s, !1), p.addEventListener("beforescriptexecute", l, !1), 
-        p.addEventListener("afterscriptexecute", c, !1), n(), setInterval(a, 25);
+        p.addEventListener("afterscriptexecute", c, !1), n(), setInterval(r, 25);
     }(), S.available && setTimeout(function() {
         t.InitializeEndTime = S.now;
     }, 0), t.debug && R("jMod Initialize Time Elapsed"), t;
