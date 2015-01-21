@@ -225,6 +225,9 @@ function waitForComputeableWidth(el, callback, count){
 
 function resizeTabs(tabsNav, computedNav){
 	var tabsContent = tabsNav.parentElement.querySelector('.tab-content');
+	
+	if(tabsContent.offsetParent === null)
+		return;
 	//var width = parseInt(computedNav.getPropertyValue('width'));
 	var width = parseInt(computedNav.width);
 	if(isNaN(width))
