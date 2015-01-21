@@ -129,7 +129,7 @@ def compile(source_paths, iargs, flags=None):
 
 d = datetime.utcnow()
 unixtime = 1000 * time.mktime(d.utctimetuple())
-mySource = Source('jMod.js', './src/', ['./src/Core', './src/API', './src/Language'])
+mySource = Source('jMod.js', './src/', ['./src/Core', './src/API', './src/Language', './src/jQuery'])
 mySource.definitionsMap = {
     '{{{API_VERSION}}}': args.v,
     '{{{BUILD_TIME}}}': str(int(unixtime)),
