@@ -756,7 +756,7 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="jMod.Modal.html">Namespace: Modal</h1>
+        <h1 class="page-title" data-filename="jMod.jQueryExtensions.html">Namespace: jQueryExtensions</h1>
         
 
 
@@ -767,7 +767,7 @@
     <h2>
         <span class="ancestors"><a href="jMod.html">jMod</a>.</span>
     
-    Modal
+    jQueryExtensions
     </h2>
     
 </header>  
@@ -787,9 +787,6 @@
         
     
     
-    
-    <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>0.0.14</dd>
     
 
     
@@ -833,14 +830,14 @@
             
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="getModal">
+        <h4 class="name" id="addCrossOriginSupport">
             
-            <span class="type-signature static">static</span>jMod.Modal.getModal<span class="signature">(number)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Element}</span>
+            <span class="type-signature static">static</span>jMod.jQueryExtensions.addCrossOriginSupport<span class="signature">(<span class="optional">_jQueryObj</span>, <span class="optional">dataType</span>)</span>
         </h4>
     
         
         <div class="tag-source">
-            F:/Projects/jMod/main/bin/jMod.full.js, line 6405
+            F:/Projects/jMod/main/bin/jMod.full.js, line 4642
         </div>
         
     </div>
@@ -851,7 +848,7 @@
     
     
     <div class="description">
-        Get a modal by its index
+        Adds Cross Origin support to a jQuery instance by allowing it to use GM_xmlhttpRequest.
     </div>
     
 
@@ -872,6 +869,8 @@
 		<th>Type</th>
 		
 		
+		<th>Default</th>
+		
 		
 		<th class="last">Description</th>
 	</tr>
@@ -882,23 +881,70 @@
 	
         <tr>
             
-                <td class="name"><code>number</code></td>
+                <td class="name"><code>_jQueryObj</code></td>
             
             
             <td class="type">
             
                 
-<span class="param-type">number</span>
+<span class="param-type">object</span>
 
 
             
             </td>
             
             
+                <td class="default">
+                
+                </td>
+            
             
             <td class="description last">
                 
-                Index to search for</td>
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+                        
+                    
+                
+                jQuery object - Defaults to first jQuery instance accessible by jMod</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>dataType</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+                <td class="default">
+                
+                    "* text html xml json"
+                
+                </td>
+            
+            
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+                        
+                    
+                
+                A string identifying the data types GM_xmlhttpRequest should handle</td>
         </tr>
 	
 	
@@ -943,36 +989,15 @@
     
     
     
-    <h5>Returns:</h5>
     
-
-
-<table class="params">
-    <thead>
-    <tr>
+    
+        <h5>Example</h5>
         
-        <th>Type</th>
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    
-        <tr>
-            
-            <td class="type">
-            
-                        Element
-                        
-                    
-            </td>
-            <td class="description last">DOM Element</td>
-        </tr>
-    
-    </tbody>
-</table>
 
     
+    <pre class="prettyprint"><code>if($){	$(document).ready(function() {		function test_jQueryFunctions(){			jMod.jQueryExtensions.addCrossOriginSupport($);						// Test $.ajax()			console.log('Test $.ajax("http://google.com")');			$.ajax({					url: 'http://google.com',					contentType: 'text/html',					type: 'GET',					dataType: 'html',					onprogress: function(response){						console.log('onprogress response', response);					},					onreadystatechange: function(response){						console.log('onreadystatechange response', response);					}				})				.done(function(data, textStatus, jqXHR) {					console.log("$.ajax() success: ", jqXHR);				})				.fail(function() {					console.log("$.ajax() error");				});						// Test $(element).load()			console.log('Test $(element).load("http://google.com #hplogo")');			var tmpDiv = document.createElement('div');			tmpDiv.id = 'tmpDiv';			document.body.appendChild(tmpDiv);						$('#tmpDiv').load('http://google.com #hplogo', function(responseText, textStatus, jqXHR){				console.log('$(element).load() ' + textStatus, jqXHR);			});		}		test_jQueryFunctions();	});} else {	console.log('Test Failed! No jQuery');}</code></pre>
     
+
     
 </dd>
 

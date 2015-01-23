@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>jMod Documentation</title>
+    <link rel="icon" type="image/png" href="http://myuserjs.org/img/favicon/favicon.png">
     
     <meta name="description" content="jMod Documentation" />
     
@@ -434,6 +435,31 @@
             </ul>
         </li>
     
+        <li class="item" data-name="jMod.jQueryExtensions">
+            <span class="title">
+                <a href="jMod.jQueryExtensions.html">jMod.jQueryExtensions</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="jMod.jQueryExtensions.addCrossOriginSupport"><a href="jMod.jQueryExtensions.html#addCrossOriginSupport">addCrossOriginSupport</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
         <li class="item" data-name="jMod.Modal">
             <span class="title">
                 <a href="jMod.Modal.html">jMod.Modal</a>
@@ -577,6 +603,12 @@
                 <li data-name="Macros.IFEXISTS"><a href="Macros.html#IFEXISTS">IFEXISTS</a></li>
             
                 <li data-name="Macros.IFHASPROP"><a href="Macros.html#IFHASPROP">IFHASPROP</a></li>
+            
+                <li data-name="Macros.ISBOOLEAN"><a href="Macros.html#ISBOOLEAN">ISBOOLEAN</a></li>
+            
+                <li data-name="Macros.ISFUNCTION"><a href="Macros.html#ISFUNCTION">ISFUNCTION</a></li>
+            
+                <li data-name="Macros.ISOBJECT"><a href="Macros.html#ISOBJECT">ISOBJECT</a></li>
             
                 <li data-name="Macros.NOTEXISTS"><a href="Macros.html#NOTEXISTS">NOTEXISTS</a></li>
             
@@ -1644,6 +1676,324 @@
             
 <dt>
     <div class="nameContainer">
+        <h4 class="name" id="ISBOOLEAN"><span class="type-signature static">static</span>Macros.ISBOOLEAN</h4>
+    </div>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        <span class="macro-overload-count">0 Overloads</span> Check if "a" is a boolean
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+        <h5 class="subsection-title">Properties:</h5>
+        
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>ISBOOLEAN</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><span class="macro-argument-count">1 Argument(s)</span> "boolean"==typeof a</td>
+        </tr>
+	
+	
+	</tbody>
+</table></dl>
+        
+    
+	
+
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+        <h5>Example</h5>
+        
+
+    
+    <pre class="prettyprint"><code>ISBOOLEAN&#40;foo&#41; //result: "boolean"==typeof foo</code></pre>
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="ISFUNCTION"><span class="type-signature static">static</span>Macros.ISFUNCTION</h4>
+    </div>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        <span class="macro-overload-count">0 Overloads</span> Check if "a" is a function
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+        <h5 class="subsection-title">Properties:</h5>
+        
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>ISFUNCTION</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><span class="macro-argument-count">1 Argument(s)</span> "function"==typeof a</td>
+        </tr>
+	
+	
+	</tbody>
+</table></dl>
+        
+    
+	
+
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+        <h5>Example</h5>
+        
+
+    
+    <pre class="prettyprint"><code>ISFUNCTION&#40;foo&#41; //result: "function"==typeof foo</code></pre>
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="ISOBJECT"><span class="type-signature static">static</span>Macros.ISOBJECT</h4>
+    </div>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        <span class="macro-overload-count">0 Overloads</span> Check if "a" is an object
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+        <h5 class="subsection-title">Properties:</h5>
+        
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>ISOBJECT</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><span class="macro-argument-count">1 Argument(s)</span> "object"==typeof a</td>
+        </tr>
+	
+	
+	</tbody>
+</table></dl>
+        
+    
+	
+
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+        <h5>Example</h5>
+        
+
+    
+    <pre class="prettyprint"><code>ISOBJECT&#40;foo&#41; //result: "object"==typeof foo</code></pre>
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
         <h4 class="name" id="NOTEXISTS"><span class="type-signature static">static</span>Macros.NOTEXISTS</h4>
     </div>
     
@@ -2092,7 +2442,7 @@
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha11</a> on Fri Jan 23 2015 00:01:15 GMT-0600 (CST)
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha11</a> on Fri Jan 23 2015 05:00:09 GMT-0600 (CST)
         </footer>
     </div>
 </div>
