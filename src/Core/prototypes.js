@@ -42,17 +42,22 @@
 	/***********************************
 	 ** Types/TypeOf
 	 **********************************/
-	ImportScript('Core.TypeOf');
+	ImportScript('Core.prototypes.TypeOf');
 	
 	/***********************************
 	 ** Extend
 	 **********************************/
-	ImportScript('Core.Extend');
+	ImportScript('Core.prototypes.Extend');
+	
+	/***********************************
+	 ** Extend
+	 **********************************/
+	ImportScript('Core.prototypes.Clone');
 	
 	/***********************************
 	 ** Browser
 	 **********************************/
-	ImportScript('Core.Browser');
+	ImportScript('Core.prototypes.Browser');
 	
 	
 	/*! https://github.com/tysonmatanich/viewportSize */
@@ -108,5 +113,41 @@
 		}
 		return size;
 	};
+	
+	/***********************************
+	 ** Hex To RGB
+	 **********************************/
+	var hexToRgb = function(hex) {
+		var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+		return result ? {
+			r: parseInt(result[1], 16),
+			g: parseInt(result[2], 16),
+			b: parseInt(result[3], 16),
+			a: null
+		} : null;
+	};
+	/***********************************
+	 ** Parse RGB
+	 **********************************/
+	var parseRGB = function(str){
+		var r = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d\.]+))?\s*\)/mi.exec(str);
+		return r ? {
+			r: parseInt(r[1]),
+			g: parseInt(r[2]),
+			b: parseInt(r[3]),
+			a: r[4] && r[4] != '' ? parseFloat(r[4]) : null
+		} : null;
+	}
+	/***********************************
+	 ** Parse Color String
+	 **********************************/
+	var parseColorString = function(str){
+		var r = parseRGB(str);
+		return r ? r : hexToRgb(str);
+	}
 
+	/***********************************
+	 ** DOMParser
+	 **********************************/
+	ImportScript('Core.DOMParser');
 	

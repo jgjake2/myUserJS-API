@@ -54,402 +54,6 @@ jMod.Config.Notifications = {
  * });
  */
 
-function generateLargeNotificationElement(data){
-	var newNotification = {
-		type: 'div',
-		className: 'jModLargeNotification bigBox animated fadeIn',
-		style: {},
-		attributes: {
-			'data-jmod-notification': Notification.count,
-			'data-jmod-large-notification': Notification.LargeCount
-		}
-	}
-	
-	// Background
-	if(typeof data.background !== _undefined)
-		newNotification.style.background = data['background'];
-	if(typeof data['background-color'] !== _undefined)
-		newNotification.style.backgroundColor = data['background-color'];
-	else
-		newNotification.style.backgroundColor ='rgb(50, 118, 177)';
-		
-	var newNotificationContent = {
-		type: 'div',
-		className: '',
-		innerHTML: [
-			{
-				type: 'i',
-				id: 'jModbtnClose'+Notification.LargeCount,
-				className: 'botClose fa fa-times',
-				EventListeners: {
-					'click':function(e){
-						var notification = e.target.parentElement.parentElement;
-						var notificationNum = parseInt(notification.getAttribute('data-jmod-notification'));
-						var largeNotificationNum = parseInt(notification.getAttribute('data-jmod-large-notification'));
-						Notification.close(notification, 'large', notificationNum, largeNotificationNum, e);
-					}
-				}
-			}
-		],
-		style: {},
-		attributes: {
-			'data-jmod-notification': Notification.count,
-			'data-jmod-large-notification': Notification.LargeCount
-		}
-	}
-	
-	if(typeof data.title !== _undefined){
-		newNotificationContent.innerHTML.push({
-			type: 'span',
-			innerHTML: data.title
-		});
-	}
-	
-	newNotificationContent.innerHTML.push({
-		type: 'div',
-		innerHTML: data.body
-	});
-	
-	if(typeof data.icon !== _undefined){
-		newNotificationContent.innerHTML.push({
-			type: 'div',
-			className: 'jmod-na bigboxicon',
-			style: {
-				'backgroundColor': 'transparent',
-			},
-			innerHTML: {
-				type: 'i',
-				className: 'fa ' + data.icon + ' ' + (data.iconAnimation || 'swing') + ' animated',
-				style: {
-					color: '#fff'
-				}
-			}
-		});
-	}
-	
-	newNotification.innerHTML = newNotificationContent;
-	
-	return createNewElement(newNotification);
-}
-
-/*
-function generateLargeNotificationElement(data){
-	
-	// New Notification
-	var newNotification = document.createElement("div");
-	newNotification.setAttribute('data-jmod-notification', Notification.count);
-	newNotification.setAttribute('data-jmod-large-notification', Notification.LargeCount);
-	newNotification.className = 'jModLargeNotification bigBox animated fadeIn';
-	// Background
-	if(typeof data.background !== _undefined)
-		newNotification.style.background = data['background'];
-	if(typeof data['background-color'] !== _undefined)
-		newNotification.style.backgroundColor = data['background-color'];
-	else
-		newNotification.style.backgroundColor ='rgb(50, 118, 177)';
-	
-	var newNotificationContent = document.createElement("div");
-	newNotificationContent.className = '';
-	
-	// Close Button
-	var btnClose = document.createElement("i");
-	btnClose.setAttribute('class', 'botClose fa fa-times');
-	btnClose.setAttribute('id', 'jModbtnClose'+Notification.LargeCount);
-	btnClose.addEventListener("click", function(e){
-		var notification = e.target.parentElement.parentElement;
-		var notificationNum = parseInt(notification.getAttribute('data-jmod-notification'));
-		var largeNotificationNum = parseInt(notification.getAttribute('data-jmod-large-notification'));
-		Notification.close(notification, 'large', notificationNum, largeNotificationNum, e);
-	});
-	newNotificationContent.appendChild(btnClose);
-	
-	// Title
-	var title = document.createElement('span');
-	title.className = '';
-	if(typeof data.title !== _undefined){
-		if(isElement(data.title)){
-			title.appendChild(data.title);
-		} else {
-			title.innerHTML = data.title;
-		}
-	}
-	newNotificationContent.appendChild(title);
-	
-	// Body
-	var bdy = document.createElement('p');
-	bdy.className = '';
-	if(typeof data.body !== _undefined){
-		if(isElement(data.body)){
-			bdy.appendChild(data.body);
-		} else {
-			bdy.innerHTML = data.body;
-		}
-	}
-	newNotificationContent.appendChild(bdy);
-	
-	// Icon
-	if(typeof data.icon !== _undefined){
-		var icon = document.createElement('div');
-		icon.setAttribute('class', 'jmod-na bigboxicon');
-		if(isElement(data.icon)){
-			icon.appendChild(data.icon);
-		} else {
-			icon.innerHTML = '<i class="fa ' + data.icon + ' '+(data.iconAnimation || 'swing')+' animated"> </i>';
-		}
-		
-		newNotificationContent.appendChild(icon);
-	}
-	
-	newNotification.appendChild(newNotificationContent);
-	
-	return newNotification;
-}
-*/
-
-
-
-/*
-function generateSmallNotificationElement(data){
-	var tmpTop = 0;
-	var totalCount = Notification.CurrentSmallCount;
-	if(totalCount > 0){
-		var tHeight = totalCount * 25;
-		var smallNotificationsContainer = Notification('getElement', 'notificationsSmallWrapper');
-		var smNotes = smallNotificationsContainer.querySelectorAll('div[data-jmod-small-notification]');
-		for(var i = 0; i < smNotes.length; i++){
-			tHeight += parseInt(smNotes[i].offsetHeight);
-		}
-		//newNotification.style.top = ((80 * totalCount) + 20) + 'px';
-		tmpTop = (tHeight + 20);
-	}
-
-	var newNotification = {
-		type: 'div',
-		className: 'jModSmallNotification SmallBox animated fadeIn',
-		style: {
-			top: tmpTop + 'px'
-		},
-		attributes: {
-			'data-jmod-notification': Notification.count,
-			'data-jmod-small-notification': Notification.SmallCount
-		},
-		EventListeners: {
-			click: function(e){
-				//if(e.target.tagName.toLowerCase() != 'a' && e.target.tagName.toLowerCase() != 'button'){
-					var tCount = 0;
-					var tParent = e.target;
-					while(!tParent.hasAttribute('data-jmod-small-notification') && tParent != null && tCount < 10){
-						tParent = tParent.parentElement;
-						tCount++;
-					}
-					if(tParent != null){
-						var notificationNum = parseInt(tParent.getAttribute('data-jmod-notification'));
-						var smallNotificationNum = parseInt(tParent.getAttribute('data-jmod-small-notification'));
-						Notification.close(tParent, 'small', notificationNum, smallNotificationNum, e);
-					}
-				//}
-			}
-		}
-	}
-	
-	// Background
-	if(typeof data.background !== _undefined)
-		newNotification.style.background = data['background'];
-	if(typeof data['background-color'] !== _undefined)
-		newNotification.style.backgroundColor = data['background-color'];
-	else
-		newNotification.style.backgroundColor ='rgb(50, 118, 177)';
-		
-	var newNotificationContent = {
-		type: 'div',
-		className: '',
-		innerHTML: [],
-		style: {},
-		attributes: {
-			'data-jmod-notification': Notification.count,
-			'data-jmod-large-notification': Notification.LargeCount
-		}
-	}
-	
-	if(typeof data.footer === _undefined)
-		newNotificationContent.className += ' textoFull';
-	else{
-		newNotificationContent.className += ' textoFoto';
-		
-		var foto = document.createElement("div");
-		foto.className = 'foto';
-		if(isElement(data.icon)){
-			foto.appendChild(data.icon);
-		} else {
-			foto.innerHTML = '<i class="fa ' + data.icon + ' '+(data.iconAnimation || 'bounce')+' animated"> </i>';
-		}
-		
-		newNotification.appendChild(foto);
-	}
-	
-	
-	
-	
-	
-	
-	if(typeof data.title !== _undefined){
-		newNotificationContent.innerHTML.push({
-			type: 'span',
-			innerHTML: data.title
-		});
-	}
-	
-	newNotificationContent.innerHTML.push({
-		type: 'div',
-		innerHTML: data.body
-	});
-	
-	if(typeof data.icon !== _undefined){
-		newNotificationContent.innerHTML.push({
-			type: 'div',
-			className: 'jmod-na bigboxicon',
-			style: {
-				'backgroundColor': 'transparent',
-			},
-			innerHTML: {
-				type: 'i',
-				className: 'fa ' + data.icon + ' ' + (data.iconAnimation || 'swing') + ' animated',
-				style: {
-					color: '#fff'
-				}
-			}
-		});
-	}
-	
-	newNotification.innerHTML = newNotificationContent;
-	
-	return createNewElement(newNotification);
-}
-*/
-
-
-function generateSmallNotificationElement(data){
-	
-	// New Notification
-	var newNotification = document.createElement("div");
-	newNotification.setAttribute('data-jmod-notification', Notification.count);
-	newNotification.setAttribute('data-jmod-small-notification', Notification.SmallCount);
-	newNotification.className = 'jModSmallNotification SmallBox animated fadeIn';
-	// Background
-	if(typeof data.background !== _undefined)
-		newNotification.style.background = data['background'];
-	if(typeof data['background-color'] !== _undefined)
-		newNotification.style.backgroundColor = data['background-color'];
-	else
-		newNotification.style.backgroundColor ='rgb(41, 97, 145)';
-	
-	var totalCount = Notification.CurrentSmallCount;
-	if(totalCount > 0){
-		var tHeight = totalCount * 25;
-		var smallNotificationsContainer = Notification('getElement', 'notificationsSmallWrapper');
-		var smNotes = jMod.$$('div[data-jmod-small-notification]', smallNotificationsContainer);
-		for(var i = 0; i < smNotes.length; i++){
-			tHeight += parseInt(smNotes[i].offsetHeight);
-		}
-		//newNotification.style.top = ((80 * totalCount) + 20) + 'px';
-		newNotification.style.top = (tHeight + 20) + 'px';
-	}
-	
-	newNotification.addEventListener("click", function(e){
-		//if(e.target.tagName.toLowerCase() != 'a' && e.target.tagName.toLowerCase() != 'button'){
-			var tCount = 0;
-			var tParent = e.target;
-			while(!tParent.hasAttribute('data-jmod-small-notification') && tParent != null && tCount < 10){
-				tParent = tParent.parentElement;
-				tCount++;
-			}
-			if(tParent != null){
-				var notificationNum = parseInt(tParent.getAttribute('data-jmod-notification'));
-				var smallNotificationNum = parseInt(tParent.getAttribute('data-jmod-small-notification'));
-				Notification.close(tParent, 'small', notificationNum, smallNotificationNum, e);
-			}
-		//}
-	}, false);
-	//newNotificationContent.appendChild(newNotification);
-	
-	var newNotificationContent = document.createElement("div");
-	if(typeof data.footer === _undefined)
-		newNotificationContent.className = 'textoFull';
-	else{
-		newNotificationContent.className = 'textoFoto';
-		
-		var foto = document.createElement("div");
-		foto.className = 'foto';
-		if(isElement(data.icon)){
-			foto.appendChild(data.icon);
-		} else {
-			foto.innerHTML = '<i class="fa ' + data.icon + ' '+(data.iconAnimation || 'bounce')+' animated"> </i>';
-		}
-		
-		newNotification.appendChild(foto);
-	}
-
-	
-
-	
-	// Title
-	var title = document.createElement('span');
-	title.className = '';
-	if(typeof data.title !== _undefined){
-		if(isElement(data.title)){
-			title.appendChild(data.title);
-		} else {
-			title.innerHTML = data.title;
-		}
-	}
-	newNotificationContent.appendChild(title);
-	
-	// Body
-	var bdy = document.createElement('p');
-	bdy.className = '';
-	if(typeof data.body !== _undefined){
-		if(isElement(data.body)){
-			bdy.appendChild(data.body);
-		} else {
-			bdy.innerHTML = data.body;
-		}
-	}
-	newNotificationContent.appendChild(bdy);
-	
-	// Footer
-	if(typeof data.footer !== _undefined){
-		var footer = document.createElement('p');
-		footer.className = 'text-align-right';
-		if(isElement(data.footer)){
-			//footer.appendChild(data.footer);
-			footer = data.footer;
-		} else {
-			footer.innerHTML = data.footer;
-		}
-		newNotificationContent.appendChild(footer);
-	}
-	
-	newNotification.appendChild(newNotificationContent);
-	
-	// Icon
-	if(typeof data.footer === _undefined && typeof data.icon !== _undefined){
-		var icon = document.createElement('div');
-		icon.setAttribute('class', 'miniIcono');
-		if(isElement(data.icon)){
-			icon.appendChild(data.icon);
-		} else {
-			icon.innerHTML = '<i class="miniPic fa ' + data.icon + ' bounce animated"> </i>';
-		}
-		
-		newNotification.appendChild(icon);
-	}
-	
-	
-	
-	return newNotification;
-}
-
-
 /**
  * @function Notification
  * @memberOf jMod
@@ -480,27 +84,40 @@ var Notification = jMod.Notification = function(data, data2){
 				break;
 		}
 	} else if(typeof data === "object") {
-		switch((data.type || '').toLowerCase()){
-			case 'small':
-				var smallNotificationsContainer = jMod.Notification('getElement', 'notificationsSmallWrapper');
-				var newNotification = generateSmallNotificationElement(data);
-				smallNotificationsContainer.appendChild(newNotification);
-				jMod.Notification.Events.addAll(data, jMod.Notification.count);
-				jMod.Notification.count++;
-				jMod.Notification.SmallCount++;
-				break;
-			case 'large':
-			default:
-				var largeNotificationsContainer = jMod.Notification('getElement', 'notificationsLargeWrapper');
-				var newNotification = generateLargeNotificationElement(data);
-				largeNotificationsContainer.appendChild(newNotification);
-				jMod.Notification.Events.addAll(data, jMod.Notification.count);
-				jMod.Notification.count++;
-				jMod.Notification.LargeCount++;
-				break;
-		}
+		if(data.type)
+			Notification.Types.create(data.type.toLowerCase(), data);
 	}
 }
+
+Notification.Types = {
+	types: {},
+	
+	add: function(obj){
+		this.types[obj.name] = obj;
+	},
+	
+	callMethod: function(typeName, methodName){
+		if(_undefined!==typeof this.types[typeName] && typeof this.types[typeName][methodName]==="function"){
+			return this.types[typeName][methodName].apply(this.types[typeName], Slice.call(arguments,2));
+		}
+	},
+	
+	create: function(typeName, data){
+		this.callMethod(typeName, 'create', data);
+	},
+	
+	init: function(){
+		for(var name in this.types){
+			this.callMethod(name, 'init');
+		}
+	}
+};
+
+ImportScript('Core.Notification.Large');
+
+ImportScript('Core.Notification.Small');
+
+ImportScript('Core.Notification.Fill');
 
 Notification.UpdateNotification = function(data){
 	var options = merge({
@@ -603,6 +220,11 @@ Notification.getElementId = function(name){
 			return "jModLargeNotificationsWrapper";
 			break;
 		
+		case 'fillwrapper':
+		case 'notificationsfillwrapper':
+			return "jModFillNotificationsWrapper";
+			break;
+		
 		default:
 			return null;
 			break;
@@ -633,90 +255,35 @@ Notification.remove = function(notification, notificationNumber){
 	}
 }
 
-Notification.close = function(notification, type, notificationNumber, typeNotificationNumber, event){
-	if(notification != null){
-		Notification.Events.fire(notificationNumber, 'onBeforeClose', notification, event);
-		switch(type.toLowerCase()){
-			case 'large':
-				notification.setAttribute('class', 'jModLargeNotification bigBox animated fadeOut fast');
-				setTimeout(function(target, targetNum, e){
-					Notification.remove(target, targetNum);
-					Notification.Events.fire(targetNum, 'onAfterClose', target, e);
-				}, 400, notification, notificationNumber, event);
-				break;
-			case 'small':
-				notification.setAttribute('class', 'jModSmallNotification SmallBox animated fadeOut fast');
-				setTimeout(function(target, targetNum, e){
-					Notification.remove(target, targetNum);
-					Notification.Events.fire(targetNum, 'onAfterClose', target, e);
-				}, 400, notification, notificationNumber, event);
-				break;
+Notification.Events = new EventsClass(['onBeforeClose', 'onAfterClose']);
+
+Notification.close = function(data){
+	var notificationsFullWrapper = Notification('getElement', 'notificationsWrapper');
+	var el, num, type, attName = 'data-jmod-notification';
+	if(typeof data === "number") {
+		num = data;
+		el = jMod.$('div['+attName+'="'+data+'"]', notificationsFullWrapper);
+
+	} else if(isElement(data)) {
+		if(data.hasAttribute(attName))
+			el = data;
+		else {
+			if(!(el = jMod.$('div['+attName+']', data))){
+				if(!(el = jMod.Element.findParentWithAttribute(data, attName)))
+					return;
+			}
 		}
+		num = parseInt(el.getAttribute(attName));
+	} else {
+		return;
 	}
+	
+	if(type = el.getAttribute('data-jmod-notification-type'))
+		Notification.Types.callMethod(type, 'close', el, num);
 }
 
-Notification.Events = {
-	'eventListeners': {},
-	'events': ['onBeforeClose', 'onAfterClose'],
-	add: function(notificationNum, eventName, callback){
-		if(typeof this.eventListeners[notificationNum] === _undefined)
-			this.eventListeners[notificationNum] = {};
-			
-		if(typeof this.eventListeners[notificationNum][eventName] === _undefined)
-			this.eventListeners[notificationNum][eventName] = [];
-		
-		this.eventListeners[notificationNum][eventName].push(callback);
-	},
-	
-	addAll: function(data, notificationNum){
-		for(var evt in this.events)
-			if(typeof data[this.events[evt]] === "function")
-				this.add(notificationNum, this.events[evt], data[this.events[evt]])
-	},
-	
-	fire: function(notificationNum, eventName, notification){
-		var args, thisNotification, tCB;
-		if(typeof this.eventListeners[notificationNum] !== _undefined && typeof this.eventListeners[notificationNum][eventName] !== _undefined){
-			if(typeof notification !== _undefined && isElement(notification)){
-				thisNotification = notification;
-				args = Slice.call(arguments, 3);
-			} else {
-				thisNotification = document.querySelector('div[data-jmod-notification="'+notificationNum+'"]');
-				if(thisNotification == null)
-					thisNotification = unsafeWindow;
-				args = Slice.call(arguments, 2);
-			}
-			args.unshift(eventName);
-			while(typeof (tCB = this.eventListeners[notificationNum][eventName].shift()) !== _undefined){
-				tCB.apply(thisNotification, args);
-			}
-		}
-	}
-};
-
 Notification.count = 0;
-Notification.LargeCount = 0;
-Notification.SmallCount = 0;
-
-Object.defineProperties(Notification, {
-	"CurrentLargeCount": {
-		get: function(){
-			var largeNotificationsContainer = Notification('getElement', 'notificationsLargeWrapper');
-			return (jMod.$$('div[data-jmod-large-notification]', largeNotificationsContainer)).length;
-		},
-		//writable: false
-	},
-	"CurrentSmallCount": {
-		get: function(){
-			var smallNotificationsContainer = Notification('getElement', 'notificationsSmallWrapper');
-			return (jMod.$$('div[data-jmod-small-notification]', smallNotificationsContainer)).length;
-		},
-		//writable: false
-	}
-});
-
 Notification.Initialized = false;
-
 
 Notification.init = function(){
 	if(!jConfig('Notifications.enabled'))
@@ -735,28 +302,32 @@ Notification.init = function(){
 		document.body.appendChild(notificationsFullWrapper);
 	}
 	
-	// Add Small Notification Wrapper
-	var smallNotificationsContainer = Notification('getElement', 'notificationsSmallWrapper');
-	if(smallNotificationsContainer == null){
-		smallNotificationsContainer = document.createElement("div");
-		smallNotificationsContainer.id = Notification('getElementId', 'notificationsSmallWrapper');
-		smallNotificationsContainer.className = 'jModSmallNotifications';
-		notificationsFullWrapper.appendChild(smallNotificationsContainer);
-	}
-	
-	// Add Large Notification Wrapper
-	var largeNotificationsContainer = Notification('getElement', 'notificationsLargeWrapper');
-	if(largeNotificationsContainer == null){
-		largeNotificationsContainer = document.createElement("div");
-		largeNotificationsContainer.id = Notification('getElementId', 'notificationsLargeWrapper');
-		largeNotificationsContainer.className = 'jModNotifications';
-		notificationsFullWrapper.appendChild(largeNotificationsContainer);
-	}
+	Notification.Types.init();
 }
 
 jMod.CSS = <><![CDATACSS[
 #jModSmallNotificationsWrapper, #jModNotificationsWrapper, .jmod-na .SmallBox span, .jmod-na .bigBox span {
 	font-family: "Open Sans",Arial,Helvetica,sans-serif;
+}
+
+.jmod-na .jModFillNotification {
+	top: 35%;
+	color: #FFF;
+	position: relative;
+	width: 100%;
+	background-color: rgba(0, 0, 0, 0.8);
+	padding: 20px;
+	z-index: 100001;
+}
+
+.jmod-na .jModFillNotificationContainer {
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	background: none repeat scroll 0% 0% rgba(0, 0, 0, 0.6);
+	z-index: 100000;
 }
 
 ]]></>;

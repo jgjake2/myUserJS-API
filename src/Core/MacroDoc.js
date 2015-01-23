@@ -114,3 +114,32 @@
  * ARGUMENTS&#40;1&#41; //result: ARGUMENTS(1)
  * ARGUMENTS&#40;1,3&#41; //result: ARGUMENTS(1,3)
  */
+
+ 
+/**
+ * <span class="macro-overload-count">0 Overloads</span> Check if "a" is a function
+ * @name ISFUNCTION
+ * @memberof Macros
+ * @property {boolean} ISFUNCTION - <span class="macro-argument-count">1 Argument(s)</span> ISFUNCTION(a)
+ * @example
+ * ISFUNCTION&#40;foo&#41; //result: ISFUNCTION(foo)
+ */
+ 
+ 
+/**
+ * <span class="macro-overload-count">0 Overloads</span> Check if "a" is an object
+ * @name ISOBJECT
+ * @memberof Macros
+ * @property {boolean} ISOBJECT - <span class="macro-argument-count">1 Argument(s)</span> ISOBJECT(a)
+ * @example
+ * ISOBJECT&#40;foo&#41; //result: ISOBJECT(foo)
+ */
+ 
+/**
+ * <span class="macro-overload-count">0 Overloads</span> Check if "a" is a boolean
+ * @name ISBOOLEAN
+ * @memberof Macros
+ * @property {boolean} ISBOOLEAN - <span class="macro-argument-count">1 Argument(s)</span> ISBOOLEAN(a)
+ * @example
+ * ISBOOLEAN&#40;foo&#41; //result: ISBOOLEAN(foo)
+ */

@@ -1,22 +1,15 @@
-// +@display_name  LocalStorage
-// +@history (0.0.9) History begins.
-// +@history (0.0.15) Removed ref to jMod.fn (__proto__ is depreciated).
+// +@display_name  SessionStorage
+// +@history (0.0.17) History begins.
 
 /**
- * Shim for interacting with localStorage
- * @namespace jMod.API.localStorage
+ * Shim for interacting with sessionStorage
+ * @namespace jMod.API.sessionStorage
  */
-/*
-Object.defineProperty(jMod, "stor", {
-	value: (function(){return (localStorage?localStorage:(unsafeWindow.localStorage?unsafeWindow.localStorage:window.localStorage));})(),
-	enumerable: false
-});
-*/
 
-jMod.API.localStorage = {
+jMod.API.sessionStorage = {
 	/**
 	 * @function getValue
-	 * @memberof jMod.API.localStorage
+	 * @memberof jMod.API.sessionStorage
 	 * @param {string} key - name
 	 * @param {string|boolean|number} [def] - default value to return if key does not exist
 	 */
@@ -26,7 +19,7 @@ jMod.API.localStorage = {
 	},
 	/**
 	 * @function setValue
-	 * @memberof jMod.API.localStorage
+	 * @memberof jMod.API.sessionStorage
 	 * @param {string} key - name
 	 * @param {string|boolean|number} [value] - value to be set
 	 */
@@ -35,7 +28,7 @@ jMod.API.localStorage = {
 	},
 	/**
 	 * @function setJSON
-	 * @memberof jMod.API.localStorage
+	 * @memberof jMod.API.sessionStorage
 	 * @param {string} key - name
 	 * @param {object} [value] - value to be set
 	 */
@@ -44,7 +37,7 @@ jMod.API.localStorage = {
 		try{
 			tmp = JSON.stringify(value);
 		}catch(e){
-			jModError(e, 'localStorage.setJSON', 'Cannot stringify value!');
+			jModError(e, 'sessionStorage.setJSON', 'Cannot stringify value!');
 		}
 		try{
 			return this.setValue(key, tmp || value);
@@ -52,7 +45,7 @@ jMod.API.localStorage = {
 	},
 	/**
 	 * @function getJSON
-	 * @memberof jMod.API.localStorage
+	 * @memberof jMod.API.sessionStorage
 	 * @param {string} key - name
 	 * @param {object} [def] - default value to return if key does not exist
 	 */
@@ -62,13 +55,13 @@ jMod.API.localStorage = {
 			if(typeof tmp === "string")
 				return JSON.parse(tmp);
 		}catch(e){
-			jModError(e, 'localStorage.setJSON', 'Error parsing value!');
+			jModError(e, 'sessionStorage.setJSON', 'Error parsing value!');
 		}
 		return tmp;
 	},
 	/**
 	 * @function deleteValue
-	 * @memberof jMod.API.localStorage
+	 * @memberof jMod.API.sessionStorage
 	 * @param {string} key - name to be deleted
 	 */
 	deleteValue: function(key){
@@ -77,13 +70,13 @@ jMod.API.localStorage = {
 }
 
 /**
- * Getter function that retrieves the localStorage object
+ * Getter function that retrieves the sessionStorage object
  * @name stor
- * @memberof jMod.API.localStorage
+ * @memberof jMod.API.sessionStorage
  * @type {object}
  */
-Object.defineProperty(jMod.API.localStorage, "stor", {
-	get: function(){return (localStorage?localStorage:(unsafeWindow.localStorage?unsafeWindow.localStorage:window.localStorage));},
+Object.defineProperty(jMod.API.sessionStorage, "stor", {
+	get: function(){return (sessionStorage?sessionStorage:(unsafeWindow.sessionStorage?unsafeWindow.sessionStorage:window.sessionStorage));},
 	enumerable: false
 });
 

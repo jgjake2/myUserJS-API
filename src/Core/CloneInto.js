@@ -57,6 +57,7 @@ function mCloneInto(obj, scope, args){
 			return cloneInto(tmp, scope, args);
 		}catch(e){
 			//return tmp;
+			return obj;
 		}
 	} else {
 		// Manually clone object

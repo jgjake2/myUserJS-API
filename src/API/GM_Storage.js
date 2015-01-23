@@ -28,6 +28,39 @@ jMod.API.GM_Storage = {
 			return GM_setValue(jConfig('API.Storage.prefix') + key, value);
 	},
 	/**
+	 * @function setJSON
+	 * @memberof jMod.API.GM_Storage
+	 * @param {string} key - name
+	 * @param {object} [value] - value to be set
+	 */
+	setJSON: function(key, value){
+		var tmp;
+		try{
+			tmp = JSON.stringify(value);
+		}catch(e){
+			jModError(e, 'GM_Storage.setJSON', 'Cannot stringify value!');
+		}
+		try{
+			return this.setValue(key, tmp || value);
+		}catch(e){}
+	},
+	/**
+	 * @function getJSON
+	 * @memberof jMod.API.GM_Storage
+	 * @param {string} key - name
+	 * @param {object} [def] - default value to return if key does not exist
+	 */
+	getJSON: function(key, def){
+		var tmp = this.getValue(key, def);
+		try{
+			if(typeof tmp === "string")
+				return JSON.parse(tmp);
+		}catch(e){
+			jModError(e, 'GM_Storage.setJSON', 'Error parsing value!');
+		}
+		return tmp;
+	},
+	/**
 	 * @function deleteValue
 	 * @memberof jMod.API.GM_Storage
 	 * @param {string} key - name to be deleted

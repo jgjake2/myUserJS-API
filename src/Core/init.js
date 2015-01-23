@@ -5,12 +5,12 @@
 
 +function(){
 
-var pageLoadTime,
-	totalCallCount = 0;
-	
 const maxCallCount = 200;
 
-var InitHandlers = {
+var pageLoadTime,
+	totalCallCount = 0,
+	doc = (document || window.document || unsafeWindow.document || window),
+InitHandlers = {
 	DOMLoaded: function(){
 		Loading.DOMLoaded = true;
 		if(jMod.debug) jModLogTime('DOM Loaded', null, ' - Begin Init');
@@ -45,18 +45,18 @@ var InitHandlers = {
 		if(jMod.debug) jModLogTime('onPerformanceReady');
 		jMod.Events.fire('onPerformanceReady');
 	}
-}
+};
 
 
 function tryInit(e){
 	if(!Loading.DOMLoaded){
-		if(['interactive', 'complete'].indexOf(document.readyState.toLowerCase()) != -1){
+		if(['interactive', 'complete'].indexOf(doc.readyState.toLowerCase()) != -1){
 			InitHandlers.DOMLoaded();
 		}
 	}
 	
 	if(Loading.DOMLoaded){
-		if(!Loading.documentComplete && document.readyState == "complete"){
+		if(!Loading.documentComplete && doc.readyState == "complete"){
 			InitHandlers.documentComplete();
 		}
 		
@@ -102,24 +102,28 @@ function checkTimer(){
 		clearInterval(checkTimer);
 }
 
-// DOM Content Loaded Event
-window.addEventListener('DOMContentLoaded', function(e){
+function onDOMContentLoaded(e){
 	if(!Loading.Complete)
 		tryInit('DOMContentLoaded');
+	//if(document.readyState == "complete")
+	doc.removeEventListener("DOMContentLoaded", onDOMContentLoaded, false);
 	jMod.Events.fire.apply(jMod.Events, ['DOMContentLoaded', {_this: this, args: arguments}]);
 	if(jMod.debug) jMod.Debug('DOMContentLoaded', e);
-}, false);
+}
+// DOM Content Loaded Event
+doc.addEventListener('DOMContentLoaded', onDOMContentLoaded, false);
 
 // On ReadyState Change Event
-document.onreadystatechange = function (e) {
+doc.onreadystatechange = function (e) {
 	if(!Loading.Complete)
 		tryInit('onreadystatechange');
 	jMod.Events.fire.apply(jMod.Events, ['onreadystatechange', {_this: this, args: arguments}]);
-	if(jMod.debug) jMod.Debug('onreadystatechange %c%s%c %o', jMod.log.fmt.stchange, document.readyState, ' ', e);
+	if(jMod.debug) jMod.Debug('onreadystatechange %c%s%c %o', jMod.log.fmt.stchange, doc.readyState, ' ', e);
 }
 
 // Load Event
 function onLoadEvent(e){
+	window.removeEventListener("load", onLoadEvent, false);
 	jMod.Events.fire.apply(jMod.Events, ['load', {_this: this, args: arguments}]);
 	if(jMod.debug) jMod.Debug('onLoadEvent', e);
 }

@@ -143,11 +143,14 @@ var EventsClass = function(_events){
 	};
 	
 	this.fire = function(eventName, group, _this, args){
-		var i, evt, group = listeners[group || '0'];
+		var _args, i, evt, group = listeners[group || '0'];
+		_args = RealTypeOf(args) == "array" ? args : [args];
+		if(arguments.length > 4)
+			_args = _args.concat(Slice.call(arguments, 4));
 		try{
 			if(typeof group !== _undefined && typeof (evt = group[eventName]) !== _undefined){
 				for(i in evt){
-					if((evt[i].apply(_this || null, args || [])) === false){
+					if((evt[i].apply(_this || null, _args || [])) === false){
 						console.log('fire canceled');
 						return false;
 					}	

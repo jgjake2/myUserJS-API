@@ -2,85 +2,150 @@
 
 RequireScript('jQuery.jQueryExtensions');
 
-jMod.jQueryExtensions.addCrossDomainSupport = function(_jQueryObj){
-	if(_undefined==typeof GM_xmlhttpRequest)
+/**
+ * Adds Cross Origin support to a jQuery instance by allowing it to use GM_xmlhttpRequest.
+ * @function addCrossOriginSupport
+ * @memberof jMod.jQueryExtensions
+ * @param {object} [_jQueryObj] - jQuery object - Defaults to first jQuery instance accessible by jMod
+ * @param {string} [dataType="* text html xml json"] - A string identifying the data types GM_xmlhttpRequest should handle
+ * @example
+ *if($){
+ *	$(document).ready(function() {
+ *		function test_jQueryFunctions(){
+ *			jMod.jQueryExtensions.addCrossOriginSupport($);
+ *			
+ *			// Test $.ajax()
+ *			console.log('Test $.ajax("http://google.com")');
+ *			$.ajax({
+ *					url: 'http://google.com',
+ *					contentType: 'text/html',
+ *					type: 'GET',
+ *					dataType: 'html',
+ *					onprogress: function(response){
+ *						console.log('onprogress response', response);
+ *					},
+ *					onreadystatechange: function(response){
+ *						console.log('onreadystatechange response', response);
+ *					}
+ *				})
+ *				.done(function(data, textStatus, jqXHR) {
+ *					console.log("$.ajax() success: ", jqXHR);
+ *				})
+ *				.fail(function() {
+ *					console.log("$.ajax() error");
+ *				});
+ *			
+ *			// Test $(element).load()
+ *			console.log('Test $(element).load("http://google.com #hplogo")');
+ *			var tmpDiv = document.createElement('div');
+ *			tmpDiv.id = 'tmpDiv';
+ *			document.body.appendChild(tmpDiv);
+ *			
+ *			$('#tmpDiv').load('http://google.com #hplogo', function(responseText, textStatus, jqXHR){
+ *				console.log('$(element).load() ' + textStatus, jqXHR);
+ *			});
+ *		}
+ *
+ *		test_jQueryFunctions();
+ *	});
+ *} else {
+ *	console.log('Test Failed! No jQuery');
+ *}
+ */
+jMod.jQueryExtensions.addCrossOriginSupport = function(_jQueryObj, dataType){
+	// Make sure GM function exists
+	if(NOTEXISTS(GM_xmlhttpRequest))
 		return;
+	
+	// If _jQueryObj isn't defined, default to global jQuery object
+	if(!_jQueryObj && !(_jQueryObj = jMod.jQuery))
+		// Return if there is no global jQuery object
+		return;
+	
+	// Return if already extended
+	if(_jQueryObj.jModCrossOriginSupport === true)
+		return;
+	
+	_jQueryObj.ajaxTransport(dataType || "* text html xml json", function(options, originalOptions, jqXHR){
+		var CrossOriginEnabled = true;
+		try{
+			// jMod may no longer be in scope
+			CrossOriginEnabled = jMod.Config('jQueryExtensions.CrossOrigin');
+		}catch(e){}
 		
-	if(!_jQueryObj)
-		_jQueryObj = jMod.jQuery;
-		
-	_jQueryObj.ajaxTransport( "* text html xml json", function( options, originalOptions, jqXHR ){
-		if(_undefined!==typeof GM_xmlhttpRequest){
-			var mergedOptions = jMod.extend(true, {}, options, originalOptions);
-			// Translate jQuery jqXHR options to GM options (there are some subtle differences)
-			var optionMap = {
-				context: 'context',
-				overrideMimeType: 'overrideMimeType',
-				timeout: 'timeout',
-				username: 'user',
-				password: 'password'
-			};
+		if(EXISTS(GM_xmlhttpRequest)&&CrossOriginEnabled){
+			var extend = (_jQueryObj || $ || jMod).extend,
+				mergedOptions = extend(true, {}, options, originalOptions),
+				// Translate jQuery jqXHR options to GM options (there are some subtle differences)
+				optionMap = {
+					context: 'context',
+					overrideMimeType: 'overrideMimeType',
+					timeout: 'timeout',
+					username: 'user', // "username" is "user " when using GM_xmlhttpRequest
+					password: 'password',
+					onreadystatechange: 'onreadystatechange', // GM Specific option
+					ontimeout: 'ontimeout', // GM Specific option
+					onprogress: 'onprogress', // GM Specific option
+					binary: 'binary' // GM Specific option
+				};
 			return {
 				send: function(headers, callback){
-					var origType = (originalOptions.dataType || '').toLowerCase();
-					
-					function done(status, response, headers){
-						var statusText = ( status === 200 ) ? "success" : "error";
-						callback(status, statusText, response, headers);
-					}
-					
-					var gm_request_options = {
-						method: options.type || "GET",
-						url: options.url,
-						//data: options.data || originalOptions.data || {},
-						data: jMod.extend({}, options.data || {}, originalOptions.data || {}),
-						headers: headers,
-						onload: function(response){
-							var dResponse = {text: response.responseText},
-								rContentType = '',
-								contentTypePatt = /Content-Type:\s*([^\s]+)/i;
-								
-							try{rContentType = contentTypePatt.exec(response.responseHeaders)[1];}catch(e){}
-							
-							// HTML
-							if(origType === 'html' || /text\/html/i.test(rContentType)) {
-								dResponse.html = response.responseText;
-							// JSON
-							} else if(origType === 'json' || (origType !== 'text' && /\/json/i.test(rContentType))) {
+						// 
+					var origType = (originalOptions.dataType || '').toLowerCase(),
+						gm_request_options = {
+							method: options.type || "GET",
+							url: options.url,
+							// Shallow clone of data from both options
+							data: extend({}, options.data || {}, originalOptions.data || {}),
+							headers: headers,
+							onload: function(response){
+								// Done response
+								var dResponse = {text: response.responseText},
+									rContentType = '',
+									key;
+									
 								try{
-									dResponse.json = $.parseJSON(response.responseText);
+									// Try to extract the content type from the response headers
+									rContentType = (/Content-Type:\s*([^\s]+)/i.exec(response.responseHeaders))[1];
 								}catch(e){}
-							// XML
-							} else if(origType == 'xml' || (origType !== 'text' && /\/xml/i.test(rContentType))){
-								try{dResponse.xml = new DOMParser().parseFromString(response.responseText, "text/xml");}catch(e){}
+								
+								// HTML
+								if(origType === 'html' || /text\/html/i.test(rContentType)) {
+									dResponse.html = response.responseText;
+									
+								// JSON
+								} else if(origType === 'json' || (origType !== 'text' && /\/json/i.test(rContentType))){
+									try{
+										dResponse.json = $.parseJSON(response.responseText);
+									}catch(e){}
+									
+								// XML
+								} else if(origType == 'xml' || (origType !== 'text' && /\/xml/i.test(rContentType))){
+									if(response.responseXML){
+										// Use XML response if it exists
+										dResponse.xml = response.responseXML;
+									} else {
+										// Use DOM parser if it doesn't exist
+										try{dResponse.xml = new DOMParser().parseFromString(response.responseText, "text/xml");}catch(e){}
+									}
+								}
+								
+								callback(200, "success", dResponse, response.responseHeaders);
+							},
+							onerror: function(response){
+								callback(404, "error", {text: response.responseText}, response.responseHeaders);
 							}
-							
-							done(200, dResponse , response.responseHeaders);
-						},
-						onerror: function(response){
-							done(404, {text: response.responseText} , response.responseHeaders);
-						}
-					};
-					
-					for(var key in optionMap){
-						if(_undefined!==typeof mergedOptions[key]){
+						};
+					// Map options
+					for(key in optionMap){
+						if(PROPDEFINED(mergedOptions,key)){
 							gm_request_options[optionMap[key]] = mergedOptions[key];
 						}
 					}
-					
-					/*
-					if(options.context)
-						gm_request_options.context = options.context;
-						
-					if(options.overrideMimeType)
-						gm_request_options.overrideMimeType = options.overrideMimeType;
-						
-					if(options.username)
-						gm_request_options.user = options.username;
-						
-					if(options.password)
-						gm_request_options.password = options.password;
-					*/
+					// If async option if false, enable synchronous option
+					if(mergedOptions.async === false)
+						gm_request_options.synchronous = true;
+					// Send request
 					GM_xmlhttpRequest(gm_request_options);
 				},
 				abort: function() {
@@ -90,39 +155,5 @@ jMod.jQueryExtensions.addCrossDomainSupport = function(_jQueryObj){
 		}
 	});
 	
+	_jQueryObj.extend({jModCrossOriginSupport: true});
 }
-
-/*
-function test_jQueryFunctions(){
-	if(jMod.jQueryAvailable){
-		jMod.jQueryExtensions.addCrossDomainSupport(jMod.jQuery);
-		
-		// Test $.ajax()
-		console.log('Test $.ajax("http://google.com")');
-		jMod.jQuery.ajax({
-				url: 'http://google.com',
-				contentType: 'text/plain',
-				type: 'GET',
-				dataType: 'html'
-			})
-			.done(function() {
-				console.log("$.ajax() success");
-			})
-			.fail(function() {
-				console.log("$.ajax() error");
-			});
-		
-		// Test $(element).load()
-		console.log('Test $(element).load("http://google.com #hplogo")');
-		var tmpDiv = document.createElement('div');
-		tmpDiv.id = 'tmpDiv';
-		document.body.appendChild(tmpDiv);
-		
-		$('#tmpDiv').load('http://google.com #hplogo', function(responseText, textStatus, jqXHR){
-			console.log('$(element).load() ' + textStatus);
-		});
-	}
-}
-
-test_jQueryFunctions();
-*/

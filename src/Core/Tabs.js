@@ -214,10 +214,10 @@ Tabs.show = function(tabGroup, tab){
 
 function waitForComputeableWidth(el, callback, count){
 	var computedNav = (window || unsafeWindow).getComputedStyle(el, null);
-	if((count || 0) < 20 && isNaN(parseInt(computedNav.width))){
+	if((count = count || 0) < 50 && isNaN(parseInt(computedNav.width))){
 		setTimeout(function(el, callback, count){
 			waitForComputeableWidth(el, callback, count + 1);
-		}, 20, el, callback, count || 0);
+		}, 100, el, callback, count);
 	} else {
 		callback(el, computedNav);
 	}
@@ -231,9 +231,11 @@ function resizeTabs(tabsNav, computedNav){
 	//var width = parseInt(computedNav.getPropertyValue('width'));
 	var width = parseInt(computedNav.width);
 	if(isNaN(width))
-		jModLogWarning('Tabs.resize', 'Tab width is NaN!', tabsNav, tabsContent, computedNav);
-	else if(width > 200)
-		jModLogWarning('Tabs.resize', 'Tab width too wide!', width, tabsNav);
+		if(jMod.debug)
+			jModLogWarning('Tabs.resize', 'Tab width is NaN!', tabsNav, tabsContent, computedNav);
+	else if(width > 300)
+		if(jMod.debug)
+			jModLogWarning('Tabs.resize', 'Tab width too wide!', width, tabsNav);
 	else if(width > 50)
 			tabsContent.style.marginLeft = (width + 11) + 'px';
 }

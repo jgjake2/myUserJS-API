@@ -418,6 +418,17 @@ var findParentWithClass = jMod.Element.findParentWithClass = function(el, classN
 	return;
 }
 
+var findParentWithAttribute = jMod.Element.findParentWithAttribute = function(el, attributeName, attributeValue) {
+	var parent = el;
+	while(parent.parentElement){
+		parent = parent.parentElement;
+		if(parent.hasAttribute(attributeName)){
+			if(_undefined===typeof attributeValue || parent.getAttribute(attributeName) == attributeValue)
+				return parent;
+		}
+	}
+}
+
 function fireClick(el, bubbles, cancelable){
 	if(jMod.jQueryAvailable){
 		$(el).click();

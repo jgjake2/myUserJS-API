@@ -18,6 +18,12 @@ jMod is a library of useful tools for userscript authors with features ranging f
 			<li>
 				<a href="#jMod_Notifications">Notifications</a>
 			</li>
+			<li>
+				<a href="#jMod_jQuery">jQuery</a>
+				<ul>
+					<li><a href="#jMod_jQuery_xmlhttpRequest">GM_xmlhttpRequest in jQuery Ajax Requests</a></li>
+				</ul>
+			</li>
 		</ul>
 	</dd>
 </dl>
@@ -30,7 +36,7 @@ Lightweight and versatile, jMod can be loaded anywhere without having to worry a
 jMod can be loaded as a required script in your meta block, or as a script element.
 
 <a name="jMod_Events"></a>
-###Events
+##Events
 **[Full List of jMod Events](http://doc.myuserjs.org/tutorial-jMod-tutorial.html#standard_events_table)**
 
 One of jMod's most useful features is handling loading events for you. When run at "document-start", scripts actually execute before the DOM exists. This prevents you from interacting with the document until it is created. jMod takes care of this for you.
@@ -95,7 +101,7 @@ jMod.Events.addListener('onReady', function(){
 
 <br /><br />
 <a name="jMod_Settings"></a>
-###Settings
+##Settings
 **[Settings Demo](http://myuserjs.org/API/Demo/settings.html)**<br />
 **[Tutorial](http://doc.myuserjs.org/tutorial-jMod-tutorial.html#settings_example)**
 
@@ -108,7 +114,7 @@ jMod.Events.addListener('onReady', function(){
 
 <br /><br />
 <a name="jMod_Notifications"></a>
-###Notifications
+##Notifications
 
 <div align="center">
 	<a href="http://myuserjs.org/img/jMod/jMod_Notification_Example.png" name="notification_example_image">
@@ -116,3 +122,58 @@ jMod.Events.addListener('onReady', function(){
 	</a>
 	<div align="center">jMod Notifications Example</div>
 </div>
+
+
+<a name="jMod_jQuery"></a>
+##jQuery
+Although jMod is designed to run without using jQuery, there are a few jQuery specific enhancements built in.
+
+<a name="jMod_jQuery_xmlhttpRequest"></a>
+###GM_xmlhttpRequest in jQuery Ajax Requests
+jMod can extend any instance of jQuery to use **GM_xmlhttpRequest** as its default data transmission method. This allows you to reliably make cross-origin requests without any additionally flags. Doing this affects every ajax request made by jQuery.
+
+[Documentation](http://doc.myuserjs.org/jMod.jQueryExtensions.html)
+```javascript
+if($){
+	$(document).ready(function() {
+		function test_jQueryFunctions(){
+			jMod.jQueryExtensions.addCrossOriginSupport($);
+			
+			// Test $.ajax()
+			console.log('Test $.ajax("http://google.com")');
+			$.ajax({
+					url: 'http://google.com',
+					contentType: 'text/html',
+					type: 'GET',
+					dataType: 'html',
+					onprogress: function(response){
+						console.log('onprogress response', response);
+					},
+					onreadystatechange: function(response){
+						console.log('onreadystatechange response', response);
+					}
+				})
+				.done(function(data, textStatus, jqXHR) {
+					console.log("$.ajax() success: ", jqXHR);
+				})
+				.fail(function() {
+					console.log("$.ajax() error");
+				});
+			
+			// Test $(element).load()
+			console.log('Test $(element).load("http://google.com #hplogo")');
+			var tmpDiv = document.createElement('div');
+			tmpDiv.id = 'tmpDiv';
+			document.body.appendChild(tmpDiv);
+			
+			$('#tmpDiv').load('http://google.com #hplogo', function(responseText, textStatus, jqXHR){
+				console.log('$(element).load() ' + textStatus, jqXHR);
+			});
+		}
+
+		test_jQueryFunctions();
+	});
+} else {
+	console.log('Test Failed! No jQuery');
+}
+```

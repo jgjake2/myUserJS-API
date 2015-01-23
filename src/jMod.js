@@ -21,6 +21,9 @@
 // @grant            GM_deleteValue
 // @unwrap
 // @run-at           document-start
+// +@history         (0.0.18) Started cleaning up Notifications.
+// +@history         (0.0.18) Added sessionStorage.
+// +@history         (0.0.18) Added jQueryExtensions.
 // +@history         (0.0.17) Added Observer class.
 // +@history         (0.0.17) Added Language framework.
 // +@history         (0.0.16) Major renaming to reduce min size.
@@ -59,6 +62,9 @@
 // +@macro           NOTEXISTS(a) _undefined==typeof a
 // +@macro           ARGUMENTS(a) Slice.call(arguments,a)
 // +@macro           ARGUMENTS(a,b) Slice.call(arguments,a,b)
+// +@macro           ISFUNCTION(a) "function"==typeof a
+// +@macro           ISOBJECT(a) "object"==typeof a
+// +@macro           ISBOOLEAN(a) "boolean"==typeof a
 // ==/UserScript==
 /*
  * @overview [API for interacting with myUserJS.org]{@link jMod}
@@ -366,58 +372,10 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	ImportScript('API.contentEval');
 	 
 	/***********************************
-	 ** GM_Storage
+	 ** Storage
 	 **********************************/
-	ImportScript('API.GM_Storage');
-	 
-	/***********************************
-	 ** LocalStorage
-	 **********************************/
-	ImportScript('API.localStorage');
-
-/**
- * Get a value from the default storage engine (see [Storage configuration]{@link jMod.Config})
- * @function getValue
- * @memberof jMod
- * @param {string} key - name
- * @param {string|boolean|number} [def] - default value to return if key does not exist
- * @see jMod.API.localStorage
- * @see jMod.API.GM_Storage
- */
-jMod.getValue = function(key, def){
-	if(jConfig('API.Storage.engine') == 'GM_Storage' && EXISTS(GM_getValue))
-		return API.GM_Storage.getValue.apply(API.GM_Storage, arguments);
-	return API.localStorage.getValue.apply(API.localStorage, arguments);
-}
-
-/**
- * Set a value in the default storage engine (see [Storage configuration]{@link jMod.Config})
- * @function setValue
- * @memberof jMod
- * @param {string} key - name
- * @param {string|boolean|number} [value] - value to be set
- * @see jMod.API.localStorage
- * @see jMod.API.GM_Storage
- */
-jMod.setValue = function(key, def){
-	if(jConfig('API.Storage.engine') == 'GM_Storage' && EXISTS(GM_setValue))
-		return API.GM_Storage.setValue.apply(API.GM_Storage, arguments);
-	return API.localStorage.setValue.apply(API.localStorage, arguments);
-}
-/**
- * Delete a value from the default storage engine (see [Storage configuration]{@link jMod.Config})
- * @function deleteValue
- * @memberof jMod
- * @param {string} key - name to be deleted
- * @see jMod.API.localStorage
- * @see jMod.API.GM_Storage
- */
-jMod.deleteValue = function(key){
-	if(jConfig('API.Storage.engine') == 'GM_Storage' && EXISTS(GM_deleteValue))
-		return API.GM_Storage.deleteValue.apply(API.GM_Storage, arguments);
-	return API.localStorage.deleteValue.apply(API.localStorage, arguments);
-}
-
+	ImportScript('API.Storage');
+	
 	/***********************************
 	 ** Get Resource
 	 **********************************/
@@ -429,12 +387,7 @@ jMod.deleteValue = function(key){
 	ImportScript('API.Date');
 	
 	/***********************************
-	 ** jQuery Extensions
-	 **********************************/
-	ImportScript('jQuery.jQueryExtensions');
-	
-	/***********************************
-	 ** jQuery Ajax
+	 ** jQuery Ajax Extensions
 	 **********************************/
 	ImportScript('jQuery.Ajax');
 

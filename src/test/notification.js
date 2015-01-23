@@ -44,7 +44,7 @@ jMod.onPageReady = function(){
 		'body': '<i class="fa fa-clock-o"></i> <i>66 seconds ago...</i>',
 		'icon': 'fa-thumbs-up',
 		'type': 'small',
-		'background-color': 'rgb(199, 145, 33)'
+		'background': 'rgb(199, 145, 33)'
 	});
 	
 	jMod.Notification({
@@ -52,17 +52,29 @@ jMod.onPageReady = function(){
 		'body': '<i class="fa fa-clock-o"></i> <i>66 seconds ago...</i>',
 		'icon': 'fa-thumbs-up',
 		'type': 'small',
-		'background-color': 'rgb(199, 145, 33)'
+		'background': 'rgb(199, 145, 33, 0.2)'
 	});
 	
 	
 	
 	jMod.Notification({
-		'title': 'James Simmons liked your comment 3',
+		'title': 'James Simmons liked your comment 4',
+		'body': '<i class="fa fa-clock-o"></i> <i>99 seconds ago...</i>',
+		'icon': 'fa-bell',
+		'type': 'fill',
+		'background': {
+			color: 'rgb(199, 145, 33)',
+			opacity: '0.3'
+		}
+		
+	});
+	
+	jMod.Notification({
+		'title': 'James Simmons liked your comment 4',
 		'body': '<i class="fa fa-clock-o"></i> <i>99 seconds ago...</i>',
 		'icon': 'fa-bell',
 		'type': 'large',
-		'background-color': 'rgb(199, 145, 33)'
+		'background': 'rgb(199, 145, 33, 0.5)',
 	});
 
 

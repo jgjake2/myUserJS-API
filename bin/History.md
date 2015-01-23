@@ -1,6 +1,12 @@
 jMod History
 ============
 
+## Version 0.0.18
+* **Core**
+    * Started cleaning up Notifications.
+    * Added sessionStorage.
+    * Added jQueryExtensions.
+
 ## Version 0.0.17
 * **Config**
     * Config function now attempts to get userscript information when called (if enabled).
@@ -8,9 +14,9 @@ jMod History
     * Added Observer class.
     * Added Language framework.
 * **ExportFunction**
-    * Better support when "exportFunction" is unavailable.
     * Added condition for arrays when normal copying fails.
     * Added some documentation.
+    * Better support when "exportFunction" is unavailable.
 * **Get Remote Image**
     * History begins.
 * **Get Resource**
@@ -25,6 +31,8 @@ jMod History
     * Added a jMod specific Warning and Info logger.
 * **Script Info**
     * Added enable/disable configuration and logging for "getScriptFileInfo".
+* **SessionStorage**
+    * History begins.
 * **Settings**
     * Fix resizing bug.
 * **Tooltip**

@@ -4,7 +4,7 @@
 // @author           jgjake2
 // @homepage         http://myuserjs.org/
 // @include          *
-// @version          0.0.17
+// @version          0.0.18
 // @grant            unsafeWindow
 // @grant            GM_info
 // @grant            GM_log
@@ -51,8 +51,8 @@
     DefineLockedProp("ScriptElement", function() {
         return CurrentRunningScript.el ? CurrentRunningScript : undefined;
     });
-    DefineLockedProp("version", "0.0.17");
-    DefineLockedProp("build_time", "1421823017000");
+    DefineLockedProp("version", "0.0.18");
+    DefineLockedProp("build_time", "1422032400000");
     DefineLockedProp("build_type", "release");
     DefineLockedProp("_debug", false);
     Object.defineProperty(jMod, "debug", {
@@ -264,7 +264,9 @@
             }
             try {
                 return cloneInto(tmp, scope, args);
-            } catch (e) {}
+            } catch (e) {
+                return obj;
+            }
         } else ;
         return obj;
     }
@@ -478,8 +480,15 @@
         }
         for (;i < length; i++) if (null != (options = arguments[i])) for (name in options) {
             src = target[name];
-            copy = options[name];
-            if (target === copy) continue;
+            try {
+                if (options[name].constructor === {}.constructor || options[name] || target) copy = options[name];
+            } catch (e) {
+                copy = mCloneInto(options[name], target, {
+                    cloneFunctions: true,
+                    wrapReflectors: true
+                });
+            }
+            if (target === options[name] || target === copy) continue;
             if (deep && copy && (isPlainObject(copy) || (copyIsArray = isArray(copy)))) {
                 if (copyIsArray) {
                     copyIsArray = false;
@@ -511,7 +520,14 @@
         }
         for (;i < length; i++) if (null != (options = arguments[i])) for (name in options) {
             src = target[name];
-            copy = options[name];
+            try {
+                if (options[name].constructor === {}.constructor || options[name] || target) copy = options[name];
+            } catch (e) {
+                copy = mCloneInto(options[name], target, {
+                    cloneFunctions: true,
+                    wrapReflectors: true
+                });
+            }
             if (target === copy) continue;
             if (deep && copy && (isPlainObject(copy) || (copyIsArray = isArray(copy)))) {
                 if (copyIsArray) {
@@ -529,6 +545,43 @@
             }
         }
         return target;
+    };
+    jMod.CloneProperties = function() {
+        var nextSource, descriptor, keysArray, nextIndex, nextKey, desc, to, length = arguments.length, target = arguments[0], deep = false, i = 1;
+        if ("boolean" == typeof target && length > 2) {
+            deep = target;
+            target = arguments[i++];
+        }
+        if (target === undefined || null === target) return target;
+        to = Object(target);
+        for (i; i < length; i++) {
+            nextSource = arguments[i];
+            if (nextSource === undefined || null === nextSource) continue;
+            keysArray = deep ? Object.getOwnPropertyNames(Object(nextSource)) : Object.keys(Object(nextSource));
+            for (nextIndex = 0; nextIndex < keysArray.length; nextIndex++) {
+                nextKey = keysArray[nextIndex];
+                desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
+                if (desc !== undefined) if ("function" == typeof nextSource[nextKey]) to[nextKey] = nextSource[nextKey].bind(to); else if ("object" == typeof nextSource[nextKey] && isPlainObject(nextSource[nextKey])) Object.defineProperty(to, nextKey, {
+                    enumerable: desc.enumerable,
+                    configurable: desc.configurable,
+                    writable: desc.writable,
+                    value: deep ? jMod.CloneProperties(deep, to[nextKey] || {}, nextSource[nextKey]) : nextSource[nextKey]
+                }); else {
+                    descriptor = {
+                        enumerable: desc.enumerable,
+                        configurable: desc.configurable
+                    };
+                    if (_undefined != typeof desc.get) descriptor.get = desc.get.bind(to);
+                    if (_undefined != typeof desc.set) descriptor.set = desc.set.bind(to);
+                    if (_undefined != typeof desc.value) {
+                        descriptor.writable = desc.writable;
+                        if ("function" == typeof desc.value) descriptor.value = desc.value.bind(to); else descriptor.value = desc.value;
+                    }
+                    Object.defineProperty(to, nextKey, descriptor);
+                }
+            }
+        }
+        return to;
     };
     (function() {
         var EMPTY = "", UNKNOWN = "?", FUNC_TYPE = "function", UNDEF_TYPE = "undefined", OBJ_TYPE = "object", MAJOR = "major", MODEL = "model", NAME = "name", TYPE = "type", VENDOR = "vendor", VERSION = "version", ARCHITECTURE = "architecture", CONSOLE = "console", MOBILE = "mobile", TABLET = "tablet", SMARTTV = "smarttv", WEARABLE = "wearable", EMBEDDED = "embedded";
@@ -601,6 +654,28 @@
         } else size = unsafeWindow["inner" + Name];
         return size;
     };
+    var hexToRgb = function(hex) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16),
+            a: null
+        } : null;
+    };
+    var parseRGB = function(str) {
+        var r = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d\.]+))?\s*\)/im.exec(str);
+        return r ? {
+            r: parseInt(r[1]),
+            g: parseInt(r[2]),
+            b: parseInt(r[3]),
+            a: r[4] && "" != r[4] ? parseFloat(r[4]) : null
+        } : null;
+    };
+    var parseColorString = function(str) {
+        var r = parseRGB(str);
+        return r ? r : hexToRgb(str);
+    };
     var jConfig = jMod.Config = function(key, value) {
         try {
             if (jConfig.getScriptFileInfo && !ScriptInfo.gotFileInfo) ScriptInfo.getScriptFileInfo();
@@ -649,6 +724,9 @@
         },
         Language: {
             Current: "en"
+        },
+        jQueryExtensions: {
+            CrossOrigin: true
         },
         debug: false
     });
@@ -1040,13 +1118,11 @@
         } catch (e) {}
     };
     jMod.$ = function(selector, target, nojQuery) {
-        if (_undefined === typeof target) target = unsafeWindow.document;
+        if (!target) target = _undefined !== typeof document ? document : unsafeWindow.document;
         try {
-            if (jMod.jQueryAvailable && true !== nojQuery) try {
+            if (true !== nojQuery && jMod.jQueryAvailable) try {
                 return $(selector, target).first()[0];
-            } catch (e) {
-                return;
-            }
+            } catch (e) {}
             if ("string" !== typeof selector) return;
             return target.querySelector(selector);
         } catch (e) {
@@ -1056,11 +1132,9 @@
     jMod.$$ = function(selector, target, nojQuery) {
         if (!target) target = _undefined !== typeof document ? document : unsafeWindow.document;
         try {
-            if (jMod.jQueryAvailable && true !== nojQuery) try {
+            if (true !== nojQuery && jMod.jQueryAvailable) try {
                 return $(selector, target).toArray();
-            } catch (e) {
-                return;
-            }
+            } catch (e) {}
             if ("string" !== typeof selector) return;
             var tmp = target.querySelectorAll(selector);
             return tmp ? [].map.call(tmp, function(element) {
@@ -1243,6 +1317,13 @@
             if (jMod.Element.hasClass(parent, className)) return parent;
         }
         return;
+    };
+    var findParentWithAttribute = jMod.Element.findParentWithAttribute = function(el, attributeName, attributeValue) {
+        var parent = el;
+        while (parent.parentElement) {
+            parent = parent.parentElement;
+            if (parent.hasAttribute(attributeName)) if (_undefined === typeof attributeValue || parent.getAttribute(attributeName) == attributeValue) return parent;
+        }
     };
     function fireClick(el, bubbles, cancelable) {
         if (jMod.jQueryAvailable) $(el).click(); else if (document.createEvent) {
@@ -1678,9 +1759,11 @@
             for (var evt in this.events) if ("function" === typeof data[this.events[evt]]) this.add(group, this.events[evt], data[this.events[evt]]);
         };
         this.fire = function(eventName, group, _this, args) {
-            var i, evt, group = listeners[group || "0"];
+            var _args, i, evt, group = listeners[group || "0"];
+            _args = "array" == RealTypeOf(args) ? args : [ args ];
+            if (arguments.length > 4) _args = _args.concat(Slice.call(arguments, 4));
             try {
-                if (typeof group !== _undefined && typeof (evt = group[eventName]) !== _undefined) for (i in evt) if (false === evt[i].apply(_this || null, args || [])) {
+                if (typeof group !== _undefined && typeof (evt = group[eventName]) !== _undefined) for (i in evt) if (false === evt[i].apply(_this || null, _args || [])) {
                     console.log("fire canceled");
                     return false;
                 }
@@ -1952,6 +2035,26 @@
         setValue: function(key, value) {
             if (typeof GM_setValue !== _undefined) return GM_setValue(jConfig("API.Storage.prefix") + key, value);
         },
+        setJSON: function(key, value) {
+            var tmp;
+            try {
+                tmp = JSON.stringify(value);
+            } catch (e) {
+                jModError(e, "GM_Storage.setJSON", "Cannot stringify value!");
+            }
+            try {
+                return this.setValue(key, tmp || value);
+            } catch (e) {}
+        },
+        getJSON: function(key, def) {
+            var tmp = this.getValue(key, def);
+            try {
+                if ("string" === typeof tmp) return JSON.parse(tmp);
+            } catch (e) {
+                jModError(e, "GM_Storage.setJSON", "Error parsing value!");
+            }
+            return tmp;
+        },
         deleteValue: function(key) {
             if (typeof GM_deleteValue !== _undefined) return GM_deleteValue(jConfig("API.Storage.prefix") + key);
         }
@@ -1964,6 +2067,26 @@
         setValue: function(key, value) {
             return this.stor.setItem(jConfig("API.Storage.prefix") + key, value);
         },
+        setJSON: function(key, value) {
+            var tmp;
+            try {
+                tmp = JSON.stringify(value);
+            } catch (e) {
+                jModError(e, "localStorage.setJSON", "Cannot stringify value!");
+            }
+            try {
+                return this.setValue(key, tmp || value);
+            } catch (e) {}
+        },
+        getJSON: function(key, def) {
+            var tmp = this.getValue(key, def);
+            try {
+                if ("string" === typeof tmp) return JSON.parse(tmp);
+            } catch (e) {
+                jModError(e, "localStorage.setJSON", "Error parsing value!");
+            }
+            return tmp;
+        },
         deleteValue: function(key) {
             return this.stor.removeItem(jConfig("API.Storage.prefix") + key);
         }
@@ -1974,16 +2097,62 @@
         },
         enumerable: false
     });
+    jMod.API.sessionStorage = {
+        getValue: function(key, def) {
+            var r = this.stor.getItem(jConfig("API.Storage.prefix") + key);
+            return null !== r ? r : def;
+        },
+        setValue: function(key, value) {
+            return this.stor.setItem(jConfig("API.Storage.prefix") + key, value);
+        },
+        setJSON: function(key, value) {
+            var tmp;
+            try {
+                tmp = JSON.stringify(value);
+            } catch (e) {
+                jModError(e, "sessionStorage.setJSON", "Cannot stringify value!");
+            }
+            try {
+                return this.setValue(key, tmp || value);
+            } catch (e) {}
+        },
+        getJSON: function(key, def) {
+            var tmp = this.getValue(key, def);
+            try {
+                if ("string" === typeof tmp) return JSON.parse(tmp);
+            } catch (e) {
+                jModError(e, "sessionStorage.setJSON", "Error parsing value!");
+            }
+            return tmp;
+        },
+        deleteValue: function(key) {
+            return this.stor.removeItem(jConfig("API.Storage.prefix") + key);
+        }
+    };
+    Object.defineProperty(jMod.API.sessionStorage, "stor", {
+        get: function() {
+            return sessionStorage ? sessionStorage : unsafeWindow.sessionStorage ? unsafeWindow.sessionStorage : window.sessionStorage;
+        },
+        enumerable: false
+    });
     jMod.getValue = function(key, def) {
-        if ("GM_Storage" == jConfig("API.Storage.engine") && _undefined != typeof GM_getValue) return API.GM_Storage.getValue.apply(API.GM_Storage, arguments);
+        if ("GM_Storage" == jConfig("API.Storage.engine") && _undefined != typeof GM_getValue) return API.GM_Storage.getValue.apply(API.GM_Storage, arguments); else if ("sessionStorage" == jConfig("API.Storage.engine")) return API.sessionStorage.getValue.apply(API.sessionStorage, arguments);
         return API.localStorage.getValue.apply(API.localStorage, arguments);
     };
     jMod.setValue = function(key, def) {
-        if ("GM_Storage" == jConfig("API.Storage.engine") && _undefined != typeof GM_setValue) return API.GM_Storage.setValue.apply(API.GM_Storage, arguments);
+        if ("GM_Storage" == jConfig("API.Storage.engine") && _undefined != typeof GM_setValue) return API.GM_Storage.setValue.apply(API.GM_Storage, arguments); else if ("sessionStorage" == jConfig("API.Storage.engine")) return API.sessionStorage.setValue.apply(API.sessionStorage, arguments);
         return API.localStorage.setValue.apply(API.localStorage, arguments);
     };
+    jMod.getJSON = function(key, def) {
+        if ("GM_Storage" == jConfig("API.Storage.engine") && _undefined != typeof GM_getValue) return API.GM_Storage.getJSON.apply(API.GM_Storage, arguments); else if ("sessionStorage" == jConfig("API.Storage.engine")) return API.sessionStorage.getJSON.apply(API.sessionStorage, arguments);
+        return API.localStorage.getJSON.apply(API.localStorage, arguments);
+    };
+    jMod.setJSON = function(key, def) {
+        if ("GM_Storage" == jConfig("API.Storage.engine") && _undefined != typeof GM_setValue) return API.GM_Storage.setJSON.apply(API.GM_Storage, arguments); else if ("sessionStorage" == jConfig("API.Storage.engine")) return API.sessionStorage.setJSON.apply(API.sessionStorage, arguments);
+        return API.localStorage.setJSON.apply(API.localStorage, arguments);
+    };
     jMod.deleteValue = function(key) {
-        if ("GM_Storage" == jConfig("API.Storage.engine") && _undefined != typeof GM_deleteValue) return API.GM_Storage.deleteValue.apply(API.GM_Storage, arguments);
+        if ("GM_Storage" == jConfig("API.Storage.engine") && _undefined != typeof GM_deleteValue) return API.GM_Storage.deleteValue.apply(API.GM_Storage, arguments); else if ("sessionStorage" == jConfig("API.Storage.engine")) return API.sessionStorage.deleteValue.apply(API.sessionStorage, arguments);
         return API.localStorage.deleteValue.apply(API.localStorage, arguments);
     };
     function customBase64Encode(inputStr) {
@@ -2122,57 +2291,64 @@
         };
     };
     jMod.jQueryExtensions = {};
-    jMod.jQueryExtensions.addCrossDomainSupport = function(_jQueryObj) {
+    jMod.jQueryExtensions.addCrossOriginSupport = function(_jQueryObj, dataType) {
         if (_undefined == typeof GM_xmlhttpRequest) return;
-        if (!_jQueryObj) _jQueryObj = jMod.jQuery;
-        _jQueryObj.ajaxTransport("* text html xml json", function(options, originalOptions, jqXHR) {
-            if (_undefined !== typeof GM_xmlhttpRequest) {
-                var mergedOptions = jMod.extend(true, {}, options, originalOptions);
-                var optionMap = {
+        if (!_jQueryObj && !(_jQueryObj = jMod.jQuery)) return;
+        if (true === _jQueryObj.jModCrossOriginSupport) return;
+        _jQueryObj.ajaxTransport(dataType || "* text html xml json", function(options, originalOptions, jqXHR) {
+            var CrossOriginEnabled = true;
+            try {
+                CrossOriginEnabled = jMod.Config("jQueryExtensions.CrossOrigin");
+            } catch (e) {}
+            if (_undefined != typeof GM_xmlhttpRequest && CrossOriginEnabled) {
+                var extend = (_jQueryObj || $ || jMod).extend, mergedOptions = extend(true, {}, options, originalOptions), optionMap = {
                     context: "context",
                     overrideMimeType: "overrideMimeType",
                     timeout: "timeout",
                     username: "user",
-                    password: "password"
+                    password: "password",
+                    onreadystatechange: "onreadystatechange",
+                    ontimeout: "ontimeout",
+                    onprogress: "onprogress",
+                    binary: "binary"
                 };
                 return {
                     send: function(headers, callback) {
-                        var origType = (originalOptions.dataType || "").toLowerCase();
-                        function done(status, response, headers) {
-                            var statusText = 200 === status ? "success" : "error";
-                            callback(status, statusText, response, headers);
-                        }
-                        var gm_request_options = {
+                        var origType = (originalOptions.dataType || "").toLowerCase(), gm_request_options = {
                             method: options.type || "GET",
                             url: options.url,
-                            data: jMod.extend({}, options.data || {}, originalOptions.data || {}),
+                            data: extend({}, options.data || {}, originalOptions.data || {}),
                             headers: headers,
                             onload: function(response) {
                                 var dResponse = {
                                     text: response.responseText
-                                }, rContentType = "", contentTypePatt = /Content-Type:\s*([^\s]+)/i;
+                                }, rContentType = "", key;
                                 try {
-                                    rContentType = contentTypePatt.exec(response.responseHeaders)[1];
+                                    rContentType = /Content-Type:\s*([^\s]+)/i.exec(response.responseHeaders)[1];
                                 } catch (e) {}
                                 if ("html" === origType || /text\/html/i.test(rContentType)) dResponse.html = response.responseText; else if ("json" === origType || "text" !== origType && /\/json/i.test(rContentType)) try {
                                     dResponse.json = $.parseJSON(response.responseText);
-                                } catch (e) {} else if ("xml" == origType || "text" !== origType && /\/xml/i.test(rContentType)) try {
+                                } catch (e) {} else if ("xml" == origType || "text" !== origType && /\/xml/i.test(rContentType)) if (response.responseXML) dResponse.xml = response.responseXML; else try {
                                     dResponse.xml = new DOMParser().parseFromString(response.responseText, "text/xml");
                                 } catch (e) {}
-                                done(200, dResponse, response.responseHeaders);
+                                callback(200, "success", dResponse, response.responseHeaders);
                             },
                             onerror: function(response) {
-                                done(404, {
+                                callback(404, "error", {
                                     text: response.responseText
                                 }, response.responseHeaders);
                             }
                         };
-                        for (var key in optionMap) if (_undefined !== typeof mergedOptions[key]) gm_request_options[optionMap[key]] = mergedOptions[key];
+                        for (key in optionMap) if (_undefined != typeof mergedOptions[key]) gm_request_options[optionMap[key]] = mergedOptions[key];
+                        if (false === mergedOptions.async) gm_request_options.synchronous = true;
                         GM_xmlhttpRequest(gm_request_options);
                     },
                     abort: function() {}
                 };
             }
+        });
+        _jQueryObj.extend({
+            jModCrossOriginSupport: true
         });
     };
     jMod.Config.Tooltip = jMod.extend({
@@ -2488,124 +2664,6 @@
     jMod.Config.Notifications = {
         enabled: true
     };
-    function generateLargeNotificationElement(data) {
-        var newNotification = {
-            type: "div",
-            className: "jModLargeNotification bigBox animated fadeIn",
-            style: {},
-            attributes: {
-                "data-jmod-notification": Notification.count,
-                "data-jmod-large-notification": Notification.LargeCount
-            }
-        };
-        if (typeof data.background !== _undefined) newNotification.style.background = data["background"];
-        if (typeof data["background-color"] !== _undefined) newNotification.style.backgroundColor = data["background-color"]; else newNotification.style.backgroundColor = "rgb(50, 118, 177)";
-        var newNotificationContent = {
-            type: "div",
-            className: "",
-            innerHTML: [ {
-                type: "i",
-                id: "jModbtnClose" + Notification.LargeCount,
-                className: "botClose fa fa-times",
-                EventListeners: {
-                    click: function(e) {
-                        var notification = e.target.parentElement.parentElement;
-                        var notificationNum = parseInt(notification.getAttribute("data-jmod-notification"));
-                        var largeNotificationNum = parseInt(notification.getAttribute("data-jmod-large-notification"));
-                        Notification.close(notification, "large", notificationNum, largeNotificationNum, e);
-                    }
-                }
-            } ],
-            style: {},
-            attributes: {
-                "data-jmod-notification": Notification.count,
-                "data-jmod-large-notification": Notification.LargeCount
-            }
-        };
-        if (typeof data.title !== _undefined) newNotificationContent.innerHTML.push({
-            type: "span",
-            innerHTML: data.title
-        });
-        newNotificationContent.innerHTML.push({
-            type: "div",
-            innerHTML: data.body
-        });
-        if (typeof data.icon !== _undefined) newNotificationContent.innerHTML.push({
-            type: "div",
-            className: "jmod-na bigboxicon",
-            style: {
-                backgroundColor: "transparent"
-            },
-            innerHTML: {
-                type: "i",
-                className: "fa " + data.icon + " " + (data.iconAnimation || "swing") + " animated",
-                style: {
-                    color: "#fff"
-                }
-            }
-        });
-        newNotification.innerHTML = newNotificationContent;
-        return createNewElement(newNotification);
-    }
-    function generateSmallNotificationElement(data) {
-        var newNotification = document.createElement("div");
-        newNotification.setAttribute("data-jmod-notification", Notification.count);
-        newNotification.setAttribute("data-jmod-small-notification", Notification.SmallCount);
-        newNotification.className = "jModSmallNotification SmallBox animated fadeIn";
-        if (typeof data.background !== _undefined) newNotification.style.background = data["background"];
-        if (typeof data["background-color"] !== _undefined) newNotification.style.backgroundColor = data["background-color"]; else newNotification.style.backgroundColor = "rgb(41, 97, 145)";
-        var totalCount = Notification.CurrentSmallCount;
-        if (totalCount > 0) {
-            var tHeight = 25 * totalCount;
-            var smallNotificationsContainer = Notification("getElement", "notificationsSmallWrapper");
-            var smNotes = jMod.$$("div[data-jmod-small-notification]", smallNotificationsContainer);
-            for (var i = 0; i < smNotes.length; i++) tHeight += parseInt(smNotes[i].offsetHeight);
-            newNotification.style.top = tHeight + 20 + "px";
-        }
-        newNotification.addEventListener("click", function(e) {
-            var tCount = 0;
-            var tParent = e.target;
-            while (!tParent.hasAttribute("data-jmod-small-notification") && null != tParent && tCount < 10) {
-                tParent = tParent.parentElement;
-                tCount++;
-            }
-            if (null != tParent) {
-                var notificationNum = parseInt(tParent.getAttribute("data-jmod-notification"));
-                var smallNotificationNum = parseInt(tParent.getAttribute("data-jmod-small-notification"));
-                Notification.close(tParent, "small", notificationNum, smallNotificationNum, e);
-            }
-        }, false);
-        var newNotificationContent = document.createElement("div");
-        if (typeof data.footer === _undefined) newNotificationContent.className = "textoFull"; else {
-            newNotificationContent.className = "textoFoto";
-            var foto = document.createElement("div");
-            foto.className = "foto";
-            if (isElement(data.icon)) foto.appendChild(data.icon); else foto.innerHTML = '<i class="fa ' + data.icon + " " + (data.iconAnimation || "bounce") + ' animated"> </i>';
-            newNotification.appendChild(foto);
-        }
-        var title = document.createElement("span");
-        title.className = "";
-        if (typeof data.title !== _undefined) if (isElement(data.title)) title.appendChild(data.title); else title.innerHTML = data.title;
-        newNotificationContent.appendChild(title);
-        var bdy = document.createElement("p");
-        bdy.className = "";
-        if (typeof data.body !== _undefined) if (isElement(data.body)) bdy.appendChild(data.body); else bdy.innerHTML = data.body;
-        newNotificationContent.appendChild(bdy);
-        if (typeof data.footer !== _undefined) {
-            var footer = document.createElement("p");
-            footer.className = "text-align-right";
-            if (isElement(data.footer)) footer = data.footer; else footer.innerHTML = data.footer;
-            newNotificationContent.appendChild(footer);
-        }
-        newNotification.appendChild(newNotificationContent);
-        if (typeof data.footer === _undefined && typeof data.icon !== _undefined) {
-            var icon = document.createElement("div");
-            icon.setAttribute("class", "miniIcono");
-            if (isElement(data.icon)) icon.appendChild(data.icon); else icon.innerHTML = '<i class="miniPic fa ' + data.icon + ' bounce animated"> </i>';
-            newNotification.appendChild(icon);
-        }
-        return newNotification;
-    }
     var Notification = jMod.Notification = function(data, data2) {
         if (!jConfig("Notifications.enabled")) return false;
         if (!jMod.Notification.Initialized) jMod.Notification.init();
@@ -2622,26 +2680,379 @@
 
           case "updatenotification":
             return jMod.Notification.UpdateNotification.apply(jMod.Notification, Slice.call(arguments, 1));
-        } else if ("object" === typeof data) switch ((data.type || "").toLowerCase()) {
-          case "small":
-            var smallNotificationsContainer = jMod.Notification("getElement", "notificationsSmallWrapper");
-            var newNotification = generateSmallNotificationElement(data);
-            smallNotificationsContainer.appendChild(newNotification);
-            jMod.Notification.Events.addAll(data, jMod.Notification.count);
-            jMod.Notification.count++;
-            jMod.Notification.SmallCount++;
-            break;
-
-          case "large":
-          default:
-            var largeNotificationsContainer = jMod.Notification("getElement", "notificationsLargeWrapper");
-            var newNotification = generateLargeNotificationElement(data);
-            largeNotificationsContainer.appendChild(newNotification);
-            jMod.Notification.Events.addAll(data, jMod.Notification.count);
-            jMod.Notification.count++;
-            jMod.Notification.LargeCount++;
+        } else if ("object" === typeof data) if (data.type) Notification.Types.create(data.type.toLowerCase(), data);
+    };
+    Notification.Types = {
+        types: {},
+        add: function(obj) {
+            this.types[obj.name] = obj;
+        },
+        callMethod: function(typeName, methodName) {
+            if (_undefined !== typeof this.types[typeName] && "function" === typeof this.types[typeName][methodName]) return this.types[typeName][methodName].apply(this.types[typeName], Slice.call(arguments, 2));
+        },
+        create: function(typeName, data) {
+            this.callMethod(typeName, "create", data);
+        },
+        init: function() {
+            for (var name in this.types) this.callMethod(name, "init");
         }
     };
+    +function(Notification) {
+        var LargeWrapperId = "jModSmallNotificationsWrapper";
+        Notification.LargeCount = 0;
+        Object.defineProperty(Notification, "CurrentLargeCount", {
+            get: function() {
+                var largeNotificationsContainer = document.getElementById(LargeWrapperId);
+                return jMod.$$("div[data-jmod-large-notification]", largeNotificationsContainer).length;
+            }
+        });
+        jMod.Notification.Types.add({
+            name: "large",
+            getWrapper: function() {
+                return document.getElementById(LargeWrapperId);
+            },
+            generateElement: function(data) {
+                var newNotification = {
+                    type: "div",
+                    className: "jModLargeNotification bigBox animated fadeIn fast",
+                    style: {},
+                    attributes: {
+                        "data-jmod-notification": Notification.count,
+                        "data-jmod-notification-type": "large",
+                        "data-jmod-large-notification": Notification.LargeCount
+                    }
+                };
+                if (data.background) {
+                    var color;
+                    if ("string" === typeof data.background) {
+                        if ((color = parseColorString(data.background)) && _undefined != typeof data["background-opacity"]) color.a = parseFloat(data["background-opacity"]);
+                    } else if ("object" === typeof data.background && _undefined != typeof data.background.color) if ((color = parseColorString(data.background.color)) && _undefined != typeof data.background.opacity) color.a = parseFloat(data.background.opacity);
+                    if (color) newNotification.style.backgroundColor = "rgba(" + color.r + ", " + color.g + ", " + color.b + ", " + (isNaN(parseFloat(color.a)) ? "0.8" : parseFloat(color.a)) + ")";
+                }
+                var newNotificationContent = {
+                    type: "div",
+                    className: "",
+                    innerHTML: [ {
+                        type: "i",
+                        id: "jModbtnClose" + Notification.LargeCount,
+                        className: "botClose fa fa-times",
+                        EventListeners: {
+                            click: function(e) {
+                                Notification.close(e.target);
+                            }
+                        }
+                    } ],
+                    style: {}
+                };
+                if (typeof data.title !== _undefined) newNotificationContent.innerHTML.push({
+                    type: "span",
+                    innerHTML: data.title
+                });
+                newNotificationContent.innerHTML.push({
+                    type: "div",
+                    innerHTML: data.body
+                });
+                if (typeof data.icon !== _undefined) newNotificationContent.innerHTML.push({
+                    type: "div",
+                    className: "jmod-na bigboxicon",
+                    style: {
+                        backgroundColor: "transparent"
+                    },
+                    innerHTML: {
+                        type: "i",
+                        className: "fa " + data.icon + " " + (data.iconAnimation || "swing") + " animated",
+                        style: {
+                            color: "#fff"
+                        }
+                    }
+                });
+                newNotification.innerHTML = newNotificationContent;
+                return createNewElement(newNotification);
+            },
+            create: function(data) {
+                var largeNotificationsContainer = this.getWrapper();
+                var newNotification = this.generateElement(data);
+                largeNotificationsContainer.appendChild(newNotification);
+                jMod.Notification.Events.addAll(data, jMod.Notification.count);
+                jMod.Notification.count++;
+                jMod.Notification.LargeCount++;
+            },
+            close: function(el, num) {
+                Notification.Events.fire("onBeforeClose", num, null, el);
+                removeClass(el, "fadeIn");
+                addClass(el, "fadeOut");
+                setTimeout(function(el, num) {
+                    el.style.display = "none";
+                    Notification.Events.fire("onAfterClose", num, null, el);
+                    el.parentElement.removeChild(el);
+                }, 1e3, el, num);
+            },
+            init: function() {
+                var notificationsFullWrapper = Notification("getElement", "notificationsWrapper");
+                var largeNotificationsContainer = this.getWrapper();
+                if (null == largeNotificationsContainer) {
+                    largeNotificationsContainer = document.createElement("div");
+                    largeNotificationsContainer.id = LargeWrapperId;
+                    largeNotificationsContainer.className = "jModNotifications";
+                    notificationsFullWrapper.appendChild(largeNotificationsContainer);
+                }
+            }
+        });
+    }(jMod.Notification);
+    +function(Notification) {
+        var SmallWrapperId = "jModSmallNotificationsWrapper";
+        Notification.SmallCount = 0;
+        Object.defineProperty(Notification, "CurrentSmallCount", {
+            get: function() {
+                var smallNotificationsContainer = document.getElementById(SmallWrapperId);
+                return jMod.$$("div[data-jmod-small-notification]", smallNotificationsContainer).length;
+            }
+        });
+        jMod.Notification.Types.add({
+            name: "small",
+            getWrapper: function() {
+                return document.getElementById(SmallWrapperId);
+            },
+            generateElement: function(data) {
+                var tmpTop = 25;
+                var totalCount = Notification.CurrentSmallCount;
+                if (totalCount > 0) {
+                    var tHeight = 25 * totalCount;
+                    var smallNotificationsContainer = Notification("getElement", "notificationsSmallWrapper");
+                    var smNotes = smallNotificationsContainer.querySelectorAll("div[data-jmod-small-notification]");
+                    for (var i = 0; i < smNotes.length; i++) tHeight += parseInt(smNotes[i].offsetHeight);
+                    tmpTop += tHeight;
+                }
+                var newNotification = {
+                    type: "div",
+                    className: "jModSmallNotification SmallBox animated fadeIn",
+                    style: {
+                        top: tmpTop + "px"
+                    },
+                    innerHTML: [],
+                    attributes: {
+                        "data-jmod-notification": Notification.count,
+                        "data-jmod-notification-type": "small",
+                        "data-jmod-small-notification": Notification.SmallCount
+                    },
+                    EventListeners: {
+                        click: function(e) {
+                            var tCount = 0;
+                            var tParent = e.target;
+                            while (!tParent.hasAttribute("data-jmod-small-notification") && null != tParent && tCount < 20) {
+                                tParent = tParent.parentElement;
+                                tCount++;
+                            }
+                            if (null != tParent) {
+                                var notificationNum = parseInt(tParent.getAttribute("data-jmod-notification"));
+                                var smallNotificationNum = parseInt(tParent.getAttribute("data-jmod-small-notification"));
+                                jMod.Notification.close(tParent);
+                            }
+                        }
+                    }
+                };
+                var bgColor = parseColorString("rgba(50, 118, 177, 0.8)"), tmp;
+                if (data.background) if ("object" === typeof data.background) {
+                    if (_undefined != typeof data.background.color) if (tmp = parseColorString(data.background.color)) {
+                        if (null == tmp.a) tmp.a = bgColor.a;
+                        bgColor = tmp;
+                    }
+                    if (_undefined != typeof data.background.opacity) bgColor.a = data.background.opacity;
+                } else if (tmp = parseColorString(data.background)) {
+                    if (null == tmp.a) tmp.a = bgColor.a;
+                    bgColor = tmp;
+                }
+                if (bgColor) newNotification.style.backgroundColor = "rgba(" + bgColor.r + ", " + bgColor.g + ", " + bgColor.b + ", " + bgColor.a + ")";
+                var newNotificationContent = {
+                    type: "div",
+                    className: "",
+                    innerHTML: [],
+                    style: {}
+                };
+                if (typeof data.footer === _undefined) newNotificationContent.className += " textoFull"; else {
+                    newNotificationContent.className += " textoFoto";
+                    var foto = document.createElement("div");
+                    foto.className = "foto";
+                    if (isElement(data.icon)) foto.appendChild(data.icon); else foto.innerHTML = '<i class="fa ' + data.icon + " " + (data.iconAnimation || "bounce") + ' animated"> </i>';
+                    newNotification.innerHTML.push(foto);
+                }
+                if (typeof data.title !== _undefined) newNotificationContent.innerHTML.push({
+                    type: "span",
+                    innerHTML: data.title
+                });
+                newNotificationContent.innerHTML.push({
+                    type: "p",
+                    innerHTML: data.body
+                });
+                if (typeof data.icon !== _undefined) newNotificationContent.innerHTML.push({
+                    type: "div",
+                    className: "miniIcono",
+                    style: {
+                        backgroundColor: "transparent"
+                    },
+                    innerHTML: {
+                        type: "i",
+                        className: "miniPic fa " + data.icon + " " + (data.iconAnimation || "swing") + " animated",
+                        style: {
+                            color: "#fff"
+                        }
+                    }
+                });
+                newNotification.innerHTML.push(newNotificationContent);
+                return createNewElement(newNotification);
+            },
+            create: function(data) {
+                var smallNotificationsContainer = this.getWrapper();
+                var newNotification = this.generateElement(data);
+                smallNotificationsContainer.appendChild(newNotification);
+                jMod.Notification.Events.addAll(data, jMod.Notification.count);
+                jMod.Notification.count++;
+                jMod.Notification.SmallCount++;
+            },
+            close: function(el, num) {
+                Notification.Events.fire("onBeforeClose", num, null, el);
+                var top = parseInt(el.style.top);
+                var tSib = el;
+                removeClass(el, "fadeIn");
+                addClass(el, "fast");
+                addClass(el, "fadeOut");
+                while (null != tSib.nextElementSibling && tSib.nextElementSibling.hasAttribute("data-jmod-small-notification")) {
+                    tSib = tSib.nextElementSibling;
+                    addClass(tSib, "transitionUp");
+                    setTimeout(function(sib, top) {
+                        sib.style.top = top + "px";
+                    }, 0, tSib, top);
+                    top = top + parseInt(tSib.offsetHeight) + 25;
+                }
+                setTimeout(function(el, num) {
+                    el.style.display = "none";
+                    Notification.Events.fire("onAfterClose", num, null, el);
+                    el.parentElement.removeChild(el);
+                }, 1e3, el, num);
+            },
+            init: function() {
+                var notificationsFullWrapper = Notification("getElement", "notificationsWrapper");
+                var smallNotificationsContainer = this.getWrapper();
+                if (null == smallNotificationsContainer) {
+                    smallNotificationsContainer = document.createElement("div");
+                    smallNotificationsContainer.id = SmallWrapperId;
+                    smallNotificationsContainer.className = "jModSmallNotifications";
+                    notificationsFullWrapper.appendChild(smallNotificationsContainer);
+                }
+            }
+        });
+    }(jMod.Notification);
+    +function(Notification) {
+        var FillWrapperId = "jModFillNotificationsWrapper";
+        Notification.FillCount = 0;
+        Object.defineProperty(Notification, "CurrentFillCount", {
+            get: function() {
+                var fillNotificationsContainer = document.getElementById(FillWrapperId);
+                return jMod.$$("div[data-jmod-fill-notification]", fillNotificationsContainer).length;
+            }
+        });
+        jMod.Notification.Types.add({
+            name: "fill",
+            getWrapper: function() {
+                return document.getElementById(FillWrapperId);
+            },
+            generateElement: function(data) {
+                var newNotification = {
+                    type: "div",
+                    className: "jModFillNotification",
+                    style: {
+                        backgroundColor: "rgba(0, 0, 0, 0.8);"
+                    },
+                    innerHTML: [ {
+                        type: "div",
+                        className: "MessageBoxMiddle",
+                        style: {},
+                        innerHTML: [ {
+                            type: "span",
+                            className: "MsgTitle",
+                            innerHTML: data.title
+                        }, {
+                            type: "p",
+                            className: "pText",
+                            innerHTML: data.body
+                        } ]
+                    } ]
+                };
+                if (data.background) {
+                    var color;
+                    if ("string" === typeof data.background) {
+                        if ((color = parseColorString(data.background)) && _undefined != typeof data["background-opacity"]) color.a = parseFloat(data["background-opacity"]);
+                    } else if ("object" === typeof data.background && _undefined != typeof data.background.color) if ((color = parseColorString(data.background.color)) && _undefined != typeof data.background.opacity) color.a = parseFloat(data.background.opacity);
+                    if (color) newNotification.style.backgroundColor = "rgba(" + color.r + ", " + color.g + ", " + color.b + ", " + (color.a || 0 === parseFloat(color.a) ? parseFloat(color.a) : "0.8") + ")";
+                }
+                var buttonSection = {
+                    type: "div",
+                    className: "MessageBoxButtonSection",
+                    style: {},
+                    innerHTML: [ {
+                        type: "button",
+                        className: "btn btn-default btn-sm botTempo",
+                        innerHTML: "Close",
+                        EventListeners: {
+                            click: function(e) {
+                                if (this === e.target) jMod.Notification.close(e.target);
+                            }
+                        }
+                    } ]
+                };
+                newNotification.innerHTML[0].innerHTML.push(buttonSection);
+                var newNotificationContainer = {
+                    type: "div",
+                    className: "jModFillNotificationContainer animated fadeIn fast",
+                    innerHTML: [ newNotification ],
+                    attributes: {
+                        "data-jmod-notification": Notification.count,
+                        "data-jmod-notification-type": "fill",
+                        "data-jmod-fill-notification": Notification.FillCount
+                    },
+                    EventListeners: {
+                        click: function(e) {
+                            if (this === e.target) {
+                                jMod.Notification.close(this);
+                                eventCancel(e);
+                                return false;
+                            }
+                        }
+                    }
+                };
+                return createNewElement(newNotificationContainer);
+            },
+            create: function(data) {
+                var fillNotificationsContainer = this.getWrapper();
+                var newNotification = this.generateElement(data);
+                fillNotificationsContainer.appendChild(newNotification);
+                jMod.Notification.Events.addAll(data, jMod.Notification.count);
+                jMod.Notification.count++;
+                jMod.Notification.FillCount++;
+            },
+            close: function(el, num) {
+                Notification.Events.fire("onBeforeClose", num, null, el);
+                removeClass(el, "fadeIn");
+                addClass(el, "fadeOut");
+                setTimeout(function(el, num) {
+                    el.style.display = "none";
+                    Notification.Events.fire("onAfterClose", num, null, el);
+                    el.parentElement.removeChild(el);
+                }, 1e3, el, num);
+            },
+            init: function() {
+                var notificationsFullWrapper = Notification("getElement", "notificationsWrapper");
+                var fillNotificationsContainer = this.getWrapper();
+                if (null == fillNotificationsContainer) {
+                    fillNotificationsContainer = document.createElement("div");
+                    fillNotificationsContainer.id = FillWrapperId;
+                    fillNotificationsContainer.className = "jModFillNotifications";
+                    fillNotificationsContainer.style.position = "absolute";
+                    notificationsFullWrapper.appendChild(fillNotificationsContainer);
+                }
+            }
+        });
+    }(jMod.Notification);
     Notification.UpdateNotification = function(data) {
         var options = merge({
             version: "N/A",
@@ -2719,6 +3130,11 @@
             return "jModLargeNotificationsWrapper";
             break;
 
+          case "fillwrapper":
+          case "notificationsfillwrapper":
+            return "jModFillNotificationsWrapper";
+            break;
+
           default:
             return null;
         }
@@ -2744,71 +3160,20 @@
             notification.parentElement.removeChild(notification);
         }
     };
-    Notification.close = function(notification, type, notificationNumber, typeNotificationNumber, event) {
-        if (null != notification) {
-            Notification.Events.fire(notificationNumber, "onBeforeClose", notification, event);
-            switch (type.toLowerCase()) {
-              case "large":
-                notification.setAttribute("class", "jModLargeNotification bigBox animated fadeOut fast");
-                setTimeout(function(target, targetNum, e) {
-                    Notification.remove(target, targetNum);
-                    Notification.Events.fire(targetNum, "onAfterClose", target, e);
-                }, 400, notification, notificationNumber, event);
-                break;
-
-              case "small":
-                notification.setAttribute("class", "jModSmallNotification SmallBox animated fadeOut fast");
-                setTimeout(function(target, targetNum, e) {
-                    Notification.remove(target, targetNum);
-                    Notification.Events.fire(targetNum, "onAfterClose", target, e);
-                }, 400, notification, notificationNumber, event);
-            }
-        }
-    };
-    Notification.Events = {
-        eventListeners: {},
-        events: [ "onBeforeClose", "onAfterClose" ],
-        add: function(notificationNum, eventName, callback) {
-            if (typeof this.eventListeners[notificationNum] === _undefined) this.eventListeners[notificationNum] = {};
-            if (typeof this.eventListeners[notificationNum][eventName] === _undefined) this.eventListeners[notificationNum][eventName] = [];
-            this.eventListeners[notificationNum][eventName].push(callback);
-        },
-        addAll: function(data, notificationNum) {
-            for (var evt in this.events) if ("function" === typeof data[this.events[evt]]) this.add(notificationNum, this.events[evt], data[this.events[evt]]);
-        },
-        fire: function(notificationNum, eventName, notification) {
-            var args, thisNotification, tCB;
-            if (typeof this.eventListeners[notificationNum] !== _undefined && typeof this.eventListeners[notificationNum][eventName] !== _undefined) {
-                if (typeof notification !== _undefined && isElement(notification)) {
-                    thisNotification = notification;
-                    args = Slice.call(arguments, 3);
-                } else {
-                    thisNotification = document.querySelector('div[data-jmod-notification="' + notificationNum + '"]');
-                    if (null == thisNotification) thisNotification = unsafeWindow;
-                    args = Slice.call(arguments, 2);
-                }
-                args.unshift(eventName);
-                while (typeof (tCB = this.eventListeners[notificationNum][eventName].shift()) !== _undefined) tCB.apply(thisNotification, args);
-            }
-        }
+    Notification.Events = new EventsClass([ "onBeforeClose", "onAfterClose" ]);
+    Notification.close = function(data) {
+        var notificationsFullWrapper = Notification("getElement", "notificationsWrapper");
+        var el, num, type, attName = "data-jmod-notification";
+        if ("number" === typeof data) {
+            num = data;
+            el = jMod.$("div[" + attName + '="' + data + '"]', notificationsFullWrapper);
+        } else if (isElement(data)) {
+            if (data.hasAttribute(attName)) el = data; else if (!(el = jMod.$("div[" + attName + "]", data))) if (!(el = jMod.Element.findParentWithAttribute(data, attName))) return;
+            num = parseInt(el.getAttribute(attName));
+        } else return;
+        if (type = el.getAttribute("data-jmod-notification-type")) Notification.Types.callMethod(type, "close", el, num);
     };
     Notification.count = 0;
-    Notification.LargeCount = 0;
-    Notification.SmallCount = 0;
-    Object.defineProperties(Notification, {
-        CurrentLargeCount: {
-            get: function() {
-                var largeNotificationsContainer = Notification("getElement", "notificationsLargeWrapper");
-                return jMod.$$("div[data-jmod-large-notification]", largeNotificationsContainer).length;
-            }
-        },
-        CurrentSmallCount: {
-            get: function() {
-                var smallNotificationsContainer = Notification("getElement", "notificationsSmallWrapper");
-                return jMod.$$("div[data-jmod-small-notification]", smallNotificationsContainer).length;
-            }
-        }
-    });
     Notification.Initialized = false;
     Notification.init = function() {
         if (!jConfig("Notifications.enabled")) return false;
@@ -2822,22 +3187,9 @@
             notificationsFullWrapper.className = "jModNotificationsFullWrapper jmod-na jmod-fa";
             document.body.appendChild(notificationsFullWrapper);
         }
-        var smallNotificationsContainer = Notification("getElement", "notificationsSmallWrapper");
-        if (null == smallNotificationsContainer) {
-            smallNotificationsContainer = document.createElement("div");
-            smallNotificationsContainer.id = Notification("getElementId", "notificationsSmallWrapper");
-            smallNotificationsContainer.className = "jModSmallNotifications";
-            notificationsFullWrapper.appendChild(smallNotificationsContainer);
-        }
-        var largeNotificationsContainer = Notification("getElement", "notificationsLargeWrapper");
-        if (null == largeNotificationsContainer) {
-            largeNotificationsContainer = document.createElement("div");
-            largeNotificationsContainer.id = Notification("getElementId", "notificationsLargeWrapper");
-            largeNotificationsContainer.className = "jModNotifications";
-            notificationsFullWrapper.appendChild(largeNotificationsContainer);
-        }
+        Notification.Types.init();
     };
-    jMod.CSS = '#jModSmallNotificationsWrapper,#jModNotificationsWrapper,.jmod-na .SmallBox span,.jmod-na .bigBox span{font-family:"Open Sans",Arial,Helvetica,sans-serif;}';
+    jMod.CSS = '#jModSmallNotificationsWrapper,#jModNotificationsWrapper,.jmod-na .SmallBox span,.jmod-na .bigBox span{font-family:"Open Sans",Arial,Helvetica,sans-serif;}.jmod-na .jModFillNotification{top:35%;color:#FFF;position:relative;width:100%;background-color:rgba(0,0,0,0.8);padding:20px;z-index:100001;}.jmod-na .jModFillNotificationContainer{width:100%;height:100%;position:fixed;top:0px;left:0px;background:none repeat scroll 0% 0% rgba(0,0,0,0.6);z-index:100000;}';
     jMod.Config.Tabs = jMod.extend({
         enabled: true,
         att: {
@@ -2981,15 +3333,15 @@
     };
     function waitForComputeableWidth(el, callback, count) {
         var computedNav = (window || unsafeWindow).getComputedStyle(el, null);
-        if ((count || 0) < 20 && isNaN(parseInt(computedNav.width))) setTimeout(function(el, callback, count) {
+        if ((count = count || 0) < 50 && isNaN(parseInt(computedNav.width))) setTimeout(function(el, callback, count) {
             waitForComputeableWidth(el, callback, count + 1);
-        }, 20, el, callback, count || 0); else callback(el, computedNav);
+        }, 100, el, callback, count); else callback(el, computedNav);
     }
     function resizeTabs(tabsNav, computedNav) {
         var tabsContent = tabsNav.parentElement.querySelector(".tab-content");
         if (null === tabsContent.offsetParent) return;
         var width = parseInt(computedNav.width);
-        if (isNaN(width)) jModLogWarning("Tabs.resize", "Tab width is NaN!", tabsNav, tabsContent, computedNav); else if (width > 200) jModLogWarning("Tabs.resize", "Tab width too wide!", width, tabsNav); else if (width > 50) tabsContent.style.marginLeft = width + 11 + "px";
+        if (isNaN(width)) if (jMod.debug) jModLogWarning("Tabs.resize", "Tab width is NaN!", tabsNav, tabsContent, computedNav); else if (width > 300) if (jMod.debug) jModLogWarning("Tabs.resize", "Tab width too wide!", width, tabsNav); else if (width > 50) tabsContent.style.marginLeft = width + 11 + "px";
     }
     Tabs.resize = function(tabsNav) {
         waitForComputeableWidth(tabsNav, resizeTabs);
@@ -4741,9 +5093,8 @@
     };
     if (_undefined == typeof jMod.Config.script.script_info && _undefined != typeof GM_info) ScriptInfo.set();
     +function() {
-        var pageLoadTime, totalCallCount = 0;
         const maxCallCount = 200;
-        var InitHandlers = {
+        var pageLoadTime, totalCallCount = 0, doc = document || window.document || unsafeWindow.document || window, InitHandlers = {
             DOMLoaded: function() {
                 Loading.DOMLoaded = true;
                 if (jMod.debug) jModLogTime("DOM Loaded", null, " - Begin Init");
@@ -4775,9 +5126,9 @@
             }
         };
         function tryInit(e) {
-            if (!Loading.DOMLoaded) if ([ "interactive", "complete" ].indexOf(document.readyState.toLowerCase()) != -1) InitHandlers.DOMLoaded();
+            if (!Loading.DOMLoaded) if ([ "interactive", "complete" ].indexOf(doc.readyState.toLowerCase()) != -1) InitHandlers.DOMLoaded();
             if (Loading.DOMLoaded) {
-                if (!Loading.documentComplete && "complete" == document.readyState) InitHandlers.documentComplete();
+                if (!Loading.documentComplete && "complete" == doc.readyState) InitHandlers.documentComplete();
                 if (!Loading.performanceReady) {
                     pageLoadTime = performance.pageLoadTime();
                     if (!isNaN(pageLoadTime) && pageLoadTime > 0 || !performance.available) InitHandlers.performanceReady();
@@ -4804,23 +5155,26 @@
         function checkTimer() {
             if (!Loading.Complete) tryInit("checkTimer"); else clearInterval(checkTimer);
         }
-        window.addEventListener("DOMContentLoaded", function(e) {
+        function onDOMContentLoaded(e) {
             if (!Loading.Complete) tryInit("DOMContentLoaded");
+            doc.removeEventListener("DOMContentLoaded", onDOMContentLoaded, false);
             jMod.Events.fire.apply(jMod.Events, [ "DOMContentLoaded", {
                 _this: this,
                 args: arguments
             } ]);
             if (jMod.debug) jMod.Debug("DOMContentLoaded", e);
-        }, false);
-        document.onreadystatechange = function(e) {
+        }
+        doc.addEventListener("DOMContentLoaded", onDOMContentLoaded, false);
+        doc.onreadystatechange = function(e) {
             if (!Loading.Complete) tryInit("onreadystatechange");
             jMod.Events.fire.apply(jMod.Events, [ "onreadystatechange", {
                 _this: this,
                 args: arguments
             } ]);
-            if (jMod.debug) jMod.Debug("onreadystatechange %c%s%c %o", jMod.log.fmt.stchange, document.readyState, " ", e);
+            if (jMod.debug) jMod.Debug("onreadystatechange %c%s%c %o", jMod.log.fmt.stchange, doc.readyState, " ", e);
         };
         function onLoadEvent(e) {
+            window.removeEventListener("load", onLoadEvent, false);
             jMod.Events.fire.apply(jMod.Events, [ "load", {
                 _this: this,
                 args: arguments

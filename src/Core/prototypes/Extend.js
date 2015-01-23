@@ -1,6 +1,6 @@
 // +@display_name  Extend
 
-RequireScript('Core.TypeOf');
+RequireScript('prototypes.TypeOf');
 
 // Based on jQuery extend
 /**
@@ -43,9 +43,21 @@ jMod.extend = function() {
 			// Extend the base object
 			for ( name in options ) {
 				src = target[ name ];
-				copy = options[ name ];
+				//copy = options[ name ];
+				try {
+					if (
+						(options[ name ].constructor === ({}).constructor || options[ name ]) // will cause scoped objects to throw error
+						|| target // always true
+						)
+					copy = options[ name ];
+				} catch(e) {
+					copy = mCloneInto(options[ name ], target, {
+							cloneFunctions: true,
+							wrapReflectors: true
+						});
+				}
 				// Prevent never-ending loop
-				if ( target === copy ) {
+				if ( target === options[ name ] || target === copy ) {
 					continue;
 				}
 				// Recurse if we're merging plain objects or arrays
@@ -62,7 +74,7 @@ jMod.extend = function() {
 					// Never move original objects, clone them
 				// Don't bring in undefined values
 				} else if ( copy !== undefined ) {
-					try{
+					try {
 						target[ name ] = copy;
 					} catch(e) {
 						target[ name ] = mCloneInto(copy, target, {
@@ -118,7 +130,19 @@ jMod.extendp = function() {
 			// Extend the base object
 			for ( name in options ) {
 				src = target[ name ];
-				copy = options[ name ];
+				//copy = options[ name ];
+				try {
+					if (
+						(options[ name ].constructor === ({}).constructor || options[ name ]) // will cause scoped objects to throw error
+						|| target // always true
+						)
+					copy = options[ name ];
+				} catch(e) {
+					copy = mCloneInto(options[ name ], target, {
+							cloneFunctions: true,
+							wrapReflectors: true
+						});
+				}
 				// Prevent never-ending loop
 				if ( target === copy ) {
 					continue;

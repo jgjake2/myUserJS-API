@@ -45,6 +45,8 @@
 	 * @property {string} API.Storage.engine - Default storage engine [GM_Storage or localStorage] (Will default to localStorage when GM_Storage is not available)
 	 * @property {object} Language
 	 * @property {string} Language.Current - Current language
+	 * @property {object} jQueryExtensions
+	 * @property {object} jQueryExtensions.CrossOrigin - Enable/Disable use of GM_xmlhttpRequest in your jQuery instance after using <b>addCrossOriginSupport</b> on it.
 	 * @property {boolean} debug
 	 * @example
 	 * // Get the current value of script.username
@@ -122,6 +124,9 @@
 		},
 		'Language': {
 			'Current': 'en'
+		},
+		'jQueryExtensions': {
+			'CrossOrigin': true
 		},
 		'debug': {{{DEBUG}}}
 	});
