@@ -109,6 +109,8 @@
             
                 <li data-name="jMod.extendp"><a href="jMod.html#extendp">extendp</a></li>
             
+                <li data-name="jMod.getJSON"><a href="jMod.html#getJSON">getJSON</a></li>
+            
                 <li data-name="jMod.getValue"><a href="jMod.html#getValue">getValue</a></li>
             
                 <li data-name="jMod.Modal(2)"><a href="jMod.html#Modal">jMod.Modal(2)</a></li>
@@ -116,6 +118,8 @@
                 <li data-name="jMod.Notification(2)"><a href="jMod.html#Notification">jMod.Notification(2)</a></li>
             
                 <li data-name="jMod.RealTypeOf"><a href="jMod.html#RealTypeOf">RealTypeOf</a></li>
+            
+                <li data-name="jMod.setJSON"><a href="jMod.html#setJSON">setJSON</a></li>
             
                 <li data-name="jMod.Settings(2)"><a href="jMod.html#Settings">jMod.Settings(2)</a></li>
             
@@ -206,7 +210,11 @@
             
                 <li data-name="jMod.API.GM_Storage.deleteValue"><a href="jMod.API.GM_Storage.html#deleteValue">deleteValue</a></li>
             
+                <li data-name="jMod.API.GM_Storage.getJSON"><a href="jMod.API.GM_Storage.html#getJSON">getJSON</a></li>
+            
                 <li data-name="jMod.API.GM_Storage.getValue"><a href="jMod.API.GM_Storage.html#getValue">getValue</a></li>
+            
+                <li data-name="jMod.API.GM_Storage.setJSON"><a href="jMod.API.GM_Storage.html#setJSON">setJSON</a></li>
             
                 <li data-name="jMod.API.GM_Storage.setValue"><a href="jMod.API.GM_Storage.html#setValue">setValue</a></li>
             
@@ -239,7 +247,11 @@
             
                 <li data-name="jMod.API.localStorage.deleteValue"><a href="jMod.API.localStorage.html#deleteValue">deleteValue</a></li>
             
+                <li data-name="jMod.API.localStorage.getJSON"><a href="jMod.API.localStorage.html#getJSON">getJSON</a></li>
+            
                 <li data-name="jMod.API.localStorage.getValue"><a href="jMod.API.localStorage.html#getValue">getValue</a></li>
+            
+                <li data-name="jMod.API.localStorage.setJSON"><a href="jMod.API.localStorage.html#setJSON">setJSON</a></li>
             
                 <li data-name="jMod.API.localStorage.setValue"><a href="jMod.API.localStorage.html#setValue">setValue</a></li>
             
@@ -263,6 +275,43 @@
             
             </ul>
             <ul class="methods itemMembers">
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="jMod.API.sessionStorage">
+            <span class="title">
+                <a href="jMod.API.sessionStorage.html">jMod.API.sessionStorage</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="jMod.API.sessionStorage.stor"><a href="jMod.API.sessionStorage.html#stor">stor</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="jMod.API.sessionStorage.deleteValue"><a href="jMod.API.sessionStorage.html#deleteValue">deleteValue</a></li>
+            
+                <li data-name="jMod.API.sessionStorage.getJSON"><a href="jMod.API.sessionStorage.html#getJSON">getJSON</a></li>
+            
+                <li data-name="jMod.API.sessionStorage.getValue"><a href="jMod.API.sessionStorage.html#getValue">getValue</a></li>
+            
+                <li data-name="jMod.API.sessionStorage.setJSON"><a href="jMod.API.sessionStorage.html#setJSON">setJSON</a></li>
+            
+                <li data-name="jMod.API.sessionStorage.setValue"><a href="jMod.API.sessionStorage.html#setValue">setValue</a></li>
             
             </ul>
             <ul class="events itemMembers">
@@ -1238,7 +1287,7 @@
     
         
         <div class="tag-source">
-            F:/Projects/jMod/main/bin/jMod.full.js, line 3914
+            F:/Projects/jMod/main/bin/jMod.full.js, line 4175
         </div>
         
     </div>
@@ -1332,6 +1381,8 @@
         <ul>
             <li><a href="jMod.API.localStorage.html">jMod.API.localStorage</a></li>
         
+            <li><a href="jMod.API.sessionStorage.html">jMod.API.sessionStorage</a></li>
+        
             <li><a href="jMod.API.GM_Storage.html">jMod.API.GM_Storage</a></li>
         </ul>
     </dd>
@@ -1365,7 +1416,7 @@
     
         
         <div class="tag-source">
-            F:/Projects/jMod/main/bin/jMod.full.js, line 2133
+            F:/Projects/jMod/main/bin/jMod.full.js, line 2181
         </div>
         
     </div>
@@ -1517,7 +1568,7 @@
     
         
         <div class="tag-source">
-            F:/Projects/jMod/main/bin/jMod.full.js, line 943
+            F:/Projects/jMod/main/bin/jMod.full.js, line 944
         </div>
         
     </div>
@@ -1712,7 +1763,7 @@
     
         
         <div class="tag-source">
-            F:/Projects/jMod/main/bin/jMod.full.js, line 1019
+            F:/Projects/jMod/main/bin/jMod.full.js, line 1024
         </div>
         
     </div>
@@ -1907,6 +1958,170 @@
             
 <dt>
     <div class="nameContainer">
+        <h4 class="name" id="getJSON">
+            
+            <span class="type-signature static">static</span>jMod.getJSON<span class="signature">(key, <span class="optional">def</span>)</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            F:/Projects/jMod/main/bin/jMod.full.js, line 4139
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Get a JSON object from the default storage engine (see <a href="jMod.Config.html"><code>Storage configuration</code></a>)
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>key</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                    
+                    
+                        
+                    
+                
+                name</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>def</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+                        
+                    
+                
+                default value to return if key does not exist</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+	
+
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="jMod.API.localStorage.html">jMod.API.localStorage</a></li>
+        
+            <li><a href="jMod.API.sessionStorage.html">jMod.API.sessionStorage</a></li>
+        
+            <li><a href="jMod.API.GM_Storage.html">jMod.API.GM_Storage</a></li>
+        </ul>
+    </dd>
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
         <h4 class="name" id="getValue">
             
             <span class="type-signature static">static</span>jMod.getValue<span class="signature">(key, <span class="optional">def</span>)</span>
@@ -1914,7 +2129,7 @@
     
         
         <div class="tag-source">
-            F:/Projects/jMod/main/bin/jMod.full.js, line 3885
+            F:/Projects/jMod/main/bin/jMod.full.js, line 4103
         </div>
         
     </div>
@@ -2049,6 +2264,8 @@
         <ul>
             <li><a href="jMod.API.localStorage.html">jMod.API.localStorage</a></li>
         
+            <li><a href="jMod.API.sessionStorage.html">jMod.API.sessionStorage</a></li>
+        
             <li><a href="jMod.API.GM_Storage.html">jMod.API.GM_Storage</a></li>
         </ul>
     </dd>
@@ -2082,7 +2299,7 @@
     
         
         <div class="tag-source">
-            F:/Projects/jMod/main/bin/jMod.full.js, line 5653
+            F:/Projects/jMod/main/bin/jMod.full.js, line 6082
         </div>
         
     </div>
@@ -2237,7 +2454,7 @@
     
         
         <div class="tag-source">
-            F:/Projects/jMod/main/bin/jMod.full.js, line 5067
+            F:/Projects/jMod/main/bin/jMod.full.js, line 5051
         </div>
         
     </div>
@@ -2398,7 +2615,7 @@
     
         
         <div class="tag-source">
-            F:/Projects/jMod/main/bin/jMod.full.js, line 854
+            F:/Projects/jMod/main/bin/jMod.full.js, line 855
         </div>
         
     </div>
@@ -2538,6 +2755,176 @@
             
 <dt>
     <div class="nameContainer">
+        <h4 class="name" id="setJSON">
+            
+            <span class="type-signature static">static</span>jMod.setJSON<span class="signature">(key, <span class="optional">value</span>)</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            F:/Projects/jMod/main/bin/jMod.full.js, line 4157
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Set an object in the default storage engine (see <a href="jMod.Config.html"><code>Storage configuration</code></a>)
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>key</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                    
+                    
+                        
+                    
+                
+                name</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">boolean</span>
+|
+
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+                        
+                    
+                
+                value to be set</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+	
+
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="jMod.API.localStorage.html">jMod.API.localStorage</a></li>
+        
+            <li><a href="jMod.API.sessionStorage.html">jMod.API.sessionStorage</a></li>
+        
+            <li><a href="jMod.API.GM_Storage.html">jMod.API.GM_Storage</a></li>
+        </ul>
+    </dd>
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
         <h4 class="name" id="Settings">
             
             <span class="type-signature static">static</span>jMod.Settings(2)<span class="signature">(data, <span class="optional">data2</span>)</span>
@@ -2545,7 +2932,7 @@
     
         
         <div class="tag-source">
-            F:/Projects/jMod/main/bin/jMod.full.js, line 6143
+            F:/Projects/jMod/main/bin/jMod.full.js, line 6572
         </div>
         
     </div>
@@ -2700,7 +3087,7 @@
     
         
         <div class="tag-source">
-            F:/Projects/jMod/main/bin/jMod.full.js, line 3900
+            F:/Projects/jMod/main/bin/jMod.full.js, line 4121
         </div>
         
     </div>
@@ -2835,6 +3222,8 @@
         <ul>
             <li><a href="jMod.API.localStorage.html">jMod.API.localStorage</a></li>
         
+            <li><a href="jMod.API.sessionStorage.html">jMod.API.sessionStorage</a></li>
+        
             <li><a href="jMod.API.GM_Storage.html">jMod.API.GM_Storage</a></li>
         </ul>
     </dd>
@@ -2874,7 +3263,7 @@
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha11</a> on Tue Jan 20 2015 09:48:34 GMT-0600 (CST)
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha11</a> on Fri Jan 23 2015 00:01:14 GMT-0600 (CST)
         </footer>
     </div>
 </div>

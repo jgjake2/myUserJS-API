@@ -724,7 +724,7 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="jMod.Events.html">Namespace: Events</h1>
+        <h1 class="page-title" data-filename="jMod.API.sessionStorage.html">Namespace: sessionStorage</h1>
         
 
 
@@ -733,9 +733,9 @@
     
 <header>
     <h2>
-        <span class="ancestors"><a href="jMod.html">jMod</a>.</span>
+        <span class="ancestors"><a href="jMod.html">jMod</a><a href="jMod.API.html">.API</a>.</span>
     
-    Events
+    sessionStorage
     </h2>
     
 </header>  
@@ -746,6 +746,8 @@
     
     
         
+            <div class="description">Shim for interacting with sessionStorage</div>
+        
 		
         
 <dl class="details">
@@ -755,9 +757,6 @@
         
     
     
-    
-    <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>0.0.9</dd>
     
 
     
@@ -792,6 +791,57 @@
     
     
     
+    
+        <h3 class="subsection-title">Members</h3>
+        
+        <dl>
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="stor"><span class="type-signature static">static</span>jMod.API.sessionStorage.stor<span class="type-signature type object">object</span> </h4>
+    </div>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Getter function that retrieves the sessionStorage object
+    </div>
+    
+    
+    
+<dl class="details">
+    
+	
+
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+</dd>
+
+        </dl>
     
     
     
@@ -801,14 +851,14 @@
             
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="addEvent">
+        <h4 class="name" id="deleteValue">
             
-            <span class="type-signature static">static</span>jMod.Events.addEvent<span class="signature">(name, <span class="optional">recordEvent</span>)</span>
+            <span class="type-signature static">static</span>jMod.API.sessionStorage.deleteValue<span class="signature">(key)</span>
         </h4>
     
         
         <div class="tag-source">
-            F:/Projects/jMod/main/bin/jMod.full.js, line 3168
+            F:/Projects/jMod/main/bin/jMod.full.js, line 4079
         </div>
         
     </div>
@@ -817,10 +867,6 @@
 </dt>
 <dd>
     
-    
-    <div class="description">
-        Add a new event to the event list. Listeners can be added via "jMod.EVENTNAME = function(e, args, ...){...}" OR "jMod.Events.addListener(EVENTNAME, function(e, args, ...){...}, true)"
-    </div>
     
 
     
@@ -840,8 +886,6 @@
 		<th>Type</th>
 		
 		
-		<th>Default</th>
-		
 		
 		<th class="last">Description</th>
 	</tr>
@@ -852,7 +896,7 @@
 	
         <tr>
             
-                <td class="name"><code>name</code></td>
+                <td class="name"><code>key</code></td>
             
             
             <td class="type">
@@ -865,55 +909,10 @@
             </td>
             
             
-                <td class="default">
-                
-                </td>
-            
             
             <td class="description last">
                 
-                    
-                    
-                        
-                    
-                
-                Name of the event</td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>recordEvent</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-            
-            
-                <td class="default">
-                
-                    true
-                
-                </td>
-            
-            
-            <td class="description last">
-                
-                    
-                        <span class="optional">optional</span>
-                    
-                    
-                        
-                    
-                
-                (if true) When fired, the firing arguments are recorded. If a listener is later added to the event, it is immediately called with the previous firing arguments.</td>
+                name to be deleted</td>
         </tr>
 	
 	
@@ -966,14 +965,14 @@
             
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="addEvent">
+        <h4 class="name" id="getJSON">
             
-            <span class="type-signature static">static</span>jMod.Events.addEvent<span class="signature">(name, <span class="optional">arguments</span>)</span>
+            <span class="type-signature static">static</span>jMod.API.sessionStorage.getJSON<span class="signature">(key, <span class="optional">def</span>)</span>
         </h4>
     
         
         <div class="tag-source">
-            F:/Projects/jMod/main/bin/jMod.full.js, line 3201
+            F:/Projects/jMod/main/bin/jMod.full.js, line 4063
         </div>
         
     </div>
@@ -982,10 +981,6 @@
 </dt>
 <dd>
     
-    
-    <div class="description">
-        Fire an event by name
-    </div>
     
 
     
@@ -1015,7 +1010,7 @@
 	
         <tr>
             
-                <td class="name"><code>name</code></td>
+                <td class="name"><code>key</code></td>
             
             
             <td class="type">
@@ -1036,20 +1031,20 @@
                         
                     
                 
-                Name of the event to be fired</td>
+                name</td>
         </tr>
 	
 	
 	
         <tr>
             
-                <td class="name"><code>arguments</code></td>
+                <td class="name"><code>def</code></td>
             
             
             <td class="type">
             
                 
-<span class="param-type">*</span>
+<span class="param-type">object</span>
 
 
             
@@ -1065,10 +1060,8 @@
                     
                         
                     
-                        <span class="repeatable">repeatable</span>
-                    
                 
-                Arguments used when triggering the callback functions.</td>
+                default value to return if key does not exist</td>
         </tr>
 	
 	
@@ -1121,14 +1114,14 @@
             
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="addListener">
+        <h4 class="name" id="getValue">
             
-            <span class="type-signature static">static</span>jMod.Events.addListener<span class="signature">(name, callback, <span class="optional">fireRecorded</span>)</span>
+            <span class="type-signature static">static</span>jMod.API.sessionStorage.getValue<span class="signature">(key, <span class="optional">def</span>)</span>
         </h4>
     
         
         <div class="tag-source">
-            F:/Projects/jMod/main/bin/jMod.full.js, line 3186
+            F:/Projects/jMod/main/bin/jMod.full.js, line 4027
         </div>
         
     </div>
@@ -1137,10 +1130,6 @@
 </dt>
 <dd>
     
-    
-    <div class="description">
-        Add a listener for a specified event
-    </div>
     
 
     
@@ -1160,8 +1149,6 @@
 		<th>Type</th>
 		
 		
-		<th>Default</th>
-		
 		
 		<th class="last">Description</th>
 	</tr>
@@ -1172,7 +1159,7 @@
 	
         <tr>
             
-                <td class="name"><code>name</code></td>
+                <td class="name"><code>key</code></td>
             
             
             <td class="type">
@@ -1185,10 +1172,6 @@
             </td>
             
             
-                <td class="default">
-                
-                </td>
-            
             
             <td class="description last">
                 
@@ -1197,63 +1180,31 @@
                         
                     
                 
-                Name of the event to listen for</td>
+                name</td>
         </tr>
 	
 	
 	
         <tr>
             
-                <td class="name"><code>callback</code></td>
+                <td class="name"><code>def</code></td>
             
             
             <td class="type">
             
                 
-<span class="param-type">function</span>
+<span class="param-type">string</span>
+|
 
-
-            
-            </td>
-            
-            
-                <td class="default">
-                
-                </td>
-            
-            
-            <td class="description last">
-                
-                    
-                    
-                        
-                    
-                
-                Callback function.</td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>fireRecorded</code></td>
-            
-            
-            <td class="type">
-            
-                
 <span class="param-type">boolean</span>
+|
+
+<span class="param-type">number</span>
 
 
             
             </td>
             
-            
-                <td class="default">
-                
-                    true
-                
-                </td>
             
             
             <td class="description last">
@@ -1265,7 +1216,311 @@
                         
                     
                 
-                If the event is a recording event, immediately trigger the callback with the arguments from the previous firing event.</td>
+                default value to return if key does not exist</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+	
+
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="setJSON">
+            
+            <span class="type-signature static">static</span>jMod.API.sessionStorage.setJSON<span class="signature">(key, <span class="optional">value</span>)</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            F:/Projects/jMod/main/bin/jMod.full.js, line 4046
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>key</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                    
+                    
+                        
+                    
+                
+                name</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+                        
+                    
+                
+                value to be set</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+	
+
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="setValue">
+            
+            <span class="type-signature static">static</span>jMod.API.sessionStorage.setValue<span class="signature">(key, <span class="optional">value</span>)</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            F:/Projects/jMod/main/bin/jMod.full.js, line 4037
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>key</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                    
+                    
+                        
+                    
+                
+                name</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">boolean</span>
+|
+
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+                        
+                    
+                
+                value to be set</td>
         </tr>
 	
 	
