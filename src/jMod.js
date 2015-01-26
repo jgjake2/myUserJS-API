@@ -21,6 +21,7 @@
 // @grant            GM_deleteValue
 // @unwrap
 // @run-at           document-start
+// +@history         (0.0.18) Looks for resource to load css from when available.
 // +@history         (0.0.18) Started cleaning up Notifications.
 // +@history         (0.0.18) Added sessionStorage.
 // +@history         (0.0.18) Added jQueryExtensions.
@@ -122,14 +123,14 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 		_jQueryAvailable = EXISTS($)?true:false,
 		jModReady = -1,
 		//({{{DEBUG}}} ? "@import url(//test2.myuserjs.org/css/smartadmin-production-all-namespaced.css);\n" : "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n")
-		_css = "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n"
-		+"@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n"
+		_css = "@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n"
 		+"@font-face {font-family: 'Sansation';font-style: normal;font-weight: 400;src: local('Sansation Regular'), local('Sansation-Regular'), url(http://myuserjs.org/fonts/Sansation-Regular.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: normal;font-weight: 300;src: local('Sansation Light'), local('Sansation-Light'), url(http://myuserjs.org/fonts/Sansation-Light.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 300;src: local('Sansation Light Italic'), local('Sansation-LightItalic'), url(http://myuserjs.org/fonts/Sansation-LightItalic.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: normal;font-weight: 700;src: local('Sansation Bold'), local('Sansation-Bold'), url(http://myuserjs.org/fonts/Sansation-Bold.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 400;src: local('Sansation Italic'), local('Sansation-Italic'), url(http://myuserjs.org/fonts/Sansation-Italic.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 700;src: local('Sansation Bold Italic'), local('Sansation-BoldItalic'), url(http://myuserjs.org/fonts/Sansation-BoldItalic.ttf) format('ttf');}\n",
+		defaultjModCSSURL = "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n",
 		CurrentRunningScript = {
 			id: 'jMod',
 			config: {},
@@ -188,8 +189,7 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	Object.defineProperty(jMod, 'debug', {
 		get: function(){
 			try{
-				//return jMod.Config.debug || jMod._debug;
-				return _undefined!==typeof jMod.Config.debug?jMod.Config.debug:jMod._debug;
+				return EXISTS(jMod.Config.debug)?jMod.Config.debug:jMod._debug;
 			}catch(e){
 				return jMod._debug;
 			}
@@ -202,27 +202,22 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	
 	Object.defineProperty(jMod, 'jQueryAvailable', {
 		get: function(){
-			if(_jQueryAvailable)
-				return _jQueryAvailable;
-			if(EXISTS($)){
+			if(_jQueryAvailable || EXISTS($))
 				return (_jQueryAvailable = true);
-			}
-			if(EXISTS(jQuery)){
-				$ = jQuery;
-				return (_jQueryAvailable = true);
-			}
-			if(EXISTS(unsafeWindow.jQuery)){
-				$ = unsafeWindow.jQuery;
-				return (_jQueryAvailable = true);
-			}
+			
+			if(EXISTS(jQuery))
+				return ($ = jQuery, _jQueryAvailable = true);
+			
+			if(EXISTS(unsafeWindow.jQuery))
+				return ($ = unsafeWindow.jQuery, _jQueryAvailable = true);
+			
 			return false;
 		},
 		set: function(val){
 			_jQueryAvailable = (val?true:false);
 			try{
-				if(RealTypeOf(val) == "jQuery"){
+				if(RealTypeOf(val) == "jQuery")
 					$ = val;
-				}
 			}catch(e){}
 		},
 		enumerable: false
@@ -261,8 +256,6 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 		Complete: false
 	};
 	
-	
-	
 	Object.defineProperty(jMod, 'CSS', {
 		get: function(){
 			return _css;
@@ -300,10 +293,26 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	 ** Get Script Info
 	 **********************************/
 	ImportScript('Core.ScriptInfo');
-	
-	if(NOTEXISTS(jMod.Config.script.script_info) && EXISTS(GM_info)){
-		ScriptInfo.set();
+	var cssResourceAdded = false;
+	if(EXISTS(GM_info) || EXISTS(GM_getMetadata)){
+		try{
+			ScriptInfo.set();
+		}catch(e){}
+		// If script has a resource named "jModCSS", load it instead of importing the remote url
+		
+		var resources = jConfig('script.script_info.resource');
+		if(resources && resources.jModCSS && EXISTS(GM_getResourceText)){
+			try{
+				var tmp = GM_getResourceText('jModCSS');
+				if(tmp && tmp != ''){
+					_css += tmp;
+					cssResourceAdded = true;
+				}
+			}catch(e){}
+		}
 	}
+	if(!cssResourceAdded)
+		_css = defaultjModCSSURL + _css;
 	
 	/***********************************
 	 ** Language
@@ -325,13 +334,16 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	 **********************************/
 	ImportScript('API.log');
 	
-	
 	jMod.log.Info('Loading jMod API v' + jMod.version + ' ' + jMod.build_type + (jMod.debug ? ' (debug enabled)' : '') + ' - ' + (new Date(parseInt(jMod.build_time))).toString());
 	
 	if(jMod.debug){
 		jModLogTime('jMod Init Start Time');
 		
 		jMod.log.group('jMod Start');
+		
+		if(jConfig.script.script_info)
+			jModLogInfo('ScriptInfo.set', 'Get Script_Info Successful!!', jConfig.script.script_info);
+		
 		jMod.log.group('jMod Initialize');
 		
 		if(CurrentRunningScript.el){
