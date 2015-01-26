@@ -75,14 +75,6 @@
 						caller_lineNumber: callerScriptInfo.lineNumber,
 						caller_functionName: callerScriptInfo.functionName
 					};
-					/*
-					output.userscript_full_file_name = callerScriptInfo.fileName;
-					output.userscript_file_name = callerScriptInfo.fileName.substr(0, callerScriptInfo.fileName.length - 8);
-					output.userscript_file_path = callerScriptInfo.fullFileName;
-					output.call_lineNumber = callerScriptInfo.lineNumber;
-					output.call_functionName = callerScriptInfo.functionName;
-					jConfig.script.script_file_info = output;
-					*/
 					if(jMod.debug)
 						jModLogInfo('ScriptInfo', 'Get Script File Info Successful!!', output, callerScriptInfo);
 					return output;
