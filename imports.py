@@ -308,10 +308,11 @@ class Source:
             self.coreFile.fileContent = tTest.insertTest(self.coreFile.fileContent);
         
     def build(self):
+        self.addTests()
         self.processCoreImports()
         #self.removeConditionalBlocks()
         
-        self.addTests()
+        
         
         self.coreFile.fileContent = removeConditionalBlocks("DEBUG_ONLY", self.coreFile.fileContent, not self.debug)
         self.coreFile.fileContent = removeConditionalBlocks("RELEASE_ONLY", self.coreFile.fileContent, not self.release)

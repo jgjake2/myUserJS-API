@@ -32,18 +32,19 @@ class ScriptTest:
         if(self.insert['target'] == 'end'):
             ret = ret + self.content
         else:
-            print(self.insert['target'])
+            tgt = self.insert['target'].replace(".", "\\.");
             pattern = re.compile(r"[^\S\r\n]*(?<!\w)ImportScript\([\'\"]"+self.insert['target']+"[\'\"]\)\;?[^\S\r\n]*", re.MULTILINE)
             m=pattern.search(ret)
             
             if(m is not None):
-                if(self.insert['rel'] == 'before' and self.insert['target'] != "end"):
-                    print('insert before ' + self.insert['target'])
-                    #ret = ret.replace('{{{'+self.insert['target']+'}}}', self.content + '\n{{{'+self.insert['target']+'}}}')
+                if(self.insert['rel'] == 'before'):
                     ret = ret.replace(m.group(0), self.content + "\n" + m.group(0))
-                else:
+                elif(self.insert['rel'] == 'after'):
                     ret = ret.replace(m.group(0), m.group(0) + "\n" + self.content)
-                    #ret = ret.replace('{{{'+self.insert['target']+'}}}', '{{{'+self.insert['target']+'}}}\n' + self.content)
+                else:
+                    ret = ret + self.content
+            else:
+                print("Could not add test: ", self.insert['target'])
             '''
             m=re.match('{{{' + self.insert['target'] + '}}}', ret, re.MULTILINE + re.IGNORECASE)
             if(m is not None):
