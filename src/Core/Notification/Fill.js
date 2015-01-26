@@ -126,7 +126,7 @@
 				el.style.display = 'none';
 				Notification.Events.fire('onAfterClose', num, null, el);
 				el.parentElement.removeChild(el);
-			}, 1000, el, num);
+			}, 800, el, num);
 		},
 		
 		init: function(){
