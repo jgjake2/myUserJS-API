@@ -143,3 +143,12 @@
  * @example
  * ISBOOLEAN&#40;foo&#41; //result: ISBOOLEAN(foo)
  */
+ 
+/**
+ * <span class="macro-overload-count">0 Overloads</span> Check if "a" is a string
+ * @name ISSTRING
+ * @memberof Macros
+ * @property {boolean} ISSTRING - <span class="macro-argument-count">1 Argument(s)</span> ISSTRING(a)
+ * @example
+ * ISSTRING&#40;foo&#41; //result: ISSTRING(foo)
+ */
