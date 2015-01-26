@@ -14,10 +14,10 @@ InitHandlers = {
 	DOMLoaded: function(){
 		Loading.DOMLoaded = true;
 		if(jMod.debug) jModLogTime('DOM Loaded', null, ' - Begin Init');
-		jMod.Events.fire('onDOMReady');
-		//jMod.API.contentEval(onErrorFunction);
 		Loading.CSSAdded = true;
 		jMod.AddCSS();
+		jMod.Events.fire('onDOMReady');
+		//jMod.API.contentEval(onErrorFunction);
 		jMod.Notification.init();
 		jMod.Modal.init();
 		jMod.Settings.init();
