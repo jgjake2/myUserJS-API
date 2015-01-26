@@ -4,6 +4,7 @@
 // +@history (0.0.15) Removed ref to jMod.fn (__proto__ is depreciated).
 // +@history (0.0.16) Moved into a "jMod.ScriptInfo" function.
 // +@history (0.0.17) Added enable/disable configuration and logging for "getScriptFileInfo".
+// +@history (0.0.18) Minification improvements.
 
 	// Parse Stack
 	RequireScript('Core.ParseStack');
@@ -37,13 +38,10 @@
 	ScriptInfo.gotFileInfo = false;
 	
 	ScriptInfo.getScriptFileInfo = function(){
-		if(!jConfig.getScriptFileInfo)
-			return;
-			
-		if(ScriptInfo.gotFileInfo)
+		if(ScriptInfo.gotFileInfo || !jConfig.getScriptFileInfo)
 			return jConfig.script.script_file_info;
-			
-		var i,
+
+		var i = 0,
 			tStack,
 			callerScriptInfo,
 			output = {},
@@ -56,10 +54,10 @@
 		tStack = jMod.parseStack(tStackStr);
 		if(tStack.length > 0){
 			//for(i = tStack.length - 1; i >= 0; i--){
-			for(i = 0; i < tStack.length; i++){
+			for(i; i < tStack.length; i++){
 				callerScriptInfo = tStack[i];
 				// Find jMod in the stack
-				if(_undefined===typeof jConfig.jMod_File_Path && ['jmod.js', 'jmod.min.js', 'jmod.full.js', 'jmod.min.expanded.js', 'mujs.js', 'mujs.min.js'].indexOf(callerScriptInfo.fileName.toLowerCase()) != -1){
+				if(NOTEXISTS(jConfig.jMod_File_Path) && ['jmod.js', 'jmod.min.js', 'jmod.full.js', 'jmod.min.expanded.js', 'mujs.js', 'mujs.min.js'].indexOf(callerScriptInfo.fileName.toLowerCase()) != -1){
 					jConfig.jMod_Full_File_Name = callerScriptInfo.fileName;
 					jConfig.jMod_File_Name = callerScriptInfo.fileName.substr(0, callerScriptInfo.fileName.length - 3);
 					jConfig.jMod_File_Path = callerScriptInfo.fullFileName;
@@ -76,7 +74,7 @@
 						caller_functionName: callerScriptInfo.functionName
 					};
 					if(jMod.debug)
-						jModLogInfo('ScriptInfo', 'Get Script File Info Successful!!', output, callerScriptInfo);
+						jModLogInfo('ScriptInfo.getScriptFileInfo', 'Get Script File Info Successful!!', output, callerScriptInfo);
 					return output;
 				}
 			}
@@ -86,69 +84,73 @@
 	
 	Object.defineProperty(ScriptInfo, 'InfoSet', {
 		get: function(){
-			return (typeof jConfig('script.script_info') !== _undefined);
+			return (EXISTS(jConfig.script.script_info));
 		}
 	});
 	
 	ScriptInfo.set = function(data){
-		var output = {};
+		var callerScriptInfo, gm_info, scriptMetaStr, pMetaData, key, tmp, urlInfo,
+			output = {};
 		try{
-			var callerScriptInfo = ScriptInfo.getScriptFileInfo();
-			if(typeof callerScriptInfo !== _undefined)
+			callerScriptInfo = ScriptInfo.getScriptFileInfo();
+			if(EXISTS(callerScriptInfo))
 				output = jMod.extend(output, callerScriptInfo);
 		} catch(e) {}
 		
 		try{
-			var gm_info;
-			var scriptMetaStr;
-			var pMetaData;
 			
-			if(typeof data === _undefined && typeof GM_info !== _undefined){
-				data = {
-					'gm_info': GM_info,
-					'has_GM_info': true,
-					'has_GM_getMetadata': (typeof GM_getMetadata === _undefined ? false : true)
-				}
+			if(typeof data === _undefined && (EXISTS(GM_info) || EXISTS(GM_getMetadata))){
+				try{
+					data = {
+						'gm_info': EXISTS(GM_info) ? GM_info : GM_getMetadata(),
+						'has_GM_info': EXISTS(GM_info),
+						'has_GM_getMetadata': EXISTS(GM_getMetadata)
+					}
+				}catch(e){}
 			}
 			
 			if(typeof data === "object"){
-				gm_info = getFirstValidKeyValue(data, ['GM_info', 'gm_info', 'ginfo']);
-				if(typeof gm_info === _undefined && typeof data.scriptSource !== _undefined)
+				//gm_info = getFirstValidKeyValue(data, ['GM_info', 'gm_info', 'ginfo']);
+				gm_info = data.GM_info || data.gm_info || data.ginfo;
+				if(NOTEXISTS(gm_info) && EXISTS(data.scriptSource))
 					gm_info = data;
-				if(typeof gm_info !== _undefined && typeof gm_info.scriptMetaStr !== _undefined){
+				if(EXISTS(gm_info) && EXISTS(gm_info.scriptMetaStr)){
 					scriptMetaStr = gm_info.scriptMetaStr;
 				}
 			} else if(typeof data === "string"){
 				scriptMetaStr = data;
 			}
 			
-			if(typeof scriptMetaStr !== _undefined){
+			if(EXISTS(scriptMetaStr)){
 				pMetaData = jMod.API.ParseMetaData(scriptMetaStr);
 				
-				for(var key in pMetaData){
-					if(typeof output[key] === _undefined) output[key] = pMetaData[key];
+				for(key in pMetaData){
+					if(NOTEXISTS(output[key]))
+						output[key] = pMetaData[key];
 				}
 			}
 			
-			if(typeof gm_info !== _undefined){
-				//console.log(gm_info);
-				
-				if(typeof gm_info.script !== _undefined){
-					for(var key in gm_info.script){
+			if(EXISTS(gm_info)){
+				if(EXISTS(gm_info.script)){
+					for(key in gm_info.script){
 						if(typeof output[key] === _undefined) output[key] = gm_info.script[key];
 					}
+				} else {
+					//jModLogWarning('ScriptInfo', 'GM_info.script does not exist', gm_info, data);
+					console.warn('ScriptInfo', 'GM_info.script does not exist', gm_info, data);
 				}
 				
-				if(typeof gm_info.uuid !== _undefined){
+				if(EXISTS(gm_info.uuid)){
 					output['gmUUID'] = gm_info.uuid;
-				} else if(typeof gm_info.script.uuid !== _undefined){
+				} else if(EXISTS(gm_info.script.uuid)){
 					output['gmUUID'] = gm_info.script.uuid;
 				}
 				
-				if(typeof gm_info.scriptHandler !== _undefined){
+				if(EXISTS(gm_info.scriptHandler)){
 					if(gm_info.scriptHandler.toLowerCase() == 'tampermonkey'){
 						output.script_handler = 'Tampermonkey';
 						output.script_handler_version = gm_info.version;
+						jConfig.getScriptFileInfo = false; // Tampermonkey is too secure for this
 					} else if(gm_info.scriptHandler.toLowerCase() == 'greasemonkey'){
 						output.script_handler = 'Greasemonkey';
 						output.script_handler_version = gm_info.version;
@@ -162,32 +164,26 @@
 				
 			}
 			
-			if(typeof pMetaData !== _undefined){	
-				//console.log('pMetaData', pMetaData);
-				
-				var urlInfo;
-				var key = getFirstValidKey(pMetaData, ['downloadURL', 'updateURL', 'jModupdateURL', 'jModUpdateURL', 'jModdownloadURL', 'jModDownloadURL'], function(k, val){return jMod.ScriptInfo.getURLInfo(val);});
-				if(typeof key !== _undefined && (urlInfo = ScriptInfo.getURLInfo(pMetaData[key]))){
-					//console.log('urlInfo', urlInfo);
-					jConfig('script.username', urlInfo.username);
-					jConfig('script.script_name', urlInfo.script_name);
+			if(EXISTS(pMetaData)){	
+				key = getFirstValidKey(pMetaData, ['downloadURL', 'updateURL', 'jModupdateURL', 'jModUpdateURL', 'jModdownloadURL', 'jModDownloadURL'], function(k, val){return jMod.ScriptInfo.getURLInfo(val);});
+				if(EXISTS(key) && (urlInfo = ScriptInfo.getURLInfo(pMetaData[key]))){
+					jConfig.script.username = urlInfo.username;
+					jConfig.script.script_name = urlInfo.script_name;
 					if(['meta', 'metajs', 'data'].indexOf(urlInfo.get_type.toLowerCase()) != -1){
-						jConfig('script.get_type', urlInfo.get_type.toLowerCase());
+						jConfig.script.get_type = urlInfo.get_type.toLowerCase();
 					}
 				} else {
-					var tmp;
 					if((tmp = getFirstValidKeyValue(pMetaData, ['jModusername', 'jMod_username'])))
-						jConfig('script.username', tmp);
+						jConfig.script.username = tmp;
 						
 					if((tmp = getFirstValidKeyValue(pMetaData, ['jModscriptname', 'jMod_script_name'])))
-						jConfig('script.script_name', tmp);
+						jConfig.script.script_name = tmp;
 				}
 				
-				if(typeof pMetaData['jMod'] != _undefined){
+				if(EXISTS(pMetaData.jMod)){
 					try{
-						var tmpConfig = JSON.parse(pMetaData['jMod']);
-						if(tmpConfig)
-							jMod.extend(true, jMod.Config, tmpConfig);
+						if(tmp = JSON.parse(pMetaData['jMod']))
+							jMod.extend(true, jMod.Config, tmp);
 					} catch(e) {
 						//console.error('Error parsing options in MetaBlock', e);
 						jModError(e, 'ScriptInfo.set', 'Error parsing options in MetaBlock');
@@ -198,8 +194,8 @@
 			}
 			
 		} catch(e) {
-			//console.error('Error ScriptInfo.set', e);
-			jModError(e, 'ScriptInfo.set');
+			console.error('Error ScriptInfo.set', e);
+			//jModError(e, 'ScriptInfo.set');
 		}
 		
 		Object.defineProperty(jMod.Config.script, 'script_info', {
@@ -209,13 +205,15 @@
 			configurable: false
 		});
 		
+		//if(output && output.name && jMod.debug)
+			//console.info('ScriptInfo.set - Get Script_Info Successful!!', output);
+		
 		
 		return Object.freeze(output);
 	}
 	
 	ScriptInfo.get = function(){
-		//var r = jConfig('script.script_info');
 		var r = jMod.Config.script.script_info;
-		return (typeof r != _undefined ? r : ScriptInfo.set.apply(this, arguments));
+		return (EXISTS(r) ? r : ScriptInfo.set.apply(this, arguments));
 	}
 	
