@@ -24,8 +24,19 @@ jMod is a library of useful tools for userscript authors with features ranging f
 					<li><a href="#jMod_jQuery_xmlhttpRequest">GM_xmlhttpRequest in jQuery Ajax Requests</a></li>
 				</ul>
 			</li>
+		</ul>
+	</dd>
+	<dt><a href="todo">ToDo / Goals</a></dt>
+	<dd>
+		<ul>
 			<li>
-				<a href="todo">ToDo / Goals</a>
+				<a href="#todo_exportCrossOriginSupport">exportCrossOriginSupport</a>
+			</li>
+			<li>
+				<a href="#todo_mCloneInto">mCloneInto</a>
+			</li>
+			<li>
+				<a href="#todo_CSS">CSS</a>
 			</li>
 		</ul>
 	</dd>
@@ -182,8 +193,8 @@ if($){
 ```
 
 <a name="todo"></a>
-##ToDo / Goals
+#ToDo / Goals
 
-- [ ] <b>jMod.jQueryExtensions.addCrossOriginSupport</b><br />I need to add a version called <b>jMod.jQueryExtensions.exportCrossOriginSupport</b>. This would an exported function instead of adding the functions directly. This is for users that want to add cross origin support to a jQuery instance in the public scope from a privileged script. This will prevent any errors caused by an unsafe function trying to indirectly call GM_xmlhttpRequest.<br /><br />This would, from the script author's perspective, work exactly the same as addCrossOriginSupport. However, a function has to be exported (via <b>ExportFunction</b>) to the public scope. This function is what jQuery will actually call, which itself calls the real function available inside jMod.
-- [ ] <b>mCloneInto</b><br />This jMod cloning function needs a better method for cloning objects when <b>cloneInto</b> is unavailable / not working. I have already created a function called <b>jMod.CloneProperties</b> that can clone an object in a manor similar to jQuery's <b>extend</b> method. However, CloneProperties copies non-enumerable properties and reconstructs their property constructors manually. This is a start, but it still needs a lot of work before it can be put into production.
-- [ ] <b>CSS</b><br />jMod uses a stripped-down, namespaced version of bootstrap, fontawesome, and a few other libraries. However, it still comes out to over 270kb! So it still needs to be worked on and trimmed down. Additionally, there is one library that the licensing is ambiguous and needs to be phased out before long.
+- [x] <a name="todo_exportCrossOriginSupport"></a><b>jMod.jQueryExtensions.addCrossOriginSupport</b><br />I need to add a version called <b>jMod.jQueryExtensions.exportCrossOriginSupport</b>. This would an exported function instead of adding the functions directly. This is for users that want to add cross origin support to a jQuery instance in the public scope from a privileged script. This will prevent any errors caused by an unsafe function trying to indirectly call GM_xmlhttpRequest.<br /><br />This would, from the script author's perspective, work exactly the same as addCrossOriginSupport. However, a function has to be exported (via <b>ExportFunction</b>) to the public scope. This function is what jQuery will actually call, which itself calls the real function available inside jMod.
+- [ ] <a name="todo_mCloneInto"></a><b>mCloneInto</b><br />This jMod cloning function needs a better method for cloning objects when <b>cloneInto</b> is unavailable / not working. I have already created a function called <b>jMod.CloneProperties</b> that can clone an object in a manor similar to jQuery's <b>extend</b> method. However, CloneProperties copies non-enumerable properties and reconstructs their property constructors manually. This is a start, but it still needs a lot of work before it can be put into production.
+- [ ] <a name="todo_CSS"></a><b>CSS</b><br />jMod uses a stripped-down, namespaced version of bootstrap, fontawesome, and a few other libraries. However, it still comes out to over 270kb! So it still needs to be worked on and trimmed down. Additionally, there is one library that the licensing is ambiguous and needs to be phased out before long.
