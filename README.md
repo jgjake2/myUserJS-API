@@ -24,6 +24,9 @@ jMod is a library of useful tools for userscript authors with features ranging f
 					<li><a href="#jMod_jQuery_xmlhttpRequest">GM_xmlhttpRequest in jQuery Ajax Requests</a></li>
 				</ul>
 			</li>
+			<li>
+				<a href="todo">ToDo / Goals</a>
+			</li>
 		</ul>
 	</dd>
 </dl>
@@ -177,3 +180,28 @@ if($){
 	console.log('Test Failed! No jQuery');
 }
 ```
+
+<a name="todo"></a>
+##ToDo / Goals
+<ul>
+	<li>
+		**jMod.jQueryExtensions.addCrossOriginSupport**
+		<p>
+I need to add a version called **jMod.jQueryExtensions.exportCrossOriginSupport**. This would an exported function instead of adding the functions directly. This is for users that want to add cross origin support to a jQuery instance in the public scope from a privileged script. This will prevent any errors caused by an unsafe function trying to indirectly call GM_xmlhttpRequest.
+			
+This would, from the script author's perspective, work exactly the same as addCrossOriginSupport. However, a function has to be exported (via **ExportFunction**) to the public scope. This function is what jQuery will actually call, which itself calls the real function available inside jMod.
+		<p>
+	</li>
+	<li>
+		**mCloneInto**
+		<p>
+This jMod cloning function needs a better method for cloning objects when **cloneInto** is unavailable / not working. I have already created a function called **jMod.CloneProperties** that can clone an object in a manor similar to jQuery's **extend** method. However, CloneProperties copies non-enumerable properties and reconstructs their property constructors manually. This is a start, but it still needs a lot of work before it can be put into production.
+		</p>
+	</li>
+	<li>
+		**CSS**
+		<p>
+jMod uses a stripped-down, namespaced version of bootstrap, fontawesome, and a few other libraries. However, it still comes out to over 270kb! So it still needs to be worked on and trimmed down. Additionally, there is one library that the licensing is ambiguous and needs to be phased out before long.
+		</p>
+	</li>
+</ul>
