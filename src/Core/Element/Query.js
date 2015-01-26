@@ -3,8 +3,6 @@
 jMod.$ = function(selector, target, nojQuery){
 	if(!target)
 		target = (_undefined!==typeof document?document:unsafeWindow.document);
-	//if(_undefined===typeof target)
-		//target = unsafeWindow.document;
 
 	try{
 		if(nojQuery !== true && jMod.jQueryAvailable){
