@@ -160,59 +160,39 @@
 		
 		// For commands you can't call .apply on (like when an error object is involved)
 		ScopedConsoleCommand: function(command, value){
-			var i, ptr, key,
-				length = arguments.length,
+			var i = 0, ptr, cmd, args = arguments,
 				order = ['WebConsole', 'Firebug'],
 				objs = {Firebug: this.fb, WebConsole: this.wc};
 			//isFormatted = jMod.isFormatted(command, value); // Don't use GM_log on formatted logs
 			if(['profile', 'profileEnd', 'error'].indexOf(command) != -1 || !jConfig.API.log.WebConsole)
 				order = ['Firebug', 'WebConsole'];
 			
-			for(i = 0; i < order.length; i++){
-				key = order[i];
-				ptr = objs[key];
-				if(_undefined==typeof ptr||_undefined==typeof ptr[command])
+			for( ; i < order.length; i++){
+				ptr = objs[order[i]];
+				cmd = ptr[command];
+				if(NOTEXISTS(ptr)||NOTEXISTS(cmd))
 					continue;
 				try{
-					switch(length){
-						case 1:
-							return ptr[command].call(ptr);
-						case 2:
-							return ptr[command].call(ptr, arguments[1]);
-						case 3:
-							return ptr[command].call(ptr, arguments[1], arguments[2]);
-						case 4:
-							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3]);
-						case 5:
-							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4]);
-						case 6:
-							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5]);
-						case 7:
-							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6]);
-						case 8:
-							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7]);
-						case 9:
-							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8]);
-						case 10:
-							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9]);
-						case 11:
-							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10]);
-						case 12:
-							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11]);
-						case 13:
-							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12]);
-						case 14:
-							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13]);
-						case 15:
-							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13], arguments[14]);
-						case 16:
-							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13], arguments[14], arguments[15]);
-						case 17:
-							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13], arguments[14], arguments[15], arguments[16]);
-						case 18:
-							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13], arguments[14], arguments[15], arguments[16], arguments[17]);
-						default:
-							return false;
+					switch(args.length){
+						case 1:  return cmd.call(ptr);
+						case 2:  return cmd.call(ptr, args[1]);
+						case 3:  return cmd.call(ptr, args[1], args[2]);
+						case 4:  return cmd.call(ptr, args[1], args[2], args[3]);
+						case 5:  return cmd.call(ptr, args[1], args[2], args[3], args[4]);
+						case 6:  return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5]);
+						case 7:  return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6]);
+						case 8:  return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
+						case 9:  return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]);
+						case 10: return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]);
+						case 11: return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10]);
+						case 12: return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11]);
+						case 13: return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12]);
+						case 14: return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13]);
+						case 15: return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14]);
+						case 16: return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15]);
+						case 17: return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16]);
+						case 18: return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17]);
+						default: return false;
 					}
 					return true;
 				}catch(e){}
@@ -235,7 +215,7 @@
 				if(['profile', 'profileEnd'].indexOf(command) != -1 || !jConfig.API.log.WebConsole)
 					order = ['Firebug', 'WebConsole'];
 				
-				for(i; i < order.length; i++){
+				for( ; i < order.length; i++){
 					key = order[i];
 					if(typeof objs[key] !== _undefined && objs[key][command] !== _undefined && jConfig.API.log[key]){
 						try {
