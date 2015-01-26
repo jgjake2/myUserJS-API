@@ -65,6 +65,7 @@
 // +@macro           ISFUNCTION(a) "function"==typeof a
 // +@macro           ISOBJECT(a) "object"==typeof a
 // +@macro           ISBOOLEAN(a) "boolean"==typeof a
+// +@macro           ISSTRING(a) "string"==typeof a
 // ==/UserScript==
 /*
  * @overview [API for interacting with myUserJS.org]{@link jMod}
