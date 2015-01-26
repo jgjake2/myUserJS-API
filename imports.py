@@ -183,6 +183,7 @@ class SourceFiles:
             requirements = sFile.getRequirements()
             requirements.reverse()
             imports = sFile.getImports()
+            self.importedFiles.append(name)
             for requirement in requirements:
                 if(requirement not in self.importedFiles):
                     if(requirement in self.sourceFiles):
@@ -195,7 +196,6 @@ class SourceFiles:
                         sFile.fileContent = sFile.fileContent.replace(importFile[1], self.importFile(importFile[0])['text'] + "\n")
                     
             ret['text'] += sFile.fileContent
-            self.importedFiles.append(name)
         else:
             ret['success'] = False
         return ret
