@@ -46,7 +46,7 @@ jMod.extend = function() {
 				//copy = options[ name ];
 				try {
 					if (
-						(options[ name ].constructor === ({}).constructor || options[ name ]) // will cause scoped objects to throw error
+						(((typeof options[ name ] === "object" || typeof options[ name ] === "function") && options[ name ].constructor === ({}).constructor) || options[ name ]) // will cause scoped objects to throw error
 						|| target // always true
 						)
 					copy = options[ name ];
@@ -133,7 +133,7 @@ jMod.extendp = function() {
 				//copy = options[ name ];
 				try {
 					if (
-						(options[ name ].constructor === ({}).constructor || options[ name ]) // will cause scoped objects to throw error
+						(((typeof options[ name ] === "object" || typeof options[ name ] === "function") && options[ name ].constructor === ({}).constructor) || options[ name ]) // will cause scoped objects to throw error
 						|| target // always true
 						)
 					copy = options[ name ];
