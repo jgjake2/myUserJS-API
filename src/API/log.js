@@ -9,6 +9,10 @@
 // +@history (0.0.17) Updated format builder to include integer types.
 // +@history (0.0.17) Updated format builder to handle arguments without a type as an object without including it in the format string.
 // +@history (0.0.17) Added a jMod specific Warning and Info logger.
+// +@history (0.0.18) Minor improvements to "ScopedConsoleCommand"
+// +@history (0.0.18) Minor improvements to "logFormatBuilder"
+// +@history (0.0.18) Major update/fixes to "jModError"
+
 
 /**
  * A logging interface that allows safe console interactions. It can handle permission/scope problems and multiple console instances.<br /><br />
@@ -112,6 +116,10 @@
 		return ((jConfig('API.log.disabled').indexOf(name) == -1) && jConfig('API.log.verbosity_level') > 1);
 	}
 	
+	jMod.isFormatted = function(command, value){
+		return (['debug','log','info','warn','error','exception'].indexOf(command)!=-1&&"string"==typeof value&&/(?:\%s|\%c|\%o|\%d|\%f|\%\.\df|\%i)/.test(value)); // Don't use GM_log on formatted logs
+	}
+	
 	jMod.log = jMod.API.log = {
 		'OUTPUT_TYPES': OUTPUT_TYPES,
 		fb: undefined,
@@ -152,96 +160,92 @@
 		
 		// For commands you can't call .apply on (like when an error object is involved)
 		ScopedConsoleCommand: function(command, value){
-			var isFormatted = (['debug','log','info','warn','error','exception'].indexOf(command)!=-1&&"string"==typeof value&&/(?:\%s|\%c|\%o|\%d|\%f|\%\.\df|\%i)/.test(value)); // Don't use GM_log on formatted logs
-			var ptr = (isFormatted || (_undefined!=this.fb && _undefined!=typeof this.fb[command])? this.fb : this.wc);
-			if(_undefined==typeof ptr[command])
-				return false;
-			try{
-			switch(arguments.length){
-				case 1:
-					ptr[command].call(ptr);
-					break;
-				case 2:
-					ptr[command].call(ptr, arguments[1]);
-					break;
-				case 3:
-					ptr[command].call(ptr, arguments[1], arguments[2]);
-					break;
-				case 4:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3]);
-					break;
-				case 5:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4]);
-					break;
-				case 6:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5]);
-					break;
-				case 7:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6]);
-					break;
-				case 8:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7]);
-					break;
-				case 9:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8]);
-					break;
-				case 10:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9]);
-					break;
-				case 11:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10]);
-					break;
-				case 12:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11]);
-					break;
-				case 13:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12]);
-					break;
-				case 14:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13]);
-					break;
-				case 15:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13], arguments[14]);
-					break;
-				case 16:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13], arguments[14], arguments[15]);
-					break;
-				default:
-					return false;
-					break;
+			var i, ptr, key,
+				length = arguments.length,
+				order = ['WebConsole', 'Firebug'],
+				objs = {Firebug: this.fb, WebConsole: this.wc};
+			//isFormatted = jMod.isFormatted(command, value); // Don't use GM_log on formatted logs
+			if(['profile', 'profileEnd', 'error'].indexOf(command) != -1 || !jConfig.API.log.WebConsole)
+				order = ['Firebug', 'WebConsole'];
+			
+			for(i = 0; i < order.length; i++){
+				key = order[i];
+				ptr = objs[key];
+				if(_undefined==typeof ptr||_undefined==typeof ptr[command])
+					continue;
+				try{
+					switch(length){
+						case 1:
+							return ptr[command].call(ptr);
+						case 2:
+							return ptr[command].call(ptr, arguments[1]);
+						case 3:
+							return ptr[command].call(ptr, arguments[1], arguments[2]);
+						case 4:
+							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3]);
+						case 5:
+							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4]);
+						case 6:
+							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5]);
+						case 7:
+							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6]);
+						case 8:
+							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7]);
+						case 9:
+							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8]);
+						case 10:
+							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9]);
+						case 11:
+							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10]);
+						case 12:
+							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11]);
+						case 13:
+							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12]);
+						case 14:
+							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13]);
+						case 15:
+							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13], arguments[14]);
+						case 16:
+							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13], arguments[14], arguments[15]);
+						case 17:
+							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13], arguments[14], arguments[15], arguments[16]);
+						case 18:
+							return ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13], arguments[14], arguments[15], arguments[16], arguments[17]);
+						default:
+							return false;
+					}
+					return true;
+				}catch(e){}
 			}
-			}catch(e){
-				return false;
-			}
-			return true;
+			return false;
 		},
 		
 		ConsoleCommand: function(command, value){
 			try{
-				var args = Slice.call(arguments, 1);
+				var i = 0, key, order = ['WebConsole', 'Firebug'],
+					args = Slice.call(arguments, 1),
+					objs = {Firebug: this.fb, WebConsole: this.wc};
+					//isFormatted = jMod.isFormatted(command, value); // Don't use GM_log on formatted logs
+					
 				var safeArgs = mCloneInto(args, unsafeWindow, {
 					cloneFunctions: true,
 					wrapReflectors: true
 				});
+				//if(isFormatted || ['profile', 'profileEnd'].indexOf(command) != -1 || !jConfig.API.log.WebConsole)
+				if(['profile', 'profileEnd'].indexOf(command) != -1 || !jConfig.API.log.WebConsole)
+					order = ['Firebug', 'WebConsole'];
 				
-				var isFormatted = (['debug','log','info','warn','error','exception'].indexOf(command)!=-1&&"string"==typeof value&&/(?:\%s|\%c|\%o|\%d|\%f|\%\.\df|\%i)/.test(value)); // Don't use GM_log on formatted logs
-				
-				try{
-					if(typeof this.fb !== _undefined && typeof this.fb[command] !== _undefined && jConfig('API.log.Firebug')){
-						this.fb[command].apply(this.fb, args);
-					} else {
-						if(!isFormatted&&typeof this.wc !== _undefined && typeof this.wc[command] !== _undefined && jConfig('API.log.WebConsole'))
-							this.wc[command].apply(this.wc, args);
-					}
-				}catch(e){
-					if(typeof this.fb !== _undefined && typeof this.fb[command] !== _undefined && jConfig('API.log.Firebug')){
-						this.fb[command].apply(this.fb, safeArgs);
-					} else {
-						if(!isFormatted&&typeof this.wc !== _undefined && typeof this.wc[command] !== _undefined && jConfig('API.log.WebConsole'))
-							this.wc[command].apply(this.wc, safeArgs);
+				for(i; i < order.length; i++){
+					key = order[i];
+					if(typeof objs[key] !== _undefined && objs[key][command] !== _undefined && jConfig.API.log[key]){
+						try {
+							return objs[key][command].apply(objs[key], args);
+						} catch(e){}
+						try {
+							return objs[key][command].apply(objs[key], safeArgs);
+						} catch(e){}
 					}
 				}
-				
 				// disabled for now
 				/*
 					if(typeof this.c2 !== _undefined && typeof this.c2[command] !== _undefined)
@@ -261,6 +265,7 @@
 				//console.log('ConsoleCommand Error! getUpdateData: ', e.name, e.fileName, e.lineNumber + ':' + e.columnNumber, e);
 				console.error(e);
 			}
+			return false;
 		},
 		
 		outputMessage: function(output_type, str){
@@ -276,15 +281,25 @@
 			
 			iconStyle: 'font-size:175%;background-image:url("http://myuserjs.org/img/favicon/favicon.png");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;',
 			
-			infoDefaultStyle: ' ',
+			logDefaultStyle: '',
+			logHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
+			logTitleStyle: 'color:#000;font-size:125%;',
+			logTextStyle: 'font-weight:bold;font-size:120%;color:#000;',
+			
+			infoDefaultStyle: '',
 			infoHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
 			infoTitleStyle: 'color:#000;font-size:125%;',
 			infoTextStyle: 'font-weight:bold;font-size:120%;color:blue;',
 			
-			warningDefaultStyle: ' ',
+			warningDefaultStyle: '',
 			warningHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
 			warningTitleStyle: 'color:#000;font-size:125%;',
-			warningTextStyle: 'font-weight:bold;font-size:120%;color:red;'
+			warningTextStyle: 'font-weight:bold;font-size:120%;color:red;',
+			
+			errorDefaultStyle: ' ',
+			errorHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
+			errorTitleStyle: 'color:#000;font-size:125%;',
+			errorLineStyle: 'color:blue;'
 		}
 	};
 	
@@ -307,7 +322,7 @@
 	jMod.API.logFormatBuilder = function(){
 		this.args = [];
 		
-		this.add = function(value, type, style){
+		var addLine = function(value, type, style){
 			var isUndef = _undefined===typeof value,
 				origType = typeof type;
 			if(typeof type === _undefined) type = typeof value;
@@ -370,6 +385,16 @@
 			});
 		}
 		
+		this.add = function(){
+			if(arguments.length == 1 && RealTypeOf(arguments[0]) == "array"){
+				for(var i = 0; i < arguments[0].length; i++){
+					addLine.apply(this, arguments[0][i]);
+				}
+			} else {
+				addLine.apply(this, Slice.call(arguments));
+			}
+		}
+		
 		this.build = function(){
 			var fmtString = '';
 			
@@ -386,14 +411,71 @@
 			
 			return [fmtString].concat(arr);
 		}
+		
+		if(arguments.length > 0)
+			this.add.apply(this, arguments);
 	};
 		
 	jMod.log.UpdateAll();
 		
 }();
 
+
+
+var jModError = function(){
+	var i = 3,
+		e = arguments[0],
+		title = arguments[1],
+		message;
+	try{
+		message = arguments[2]
+	}catch(e){};
+	
+	if(!(e && (e.message && e.lineNumber))){
+		message = title;
+		title = e;
+		e = undefined;
+		i = 2;
+	}
+	
+	var errorDefaultStyle = jMod.log.fmt.errorDefaultStyle;
+	
+	var fmtBuild = new jMod.API.logFormatBuilder([
+		['  ', "%s", errorDefaultStyle + jMod.log.fmt.iconStyle],
+		['jMod', "string", errorDefaultStyle + jMod.log.fmt.errorHeaderStyle],
+		
+		[' - ', "string", errorDefaultStyle],
+		[title || ' ', "%s", errorDefaultStyle + jMod.log.fmt.errorTitleStyle],
+		[" \n", "string"],
+		[message || '', "%s", errorDefaultStyle + ' ']
+	]);
+	
+	for(; i < arguments.length; i++){
+		fmtBuild.add([
+			[" \n", "string"],
+			[arguments[i], typeof arguments[i] == "string" ? "string" : "object"]
+		]);
+	}
+	
+	if(typeof e !== _undefined && e != null){
+		fmtBuild.add([
+			[" \n", "string"],
+			[e.message + " ", "%s", errorDefaultStyle + ' '],
+			[e.lineNumber, "%s", errorDefaultStyle + jMod.log.fmt.errorLineStyle],
+			[e]
+		]);
+	}
+	
+	var arr = fmtBuild.build();
+	arr.unshift('error');
+	
+	jMod.log.ScopedConsoleCommand.apply(jMod.log, arr); // This works
+	//jMod.log.ConsoleCommand.apply(jMod.log, arr); // This will not work!
+	
+}
+/*
 var jModError = function(e, title, message){
-	var errorDefaultStyle = '';
+	var errorDefaultStyle = ' ';
 	//var ErrorIconURL = 'http://www.shedworx.com/files/images/error.png';
 	//var ErrorIconURL = 'http://myuserjs.org/img/favicon/favicon.png';
 	//var errorIconStyle = 'font-size:175%;background-image:url("'+ErrorIconURL+'");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;';
@@ -440,7 +522,12 @@ var jModError = function(e, title, message){
 				errorDefaultStyle + errorLineStyle, // Line Number Style
 				e.lineNumber, // Line Number
 				e,
-				arguments[3]
+				arguments.length >= 4 ? arguments[3] : undefined,
+				arguments.length >= 5 ? arguments[4] : undefined,
+				arguments.length >= 6 ? arguments[5] : undefined
+				//arguments[4] || undefined,
+				//arguments[5] || undefined,
+				//arguments[6] || undefined
 			);
 		}
 	} else {
@@ -459,6 +546,7 @@ var jModError = function(e, title, message){
 
 	}
 };
+*/
 
 var jModLogWarning = function(title, text){
 	if(jMod.log.OUTPUT_TYPES.WARNING.level > jConfig('API.log.verbosity_level'))
@@ -466,18 +554,23 @@ var jModLogWarning = function(title, text){
 		
 	var i = 2,
 		warningDefaultStyle = jMod.log.fmt.warningDefaultStyle,
-		fmtBuild = new jMod.API.logFormatBuilder();
+		fmtBuild = new jMod.API.logFormatBuilder([
+			['  ', "%s", warningDefaultStyle + jMod.log.fmt.iconStyle],
+			['jMod Warning', "string", warningDefaultStyle + jMod.log.fmt.warningHeaderStyle]
+		]);
 		
-	fmtBuild.add('  ', "%s", warningDefaultStyle + jMod.log.fmt.iconStyle);
-	fmtBuild.add('jMod Warning', "string", warningDefaultStyle + jMod.log.fmt.warningHeaderStyle);
 	if(_undefined!==typeof text){
-		fmtBuild.add(' - ', "string", warningDefaultStyle);
-		fmtBuild.add(title || ' ', "%s", warningDefaultStyle + jMod.log.fmt.warningTitleStyle);
-		fmtBuild.add(" \n", "string");
-		fmtBuild.add(text || '', "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle);
+		fmtBuild.add([
+			[' - ', "string", warningDefaultStyle],
+			[title || ' ', "%s", warningDefaultStyle + jMod.log.fmt.warningTitleStyle],
+			[" \n", "string"],
+			[text || '', "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle]
+		]);
 	} else {
-		fmtBuild.add(" \n", "string");
-		fmtBuild.add(title || '', "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle);
+		fmtBuild.add([
+			[" \n", "string"],
+			[title || '', "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle]
+		]);
 	}
 	
 	if(arguments.length > 2)
@@ -496,18 +589,23 @@ var jModLogInfo = function(title, text){
 		
 	var i = 2,
 		infoDefaultStyle = jMod.log.fmt.infoDefaultStyle,
-		fmtBuild = new jMod.API.logFormatBuilder();
+		fmtBuild = new jMod.API.logFormatBuilder([
+			['  ', "%s", infoDefaultStyle + jMod.log.fmt.iconStyle],
+			['jMod', "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle]
+		]);
 		
-	fmtBuild.add('  ', "%s", infoDefaultStyle + jMod.log.fmt.iconStyle);
-	fmtBuild.add('jMod', "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle);
 	if(_undefined!==typeof text){
-		fmtBuild.add(' - ', "string", infoDefaultStyle);
-		fmtBuild.add(title || ' ', "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle);
-		fmtBuild.add(" \n", "string");
-		fmtBuild.add(text || '', "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle);
+		fmtBuild.add([
+			[' - ', "string", infoDefaultStyle],
+			[title || ' ', "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle],
+			[" \n", "string"],
+			[text || '', "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle]
+		]);
 	} else {
-		fmtBuild.add(" \n", "string");
-		fmtBuild.add(title || '', "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle);
+		fmtBuild.add([
+			[" \n", "string"],
+			[title || '', "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle]
+		]);
 	}
 	
 	if(arguments.length > 2)
@@ -520,6 +618,41 @@ var jModLogInfo = function(title, text){
 	jMod.Info.apply(jMod.log,fmtBuild.build());
 }
 
+var jModLog = function(title, text){
+	if(jMod.log.OUTPUT_TYPES.LOG.level > jConfig('API.log.verbosity_level'))
+		return;
+		
+	var i = 2,
+		logDefaultStyle = jMod.log.fmt.infoDefaultStyle,
+		fmtBuild = new jMod.API.logFormatBuilder([
+			['  ', "%s", logDefaultStyle + jMod.log.fmt.iconStyle],
+			['jMod', "string", logDefaultStyle + jMod.log.fmt.logHeaderStyle]
+		]);
+		
+	if(_undefined!==typeof text){
+		fmtBuild.add([
+			[' - ', "string", logDefaultStyle],
+			[title || ' ', "%s", logDefaultStyle + jMod.log.fmt.logTitleStyle],
+			[" \n", "string"],
+			[text || '', "%s", logDefaultStyle + jMod.log.fmt.logTextStyle]
+		]);
+	} else {
+		fmtBuild.add([
+			[" \n", "string"],
+			[title || '', "%s", logDefaultStyle + jMod.log.fmt.logTextStyle]
+		]);
+	}
+	
+	if(arguments.length > 2)
+		fmtBuild.add(" \n", "string");
+		
+	for(i; i < arguments.length; i++){
+		fmtBuild.add(arguments[i]);
+	}
+	
+	jMod.Log.apply(jMod.log,fmtBuild.build());
+}
+
 var jModLogTime = function(title, prefix, suffix){
 	if(jMod.log.OUTPUT_TYPES.INFO.level > jConfig('API.log.verbosity_level'))
 		return;
@@ -527,13 +660,14 @@ var jModLogTime = function(title, prefix, suffix){
 	
 	var infoDefaultStyle = jMod.log.fmt.infoDefaultStyle;
 	
-	var fmtBuild = new jMod.API.logFormatBuilder();
-	fmtBuild.add('  ', "%s", infoDefaultStyle + jMod.log.fmt.iconStyle);
-	fmtBuild.add('jMod', "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle);
-	fmtBuild.add(' - ', "string", infoDefaultStyle);
-	fmtBuild.add(title || ' ', "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle);
-	fmtBuild.add(' ', "string");
-	fmtBuild.add(text, "%s", infoDefaultStyle + jMod.log.fmt.time);
+	var fmtBuild = new jMod.API.logFormatBuilder([
+		['  ', "%s", infoDefaultStyle + jMod.log.fmt.iconStyle],
+		['jMod', "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle],
+		[' - ', "string", infoDefaultStyle],
+		[title || ' ', "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle],
+		[' ', "string"],
+		[text, "%s", infoDefaultStyle + jMod.log.fmt.time]
+	]);
 	
 	jMod.Info.apply(jMod.log,fmtBuild.build());
 }
