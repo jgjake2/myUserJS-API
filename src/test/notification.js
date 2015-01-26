@@ -52,7 +52,11 @@ jMod.onPageReady = function(){
 		'body': '<i class="fa fa-clock-o"></i> <i>66 seconds ago...</i>',
 		'icon': 'fa-thumbs-up',
 		'type': 'small',
-		'background': 'rgb(199, 145, 33, 0.2)'
+		//'background': 'rgb(199, 145, 33, 0.2)'
+		background: {
+			color: '#739E73',
+			opacity: '0.2'
+		}
 	});
 	
 	
