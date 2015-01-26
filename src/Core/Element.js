@@ -2,6 +2,7 @@
 // +@history (0.0.14) History begins.
 // +@history (0.0.15) Added documentation.
 // +@history (0.0.15) Created jMod.Element namespace and function.
+// +@history (0.0.18) Various efficiency updates.
 
 // isElement
 RequireScript('Core.Element.isElement');
@@ -75,10 +76,8 @@ jMod.Element.isElement = isElement;
  * @returns {boolean}
  */
 var hasClass = jMod.Element.hasClass = function(el, className) {
-	var classArr = el.className.split(' ');
-	if(classArr.indexOf(className) == -1)
-		return false;
-	return true;
+	return (" "+el.className+" ").indexOf(" "+className+" ") != -1;
+	//return (el.className.split(' ').indexOf(className) == -1 ? false : true)
 }
 
 /**
@@ -90,13 +89,19 @@ var hasClass = jMod.Element.hasClass = function(el, className) {
  * @returns {string[]} Array of strings containing the matching classes
  */
 var hasClasses = jMod.Element.hasClasses = function(el, classNames) {
-	var r = [];
-	var classArr = el.className.split(' ');
-	var classNamesArr = (typeof classNames === "string" ? classNames.split(' ') : classNames);
-	for(var i in classNamesArr)
+	var classNamesPad = " "+el.className+" ",
+		classNamesArr = (ISSTRING(classNames) ? classNames.split(' ') : classNames);
+	return classNamesArr.filter(function(name){return classNamesPad.indexOf(" "+name+" ") != -1});
+	/*
+	var i,
+		r = [],
+		classArr = el.className.split(' '),
+		classNamesArr = (ISSTRING(classNames) ? classNames.split(' ') : classNames);
+	for(i in classNamesArr)
 		if(classArr.indexOf(classNamesArr[i]) != -1)
 			r.push(classNamesArr[i]);
 	return r;
+	*/
 }
 
 /**
@@ -108,13 +113,19 @@ var hasClasses = jMod.Element.hasClasses = function(el, classNames) {
  * @returns {string[]} Array of strings containing the missing class names
  */
 var missingClasses = jMod.Element.missingClasses = function(el, classNames) {
-	var r = [];
-	var classArr = el.className.split(' ');
-	var classNamesArr = (typeof classNames === "string" ? classNames.split(' ') : classNames);
-	for(var i in classNamesArr)
+	var classNamesPad = " "+el.className+" ",
+		classNamesArr = (ISSTRING(classNames) ? classNames.split(' ') : classNames);
+	return classNamesArr.filter(function(name){return classNamesPad.indexOf(" "+name+" ") == -1});
+	/*
+	var i,
+		r = [],
+		classArr = el.className.split(' '),
+		classNamesArr = (ISSTRING(classNames) ? classNames.split(' ') : classNames);
+	for(i in classNamesArr)
 		if(classArr.indexOf(classNamesArr[i]) == -1)
 			r.push(classNamesArr[i]);
 	return r;
+	*/
 }
 
 /**
@@ -140,7 +151,10 @@ var addClass = jMod.Element.addClass = function(el, className) {
  * @returns {Element} The input element
  */
 var addClasses = jMod.Element.addClasses = function(el, classNames) {
-	var classNamesArr = (typeof classNames === "string" ? classNames.split(' ') : classNames);
+	//var classNamesArr = (typeof classNames === "string" ? classNames.split(' ') : classNames);
+	return el.className = (el.className + ' ' + missingClasses(el, classNames).join(" ")).trim(), el;
+	//return el;
+	/*
 	var has = el.className.split(' ');
 	for(var i = 0; i < classNamesArr.length; i++){
 		if(has.indexOf(classNamesArr[i]) == -1)
@@ -148,8 +162,10 @@ var addClasses = jMod.Element.addClasses = function(el, classNames) {
 	}
 	el.className = has.join(' ');
 	return el;
+	*/
 }
 
+var removeClassRegex = new RegExp('\\w+');
 /**
  * Remove a class from a DOM Element
  * @function removeClass
@@ -159,6 +175,9 @@ var addClasses = jMod.Element.addClasses = function(el, classNames) {
  * @returns {Element} The input element
  */
 var removeClass = jMod.Element.removeClass = function(el, className) {
+	return el.className = ((" "+el.className+" ").replace(new RegExp(" "+className+" ", 'g'), " ")).trim(), el;
+	//return el;
+	/*
 	var classStr = el.className;
 	var classArr = classStr.split(' ');
 	var index = classArr.indexOf(className);
@@ -167,6 +186,7 @@ var removeClass = jMod.Element.removeClass = function(el, className) {
 	classArr.splice(index, 1);
 	el.className = classArr.join(' ');
 	return el;
+	*/
 }
 
 /**
@@ -178,6 +198,9 @@ var removeClass = jMod.Element.removeClass = function(el, className) {
  * @returns {Element} The input element
  */
 var removeClasses = jMod.Element.removeClasses = function(el, classNames) {
+	return el.className = ((" "+el.className+" ").replace(new RegExp(" (?:"+((ISSTRING(classNames) ? classNames.split(' ') : classNames).join("|"))+") ", 'g'), " ")).trim(), el;
+	//return el;
+	/*
 	var namesArr;
 	if(typeof classNames === "string")
 		namesArr = Slice.call(arguments, 1);
@@ -192,6 +215,7 @@ var removeClasses = jMod.Element.removeClasses = function(el, classNames) {
 	}
 	el.className = classArr.join(' ');
 	return el;
+	*/
 }
 
 var setAttributes = function(el, attrs) {
@@ -228,22 +252,14 @@ var getAttribute = function(el, attr) {
  * @see createNewElement
  */
 var appendChild = jMod.Element.appendChild = function(el, data) {
+	var nodes, dummy, i;
 	try{
 		if(!isElement(el) && typeof el === "object" && el.type !== undefined){
-			var targetKey;
-			if(el.innerHTML !== undefined)
-				targetKey = 'innerHTML';
-			if(el.text !== undefined)
-				targetKey = 'text';
-			if(!targetKey){
-				el.innerHTML = [data];
-			} else {
-				if(RealTypeOf(el[targetKey]) == 'array'){
-					el[targetKey].push(data);
-				} else {
-					el[targetKey] = [el[targetKey], data];
-				}
-			}
+			i = (el.innerHTML === undefined && el.text !== undefined ? 'text' : 'innerHTML');
+			if(RealTypeOf(el[i]) == "array")
+				el[i].push(data);
+			else
+				el[i] = [el[i], data];
 		} else {
 			if(typeof data === _undefined || data === null)
 				return el;
@@ -255,31 +271,29 @@ var appendChild = jMod.Element.appendChild = function(el, data) {
 					case "null":
 						break;
 					case "array":
-						for(var i = 0; i < data.length; i++)
+						for(i = 0; i < data.length; i++)
 							el = appendChild(el, data[i]);
 						break;
 					case "object":
 					case "map":
-						var tmpEl = createNewElement(data);
-						if(tmpEl)
-							el.appendChild(tmpEl);
+						if(dummy = createNewElement(data))
+							el.appendChild(dummy);
 						break;
-					case "string":
-					case "number":
-					case "symbol":
-					case "boolean":
+					//case "string":
+					//case "number":
+					//case "symbol":
+					//case "boolean":
 					default:
-						var dummy = document.createElement('div');
+						nodes, dummy = document.createElement('div');
 						dummy.innerHTML = data;
-						var nodes = dummy.childNodes;
-						for(var i = 0; i < nodes.length; i++)
+						nodes = dummy.childNodes;
+						for(i = 0; i < nodes.length; i++)
 							el.appendChild(nodes[i]);
 						break;
 				}
 			}
 		}
 	} catch(e) {
-		//console.error('Error! appendChild', e);
 		jModError(e, 'jMod.Element.appendChild');
 	} finally {
 		return el;
@@ -317,7 +331,7 @@ var appendChild = jMod.Element.appendChild = function(el, data) {
  */
 
 /** @const */
-const validElementProps = ['checked', 'defaultValue', 'title', 'async', 'defer', 'src', 'onerror', 'onload', 'responseCallback', 'value', 'max', 'min'];
+var validElementProps = ['id', 'className', 'checked', 'defaultValue', 'title', 'async', 'defer', 'src', 'onerror', 'onload', 'responseCallback', 'value', 'max', 'min'];
  
 /**
  * Create a new DOM element
@@ -327,17 +341,9 @@ const validElementProps = ['checked', 'defaultValue', 'title', 'async', 'defer',
  * @returns {Element} The newly created element
  */
 var createNewElement = jMod.Element.createNewElement = function(data) {
-	var i,
+	var i, eventName, capture, callback,
 		eventListeners = data.EventListeners || data.eventListeners,
 		newElement = document.createElement(data.type || 'div');
-	
-	if(data.id !== undefined)
-		newElement.id = data.id;
-		
-	if(data.className !== undefined)
-		newElement.className = data.className;
-	else if(data['class'] !== undefined)
-		newElement.className = data['class'];
 	
 	if(typeof data.style === "string")
 		newElement.style = data.style;
@@ -353,18 +359,19 @@ var createNewElement = jMod.Element.createNewElement = function(data) {
 	
 	if(data.attributes !== undefined){
 		for(i in data.attributes){
-			if(typeof data.attributes[i] !== _undefined && data.attributes[i] !== null)
+			//if(typeof data.attributes[i] !== _undefined && data.attributes[i] !== null)
+			if(data.attributes[i] != null)
 				newElement.setAttribute(i, data.attributes[i]);
 		}
 	}
 	
 	if(eventListeners){
-		for(var eventName in eventListeners){
+		for(eventName in eventListeners){
 			if(typeof eventListeners[eventName] === "function"){
 				newElement.addEventListener(eventName, eventListeners[eventName]);
 			} else if(typeof eventListeners[eventName] === "object"){
-				var capture = eventListeners[eventName].useCapture || eventListeners[eventName].Capture || eventListeners[eventName].capture || false;
-				var callback = eventListeners[eventName].callback || eventListeners[eventName]['function'];
+				capture = eventListeners[eventName].useCapture || eventListeners[eventName].Capture || eventListeners[eventName].capture || false;
+				callback = eventListeners[eventName].callback || eventListeners[eventName]['function'];
 				if(callback){
 					if(RealTypeOf(callback) == "array")
 						for(i in callback)
@@ -377,7 +384,7 @@ var createNewElement = jMod.Element.createNewElement = function(data) {
 		}
 	}
 	
-	appendChild(newElement, getFirstValidKeyValue(data, ['innerHTML', 'text']));
+	appendChild(newElement, data.innerHTML || data.text);
 	
 	return newElement;
 }
