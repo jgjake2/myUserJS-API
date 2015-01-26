@@ -2,7 +2,8 @@
 if($){
 	$(document).ready(function() {
 		function test_jQueryFunctions(){
-			jMod.jQueryExtensions.addCrossDomainSupport($);
+			jMod.jQueryExtensions.addCrossOriginSupport($);
+			//jMod.jQueryExtensions.exportCrossOriginSupport($);
 			
 			// Test $.ajax()
 			console.log('Test $.ajax("http://google.com")');
