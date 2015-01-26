@@ -179,6 +179,15 @@
  */
  
 /**
+ * <span class="macro-overload-count">0 Overloads</span> Check if "a" is a string
+ * @name ISSTRING
+ * @memberof Macros
+ * @property {boolean} ISSTRING - <span class="macro-argument-count">1 Argument(s)</span> "string"==typeof a
+ * @example
+ * ISSTRING&#40;foo&#41; //result: "string"==typeof foo
+ */
+ 
+/**
  * @global
  * @namespace jMod
  * @author jgjake2
@@ -221,14 +230,14 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 		_jQueryAvailable = _undefined!=typeof $?true:false,
 		jModReady = -1,
 		//(false ? "@import url(//test2.myuserjs.org/css/smartadmin-production-all-namespaced.css);\n" : "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n")
-		_css = "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n"
-		+"@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n"
+		_css = "@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n"
 		+"@font-face {font-family: 'Sansation';font-style: normal;font-weight: 400;src: local('Sansation Regular'), local('Sansation-Regular'), url(http://myuserjs.org/fonts/Sansation-Regular.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: normal;font-weight: 300;src: local('Sansation Light'), local('Sansation-Light'), url(http://myuserjs.org/fonts/Sansation-Light.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 300;src: local('Sansation Light Italic'), local('Sansation-LightItalic'), url(http://myuserjs.org/fonts/Sansation-LightItalic.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: normal;font-weight: 700;src: local('Sansation Bold'), local('Sansation-Bold'), url(http://myuserjs.org/fonts/Sansation-Bold.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 400;src: local('Sansation Italic'), local('Sansation-Italic'), url(http://myuserjs.org/fonts/Sansation-Italic.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 700;src: local('Sansation Bold Italic'), local('Sansation-BoldItalic'), url(http://myuserjs.org/fonts/Sansation-BoldItalic.ttf) format('ttf');}\n",
+		defaultjModCSSURL = "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n",
 		CurrentRunningScript = {
 			id: 'jMod',
 			config: {},
@@ -266,7 +275,7 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	 * @memberOf! jMod
 	 * @type {string}
 	 */
-	DefineLockedProp('build_time', '1422032400000');
+	DefineLockedProp('build_time', '1422294424000');
 	
 	/**
 	 * Current build type (beta|release)
@@ -274,7 +283,7 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	 * @memberOf! jMod
 	 * @type {string}
 	 */
-	DefineLockedProp('build_type', 'release');
+	DefineLockedProp('build_type', 'beta');
 	
 	/**
 	 * Is debug mode enabled
@@ -287,8 +296,7 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	Object.defineProperty(jMod, 'debug', {
 		get: function(){
 			try{
-				//return jMod.Config.debug || jMod._debug;
-				return _undefined!==typeof jMod.Config.debug?jMod.Config.debug:jMod._debug;
+				return _undefined!=typeof jMod.Config.debug?jMod.Config.debug:jMod._debug;
 			}catch(e){
 				return jMod._debug;
 			}
@@ -301,27 +309,22 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	
 	Object.defineProperty(jMod, 'jQueryAvailable', {
 		get: function(){
-			if(_jQueryAvailable)
-				return _jQueryAvailable;
-			if(_undefined!=typeof $){
+			if(_jQueryAvailable || _undefined!=typeof $)
 				return (_jQueryAvailable = true);
-			}
-			if(_undefined!=typeof jQuery){
-				$ = jQuery;
-				return (_jQueryAvailable = true);
-			}
-			if(_undefined!=typeof unsafeWindow.jQuery){
-				$ = unsafeWindow.jQuery;
-				return (_jQueryAvailable = true);
-			}
+			
+			if(_undefined!=typeof jQuery)
+				return ($ = jQuery, _jQueryAvailable = true);
+			
+			if(_undefined!=typeof unsafeWindow.jQuery)
+				return ($ = unsafeWindow.jQuery, _jQueryAvailable = true);
+			
 			return false;
 		},
 		set: function(val){
 			_jQueryAvailable = (val?true:false);
 			try{
-				if(RealTypeOf(val) == "jQuery"){
+				if(RealTypeOf(val) == "jQuery")
 					$ = val;
-				}
 			}catch(e){}
 		},
 		enumerable: false
@@ -405,8 +408,6 @@ var performance = new function(){
 		jModReady: false,
 		Complete: false
 	};
-	
-	
 	
 	Object.defineProperty(jMod, 'CSS', {
 		get: function(){
@@ -1012,7 +1013,7 @@ jMod.extend = function() {
 				//copy = options[ name ];
 				try {
 					if (
-						(options[ name ].constructor === ({}).constructor || options[ name ]) // will cause scoped objects to throw error
+						(((typeof options[ name ] === "object" || typeof options[ name ] === "function") && options[ name ].constructor === ({}).constructor) || options[ name ]) // will cause scoped objects to throw error
 						|| target // always true
 						)
 					copy = options[ name ];
@@ -1099,7 +1100,7 @@ jMod.extendp = function() {
 				//copy = options[ name ];
 				try {
 					if (
-						(options[ name ].constructor === ({}).constructor || options[ name ]) // will cause scoped objects to throw error
+						(((typeof options[ name ] === "object" || typeof options[ name ] === "function") && options[ name ].constructor === ({}).constructor) || options[ name ]) // will cause scoped objects to throw error
 						|| target // always true
 						)
 					copy = options[ name ];
@@ -1901,13 +1902,10 @@ jMod.API.ParseMetaData = function(headerBlock){
 	ScriptInfo.gotFileInfo = false;
 	
 	ScriptInfo.getScriptFileInfo = function(){
-		if(!jConfig.getScriptFileInfo)
-			return;
-			
-		if(ScriptInfo.gotFileInfo)
+		if(ScriptInfo.gotFileInfo || !jConfig.getScriptFileInfo)
 			return jConfig.script.script_file_info;
-			
-		var i,
+
+		var i = 0,
 			tStack,
 			callerScriptInfo,
 			output = {},
@@ -1920,10 +1918,10 @@ jMod.API.ParseMetaData = function(headerBlock){
 		tStack = jMod.parseStack(tStackStr);
 		if(tStack.length > 0){
 			//for(i = tStack.length - 1; i >= 0; i--){
-			for(i = 0; i < tStack.length; i++){
+			for(i; i < tStack.length; i++){
 				callerScriptInfo = tStack[i];
 				// Find jMod in the stack
-				if(_undefined===typeof jConfig.jMod_File_Path && ['jmod.js', 'jmod.min.js', 'jmod.full.js', 'jmod.min.expanded.js', 'mujs.js', 'mujs.min.js'].indexOf(callerScriptInfo.fileName.toLowerCase()) != -1){
+				if(_undefined==typeof jConfig.jMod_File_Path && ['jmod.js', 'jmod.min.js', 'jmod.full.js', 'jmod.min.expanded.js', 'mujs.js', 'mujs.min.js'].indexOf(callerScriptInfo.fileName.toLowerCase()) != -1){
 					jConfig.jMod_Full_File_Name = callerScriptInfo.fileName;
 					jConfig.jMod_File_Name = callerScriptInfo.fileName.substr(0, callerScriptInfo.fileName.length - 3);
 					jConfig.jMod_File_Path = callerScriptInfo.fullFileName;
@@ -1939,16 +1937,8 @@ jMod.API.ParseMetaData = function(headerBlock){
 						caller_lineNumber: callerScriptInfo.lineNumber,
 						caller_functionName: callerScriptInfo.functionName
 					};
-					/*
-					output.userscript_full_file_name = callerScriptInfo.fileName;
-					output.userscript_file_name = callerScriptInfo.fileName.substr(0, callerScriptInfo.fileName.length - 8);
-					output.userscript_file_path = callerScriptInfo.fullFileName;
-					output.call_lineNumber = callerScriptInfo.lineNumber;
-					output.call_functionName = callerScriptInfo.functionName;
-					jConfig.script.script_file_info = output;
-					*/
 					if(jMod.debug)
-						jModLogInfo('ScriptInfo', 'Get Script File Info Successful!!', output, callerScriptInfo);
+						jModLogInfo('ScriptInfo.getScriptFileInfo', 'Get Script File Info Successful!!', output, callerScriptInfo);
 					return output;
 				}
 			}
@@ -1958,69 +1948,73 @@ jMod.API.ParseMetaData = function(headerBlock){
 	
 	Object.defineProperty(ScriptInfo, 'InfoSet', {
 		get: function(){
-			return (typeof jConfig('script.script_info') !== _undefined);
+			return (_undefined!=typeof jConfig.script.script_info);
 		}
 	});
 	
 	ScriptInfo.set = function(data){
-		var output = {};
+		var callerScriptInfo, gm_info, scriptMetaStr, pMetaData, key, tmp, urlInfo,
+			output = {};
 		try{
-			var callerScriptInfo = ScriptInfo.getScriptFileInfo();
-			if(typeof callerScriptInfo !== _undefined)
+			callerScriptInfo = ScriptInfo.getScriptFileInfo();
+			if(_undefined!=typeof callerScriptInfo)
 				output = jMod.extend(output, callerScriptInfo);
 		} catch(e) {}
 		
 		try{
-			var gm_info;
-			var scriptMetaStr;
-			var pMetaData;
 			
-			if(typeof data === _undefined && typeof GM_info !== _undefined){
-				data = {
-					'gm_info': GM_info,
-					'has_GM_info': true,
-					'has_GM_getMetadata': (typeof GM_getMetadata === _undefined ? false : true)
-				}
+			if(typeof data === _undefined && (_undefined!=typeof GM_info || _undefined!=typeof GM_getMetadata)){
+				try{
+					data = {
+						'gm_info': _undefined!=typeof GM_info ? GM_info : GM_getMetadata(),
+						'has_GM_info': _undefined!=typeof GM_info,
+						'has_GM_getMetadata': _undefined!=typeof GM_getMetadata
+					}
+				}catch(e){}
 			}
 			
 			if(typeof data === "object"){
-				gm_info = getFirstValidKeyValue(data, ['GM_info', 'gm_info', 'ginfo']);
-				if(typeof gm_info === _undefined && typeof data.scriptSource !== _undefined)
+				//gm_info = getFirstValidKeyValue(data, ['GM_info', 'gm_info', 'ginfo']);
+				gm_info = data.GM_info || data.gm_info || data.ginfo;
+				if(_undefined==typeof gm_info && _undefined!=typeof data.scriptSource)
 					gm_info = data;
-				if(typeof gm_info !== _undefined && typeof gm_info.scriptMetaStr !== _undefined){
+				if(_undefined!=typeof gm_info && _undefined!=typeof gm_info.scriptMetaStr){
 					scriptMetaStr = gm_info.scriptMetaStr;
 				}
 			} else if(typeof data === "string"){
 				scriptMetaStr = data;
 			}
 			
-			if(typeof scriptMetaStr !== _undefined){
+			if(_undefined!=typeof scriptMetaStr){
 				pMetaData = jMod.API.ParseMetaData(scriptMetaStr);
 				
-				for(var key in pMetaData){
-					if(typeof output[key] === _undefined) output[key] = pMetaData[key];
+				for(key in pMetaData){
+					if(_undefined==typeof output[key])
+						output[key] = pMetaData[key];
 				}
 			}
 			
-			if(typeof gm_info !== _undefined){
-				//console.log(gm_info);
-				
-				if(typeof gm_info.script !== _undefined){
-					for(var key in gm_info.script){
+			if(_undefined!=typeof gm_info){
+				if(_undefined!=typeof gm_info.script){
+					for(key in gm_info.script){
 						if(typeof output[key] === _undefined) output[key] = gm_info.script[key];
 					}
+				} else {
+					//jModLogWarning('ScriptInfo', 'GM_info.script does not exist', gm_info, data);
+					console.warn('ScriptInfo', 'GM_info.script does not exist', gm_info, data);
 				}
 				
-				if(typeof gm_info.uuid !== _undefined){
+				if(_undefined!=typeof gm_info.uuid){
 					output['gmUUID'] = gm_info.uuid;
-				} else if(typeof gm_info.script.uuid !== _undefined){
+				} else if(_undefined!=typeof gm_info.script.uuid){
 					output['gmUUID'] = gm_info.script.uuid;
 				}
 				
-				if(typeof gm_info.scriptHandler !== _undefined){
+				if(_undefined!=typeof gm_info.scriptHandler){
 					if(gm_info.scriptHandler.toLowerCase() == 'tampermonkey'){
 						output.script_handler = 'Tampermonkey';
 						output.script_handler_version = gm_info.version;
+						jConfig.getScriptFileInfo = false; // Tampermonkey is too secure for this
 					} else if(gm_info.scriptHandler.toLowerCase() == 'greasemonkey'){
 						output.script_handler = 'Greasemonkey';
 						output.script_handler_version = gm_info.version;
@@ -2034,32 +2028,26 @@ jMod.API.ParseMetaData = function(headerBlock){
 				
 			}
 			
-			if(typeof pMetaData !== _undefined){	
-				//console.log('pMetaData', pMetaData);
-				
-				var urlInfo;
-				var key = getFirstValidKey(pMetaData, ['downloadURL', 'updateURL', 'jModupdateURL', 'jModUpdateURL', 'jModdownloadURL', 'jModDownloadURL'], function(k, val){return jMod.ScriptInfo.getURLInfo(val);});
-				if(typeof key !== _undefined && (urlInfo = ScriptInfo.getURLInfo(pMetaData[key]))){
-					//console.log('urlInfo', urlInfo);
-					jConfig('script.username', urlInfo.username);
-					jConfig('script.script_name', urlInfo.script_name);
+			if(_undefined!=typeof pMetaData){	
+				key = getFirstValidKey(pMetaData, ['downloadURL', 'updateURL', 'jModupdateURL', 'jModUpdateURL', 'jModdownloadURL', 'jModDownloadURL'], function(k, val){return jMod.ScriptInfo.getURLInfo(val);});
+				if(_undefined!=typeof key && (urlInfo = ScriptInfo.getURLInfo(pMetaData[key]))){
+					jConfig.script.username = urlInfo.username;
+					jConfig.script.script_name = urlInfo.script_name;
 					if(['meta', 'metajs', 'data'].indexOf(urlInfo.get_type.toLowerCase()) != -1){
-						jConfig('script.get_type', urlInfo.get_type.toLowerCase());
+						jConfig.script.get_type = urlInfo.get_type.toLowerCase();
 					}
 				} else {
-					var tmp;
 					if((tmp = getFirstValidKeyValue(pMetaData, ['jModusername', 'jMod_username'])))
-						jConfig('script.username', tmp);
+						jConfig.script.username = tmp;
 						
 					if((tmp = getFirstValidKeyValue(pMetaData, ['jModscriptname', 'jMod_script_name'])))
-						jConfig('script.script_name', tmp);
+						jConfig.script.script_name = tmp;
 				}
 				
-				if(typeof pMetaData['jMod'] != _undefined){
+				if(_undefined!=typeof pMetaData.jMod){
 					try{
-						var tmpConfig = JSON.parse(pMetaData['jMod']);
-						if(tmpConfig)
-							jMod.extend(true, jMod.Config, tmpConfig);
+						if(tmp = JSON.parse(pMetaData['jMod']))
+							jMod.extend(true, jMod.Config, tmp);
 					} catch(e) {
 						//console.error('Error parsing options in MetaBlock', e);
 						jModError(e, 'ScriptInfo.set', 'Error parsing options in MetaBlock');
@@ -2070,8 +2058,8 @@ jMod.API.ParseMetaData = function(headerBlock){
 			}
 			
 		} catch(e) {
-			//console.error('Error ScriptInfo.set', e);
-			jModError(e, 'ScriptInfo.set');
+			console.error('Error ScriptInfo.set', e);
+			//jModError(e, 'ScriptInfo.set');
 		}
 		
 		Object.defineProperty(jMod.Config.script, 'script_info', {
@@ -2081,20 +2069,38 @@ jMod.API.ParseMetaData = function(headerBlock){
 			configurable: false
 		});
 		
+		//if(output && output.name && jMod.debug)
+			//console.info('ScriptInfo.set - Get Script_Info Successful!!', output);
+		
 		
 		return Object.freeze(output);
 	}
 	
 	ScriptInfo.get = function(){
-		//var r = jConfig('script.script_info');
 		var r = jMod.Config.script.script_info;
-		return (typeof r != _undefined ? r : ScriptInfo.set.apply(this, arguments));
+		return (_undefined!=typeof r ? r : ScriptInfo.set.apply(this, arguments));
 	}
 	
-	
-	if(_undefined==typeof jMod.Config.script.script_info && _undefined!=typeof GM_info){
-		ScriptInfo.set();
+	var cssResourceAdded = false;
+	if(_undefined!=typeof GM_info || _undefined!=typeof GM_getMetadata){
+		try{
+			ScriptInfo.set();
+		}catch(e){}
+		// If script has a resource named "jModCSS", load it instead of importing the remote url
+		
+		var resources = jConfig('script.script_info.resource');
+		if(resources && resources.jModCSS && _undefined!=typeof GM_getResourceText){
+			try{
+				var tmp = GM_getResourceText('jModCSS');
+				if(tmp && tmp != ''){
+					_css += tmp;
+					cssResourceAdded = true;
+				}
+			}catch(e){}
+		}
 	}
+	if(!cssResourceAdded)
+		_css = defaultjModCSSURL + _css;
 	
 	/***********************************
 	 ** Language
@@ -2283,8 +2289,6 @@ jMod._call = function(){
 jMod.$ = function(selector, target, nojQuery){
 	if(!target)
 		target = (_undefined!==typeof document?document:unsafeWindow.document);
-	//if(_undefined===typeof target)
-		//target = unsafeWindow.document;
 
 	try{
 		if(nojQuery !== true && jMod.jQueryAvailable){
@@ -2397,10 +2401,8 @@ jMod.Element.isElement = isElement;
  * @returns {boolean}
  */
 var hasClass = jMod.Element.hasClass = function(el, className) {
-	var classArr = el.className.split(' ');
-	if(classArr.indexOf(className) == -1)
-		return false;
-	return true;
+	return (" "+el.className+" ").indexOf(" "+className+" ") != -1;
+	//return (el.className.split(' ').indexOf(className) == -1 ? false : true)
 }
 
 /**
@@ -2412,13 +2414,19 @@ var hasClass = jMod.Element.hasClass = function(el, className) {
  * @returns {string[]} Array of strings containing the matching classes
  */
 var hasClasses = jMod.Element.hasClasses = function(el, classNames) {
-	var r = [];
-	var classArr = el.className.split(' ');
-	var classNamesArr = (typeof classNames === "string" ? classNames.split(' ') : classNames);
-	for(var i in classNamesArr)
+	var classNamesPad = " "+el.className+" ",
+		classNamesArr = ("string"==typeof classNames ? classNames.split(' ') : classNames);
+	return classNamesArr.filter(function(name){return classNamesPad.indexOf(" "+name+" ") != -1});
+	/*
+	var i,
+		r = [],
+		classArr = el.className.split(' '),
+		classNamesArr = ("string"==typeof classNames ? classNames.split(' ') : classNames);
+	for(i in classNamesArr)
 		if(classArr.indexOf(classNamesArr[i]) != -1)
 			r.push(classNamesArr[i]);
 	return r;
+	*/
 }
 
 /**
@@ -2430,13 +2438,19 @@ var hasClasses = jMod.Element.hasClasses = function(el, classNames) {
  * @returns {string[]} Array of strings containing the missing class names
  */
 var missingClasses = jMod.Element.missingClasses = function(el, classNames) {
-	var r = [];
-	var classArr = el.className.split(' ');
-	var classNamesArr = (typeof classNames === "string" ? classNames.split(' ') : classNames);
-	for(var i in classNamesArr)
+	var classNamesPad = " "+el.className+" ",
+		classNamesArr = ("string"==typeof classNames ? classNames.split(' ') : classNames);
+	return classNamesArr.filter(function(name){return classNamesPad.indexOf(" "+name+" ") == -1});
+	/*
+	var i,
+		r = [],
+		classArr = el.className.split(' '),
+		classNamesArr = ("string"==typeof classNames ? classNames.split(' ') : classNames);
+	for(i in classNamesArr)
 		if(classArr.indexOf(classNamesArr[i]) == -1)
 			r.push(classNamesArr[i]);
 	return r;
+	*/
 }
 
 /**
@@ -2462,7 +2476,10 @@ var addClass = jMod.Element.addClass = function(el, className) {
  * @returns {Element} The input element
  */
 var addClasses = jMod.Element.addClasses = function(el, classNames) {
-	var classNamesArr = (typeof classNames === "string" ? classNames.split(' ') : classNames);
+	//var classNamesArr = (typeof classNames === "string" ? classNames.split(' ') : classNames);
+	return el.className = (el.className + ' ' + missingClasses(el, classNames).join(" ")).trim(), el;
+	//return el;
+	/*
 	var has = el.className.split(' ');
 	for(var i = 0; i < classNamesArr.length; i++){
 		if(has.indexOf(classNamesArr[i]) == -1)
@@ -2470,8 +2487,10 @@ var addClasses = jMod.Element.addClasses = function(el, classNames) {
 	}
 	el.className = has.join(' ');
 	return el;
+	*/
 }
 
+var removeClassRegex = new RegExp('\\w+');
 /**
  * Remove a class from a DOM Element
  * @function removeClass
@@ -2481,6 +2500,9 @@ var addClasses = jMod.Element.addClasses = function(el, classNames) {
  * @returns {Element} The input element
  */
 var removeClass = jMod.Element.removeClass = function(el, className) {
+	return el.className = ((" "+el.className+" ").replace(new RegExp(" "+className+" ", 'g'), " ")).trim(), el;
+	//return el;
+	/*
 	var classStr = el.className;
 	var classArr = classStr.split(' ');
 	var index = classArr.indexOf(className);
@@ -2489,6 +2511,7 @@ var removeClass = jMod.Element.removeClass = function(el, className) {
 	classArr.splice(index, 1);
 	el.className = classArr.join(' ');
 	return el;
+	*/
 }
 
 /**
@@ -2500,6 +2523,9 @@ var removeClass = jMod.Element.removeClass = function(el, className) {
  * @returns {Element} The input element
  */
 var removeClasses = jMod.Element.removeClasses = function(el, classNames) {
+	return el.className = ((" "+el.className+" ").replace(new RegExp(" (?:"+(("string"==typeof classNames ? classNames.split(' ') : classNames).join("|"))+") ", 'g'), " ")).trim(), el;
+	//return el;
+	/*
 	var namesArr;
 	if(typeof classNames === "string")
 		namesArr = Slice.call(arguments, 1);
@@ -2514,6 +2540,7 @@ var removeClasses = jMod.Element.removeClasses = function(el, classNames) {
 	}
 	el.className = classArr.join(' ');
 	return el;
+	*/
 }
 
 var setAttributes = function(el, attrs) {
@@ -2550,22 +2577,14 @@ var getAttribute = function(el, attr) {
  * @see createNewElement
  */
 var appendChild = jMod.Element.appendChild = function(el, data) {
+	var nodes, dummy, i;
 	try{
 		if(!isElement(el) && typeof el === "object" && el.type !== undefined){
-			var targetKey;
-			if(el.innerHTML !== undefined)
-				targetKey = 'innerHTML';
-			if(el.text !== undefined)
-				targetKey = 'text';
-			if(!targetKey){
-				el.innerHTML = [data];
-			} else {
-				if(RealTypeOf(el[targetKey]) == 'array'){
-					el[targetKey].push(data);
-				} else {
-					el[targetKey] = [el[targetKey], data];
-				}
-			}
+			i = (el.innerHTML === undefined && el.text !== undefined ? 'text' : 'innerHTML');
+			if(RealTypeOf(el[i]) == "array")
+				el[i].push(data);
+			else
+				el[i] = [el[i], data];
 		} else {
 			if(typeof data === _undefined || data === null)
 				return el;
@@ -2577,31 +2596,29 @@ var appendChild = jMod.Element.appendChild = function(el, data) {
 					case "null":
 						break;
 					case "array":
-						for(var i = 0; i < data.length; i++)
+						for(i = 0; i < data.length; i++)
 							el = appendChild(el, data[i]);
 						break;
 					case "object":
 					case "map":
-						var tmpEl = createNewElement(data);
-						if(tmpEl)
-							el.appendChild(tmpEl);
+						if(dummy = createNewElement(data))
+							el.appendChild(dummy);
 						break;
-					case "string":
-					case "number":
-					case "symbol":
-					case "boolean":
+					//case "string":
+					//case "number":
+					//case "symbol":
+					//case "boolean":
 					default:
-						var dummy = document.createElement('div');
+						nodes, dummy = document.createElement('div');
 						dummy.innerHTML = data;
-						var nodes = dummy.childNodes;
-						for(var i = 0; i < nodes.length; i++)
+						nodes = dummy.childNodes;
+						for(i = 0; i < nodes.length; i++)
 							el.appendChild(nodes[i]);
 						break;
 				}
 			}
 		}
 	} catch(e) {
-		//console.error('Error! appendChild', e);
 		jModError(e, 'jMod.Element.appendChild');
 	} finally {
 		return el;
@@ -2639,7 +2656,7 @@ var appendChild = jMod.Element.appendChild = function(el, data) {
  */
 
 /** @const */
-const validElementProps = ['checked', 'defaultValue', 'title', 'async', 'defer', 'src', 'onerror', 'onload', 'responseCallback', 'value', 'max', 'min'];
+var validElementProps = ['id', 'className', 'checked', 'defaultValue', 'title', 'async', 'defer', 'src', 'onerror', 'onload', 'responseCallback', 'value', 'max', 'min'];
  
 /**
  * Create a new DOM element
@@ -2649,17 +2666,9 @@ const validElementProps = ['checked', 'defaultValue', 'title', 'async', 'defer',
  * @returns {Element} The newly created element
  */
 var createNewElement = jMod.Element.createNewElement = function(data) {
-	var i,
+	var i, eventName, capture, callback,
 		eventListeners = data.EventListeners || data.eventListeners,
 		newElement = document.createElement(data.type || 'div');
-	
-	if(data.id !== undefined)
-		newElement.id = data.id;
-		
-	if(data.className !== undefined)
-		newElement.className = data.className;
-	else if(data['class'] !== undefined)
-		newElement.className = data['class'];
 	
 	if(typeof data.style === "string")
 		newElement.style = data.style;
@@ -2675,18 +2684,19 @@ var createNewElement = jMod.Element.createNewElement = function(data) {
 	
 	if(data.attributes !== undefined){
 		for(i in data.attributes){
-			if(typeof data.attributes[i] !== _undefined && data.attributes[i] !== null)
+			//if(typeof data.attributes[i] !== _undefined && data.attributes[i] !== null)
+			if(data.attributes[i] != null)
 				newElement.setAttribute(i, data.attributes[i]);
 		}
 	}
 	
 	if(eventListeners){
-		for(var eventName in eventListeners){
+		for(eventName in eventListeners){
 			if(typeof eventListeners[eventName] === "function"){
 				newElement.addEventListener(eventName, eventListeners[eventName]);
 			} else if(typeof eventListeners[eventName] === "object"){
-				var capture = eventListeners[eventName].useCapture || eventListeners[eventName].Capture || eventListeners[eventName].capture || false;
-				var callback = eventListeners[eventName].callback || eventListeners[eventName]['function'];
+				capture = eventListeners[eventName].useCapture || eventListeners[eventName].Capture || eventListeners[eventName].capture || false;
+				callback = eventListeners[eventName].callback || eventListeners[eventName]['function'];
 				if(callback){
 					if(RealTypeOf(callback) == "array")
 						for(i in callback)
@@ -2699,7 +2709,7 @@ var createNewElement = jMod.Element.createNewElement = function(data) {
 		}
 	}
 	
-	appendChild(newElement, getFirstValidKeyValue(data, ['innerHTML', 'text']));
+	appendChild(newElement, data.innerHTML || data.text);
 	
 	return newElement;
 }
@@ -2871,6 +2881,10 @@ function fireClick(el, bubbles, cancelable){
 		return ((jConfig('API.log.disabled').indexOf(name) == -1) && jConfig('API.log.verbosity_level') > 1);
 	}
 	
+	jMod.isFormatted = function(command, value){
+		return (['debug','log','info','warn','error','exception'].indexOf(command)!=-1&&"string"==typeof value&&/(?:\%s|\%c|\%o|\%d|\%f|\%\.\df|\%i)/.test(value)); // Don't use GM_log on formatted logs
+	}
+	
 	jMod.log = jMod.API.log = {
 		'OUTPUT_TYPES': OUTPUT_TYPES,
 		fb: undefined,
@@ -2911,96 +2925,72 @@ function fireClick(el, bubbles, cancelable){
 		
 		// For commands you can't call .apply on (like when an error object is involved)
 		ScopedConsoleCommand: function(command, value){
-			var isFormatted = (['debug','log','info','warn','error','exception'].indexOf(command)!=-1&&"string"==typeof value&&/(?:\%s|\%c|\%o|\%d|\%f|\%\.\df|\%i)/.test(value)); // Don't use GM_log on formatted logs
-			var ptr = (isFormatted || (_undefined!=this.fb && _undefined!=typeof this.fb[command])? this.fb : this.wc);
-			if(_undefined==typeof ptr[command])
-				return false;
-			try{
-			switch(arguments.length){
-				case 1:
-					ptr[command].call(ptr);
-					break;
-				case 2:
-					ptr[command].call(ptr, arguments[1]);
-					break;
-				case 3:
-					ptr[command].call(ptr, arguments[1], arguments[2]);
-					break;
-				case 4:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3]);
-					break;
-				case 5:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4]);
-					break;
-				case 6:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5]);
-					break;
-				case 7:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6]);
-					break;
-				case 8:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7]);
-					break;
-				case 9:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8]);
-					break;
-				case 10:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9]);
-					break;
-				case 11:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10]);
-					break;
-				case 12:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11]);
-					break;
-				case 13:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12]);
-					break;
-				case 14:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13]);
-					break;
-				case 15:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13], arguments[14]);
-					break;
-				case 16:
-					ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13], arguments[14], arguments[15]);
-					break;
-				default:
-					return false;
-					break;
+			var i = 0, ptr, cmd, args = arguments,
+				order = ['WebConsole', 'Firebug'],
+				objs = {Firebug: this.fb, WebConsole: this.wc};
+			//isFormatted = jMod.isFormatted(command, value); // Don't use GM_log on formatted logs
+			if(['profile', 'profileEnd', 'error'].indexOf(command) != -1 || !jConfig.API.log.WebConsole)
+				order = ['Firebug', 'WebConsole'];
+			
+			for( ; i < order.length; i++){
+				ptr = objs[order[i]];
+				cmd = ptr[command];
+				if(_undefined==typeof ptr||_undefined==typeof cmd)
+					continue;
+				try{
+					switch(args.length){
+						case 1:  return cmd.call(ptr);
+						case 2:  return cmd.call(ptr, args[1]);
+						case 3:  return cmd.call(ptr, args[1], args[2]);
+						case 4:  return cmd.call(ptr, args[1], args[2], args[3]);
+						case 5:  return cmd.call(ptr, args[1], args[2], args[3], args[4]);
+						case 6:  return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5]);
+						case 7:  return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6]);
+						case 8:  return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
+						case 9:  return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]);
+						case 10: return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]);
+						case 11: return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10]);
+						case 12: return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11]);
+						case 13: return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12]);
+						case 14: return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13]);
+						case 15: return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14]);
+						case 16: return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15]);
+						case 17: return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16]);
+						case 18: return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17]);
+						default: return false;
+					}
+					return true;
+				}catch(e){}
 			}
-			}catch(e){
-				return false;
-			}
-			return true;
+			return false;
 		},
 		
 		ConsoleCommand: function(command, value){
 			try{
-				var args = Slice.call(arguments, 1);
+				var i = 0, key, order = ['WebConsole', 'Firebug'],
+					args = Slice.call(arguments, 1),
+					objs = {Firebug: this.fb, WebConsole: this.wc};
+					//isFormatted = jMod.isFormatted(command, value); // Don't use GM_log on formatted logs
+					
 				var safeArgs = mCloneInto(args, unsafeWindow, {
 					cloneFunctions: true,
 					wrapReflectors: true
 				});
+				//if(isFormatted || ['profile', 'profileEnd'].indexOf(command) != -1 || !jConfig.API.log.WebConsole)
+				if(['profile', 'profileEnd'].indexOf(command) != -1 || !jConfig.API.log.WebConsole)
+					order = ['Firebug', 'WebConsole'];
 				
-				var isFormatted = (['debug','log','info','warn','error','exception'].indexOf(command)!=-1&&"string"==typeof value&&/(?:\%s|\%c|\%o|\%d|\%f|\%\.\df|\%i)/.test(value)); // Don't use GM_log on formatted logs
-				
-				try{
-					if(typeof this.fb !== _undefined && typeof this.fb[command] !== _undefined && jConfig('API.log.Firebug')){
-						this.fb[command].apply(this.fb, args);
-					} else {
-						if(!isFormatted&&typeof this.wc !== _undefined && typeof this.wc[command] !== _undefined && jConfig('API.log.WebConsole'))
-							this.wc[command].apply(this.wc, args);
-					}
-				}catch(e){
-					if(typeof this.fb !== _undefined && typeof this.fb[command] !== _undefined && jConfig('API.log.Firebug')){
-						this.fb[command].apply(this.fb, safeArgs);
-					} else {
-						if(!isFormatted&&typeof this.wc !== _undefined && typeof this.wc[command] !== _undefined && jConfig('API.log.WebConsole'))
-							this.wc[command].apply(this.wc, safeArgs);
+				for( ; i < order.length; i++){
+					key = order[i];
+					if(typeof objs[key] !== _undefined && objs[key][command] !== _undefined && jConfig.API.log[key]){
+						try {
+							return objs[key][command].apply(objs[key], args);
+						} catch(e){}
+						try {
+							return objs[key][command].apply(objs[key], safeArgs);
+						} catch(e){}
 					}
 				}
-				
 				// disabled for now
 				/*
 					if(typeof this.c2 !== _undefined && typeof this.c2[command] !== _undefined)
@@ -3020,6 +3010,7 @@ function fireClick(el, bubbles, cancelable){
 				//console.log('ConsoleCommand Error! getUpdateData: ', e.name, e.fileName, e.lineNumber + ':' + e.columnNumber, e);
 				console.error(e);
 			}
+			return false;
 		},
 		
 		outputMessage: function(output_type, str){
@@ -3035,15 +3026,25 @@ function fireClick(el, bubbles, cancelable){
 			
 			iconStyle: 'font-size:175%;background-image:url("http://myuserjs.org/img/favicon/favicon.png");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;',
 			
-			infoDefaultStyle: ' ',
+			logDefaultStyle: '',
+			logHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
+			logTitleStyle: 'color:#000;font-size:125%;',
+			logTextStyle: 'font-weight:bold;font-size:120%;color:#000;',
+			
+			infoDefaultStyle: '',
 			infoHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
 			infoTitleStyle: 'color:#000;font-size:125%;',
 			infoTextStyle: 'font-weight:bold;font-size:120%;color:blue;',
 			
-			warningDefaultStyle: ' ',
+			warningDefaultStyle: '',
 			warningHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
 			warningTitleStyle: 'color:#000;font-size:125%;',
-			warningTextStyle: 'font-weight:bold;font-size:120%;color:red;'
+			warningTextStyle: 'font-weight:bold;font-size:120%;color:red;',
+			
+			errorDefaultStyle: ' ',
+			errorHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
+			errorTitleStyle: 'color:#000;font-size:125%;',
+			errorLineStyle: 'color:blue;'
 		}
 	};
 	
@@ -3066,7 +3067,7 @@ function fireClick(el, bubbles, cancelable){
 	jMod.API.logFormatBuilder = function(){
 		this.args = [];
 		
-		this.add = function(value, type, style){
+		var addLine = function(value, type, style){
 			var isUndef = _undefined===typeof value,
 				origType = typeof type;
 			if(typeof type === _undefined) type = typeof value;
@@ -3129,6 +3130,16 @@ function fireClick(el, bubbles, cancelable){
 			});
 		}
 		
+		this.add = function(){
+			if(arguments.length == 1 && RealTypeOf(arguments[0]) == "array"){
+				for(var i = 0; i < arguments[0].length; i++){
+					addLine.apply(this, arguments[0][i]);
+				}
+			} else {
+				addLine.apply(this, Slice.call(arguments));
+			}
+		}
+		
 		this.build = function(){
 			var fmtString = '';
 			
@@ -3145,14 +3156,71 @@ function fireClick(el, bubbles, cancelable){
 			
 			return [fmtString].concat(arr);
 		}
+		
+		if(arguments.length > 0)
+			this.add.apply(this, arguments);
 	};
 		
 	jMod.log.UpdateAll();
 		
 }();
 
+
+
+var jModError = function(){
+	var i = 3,
+		e = arguments[0],
+		title = arguments[1],
+		message;
+	try{
+		message = arguments[2]
+	}catch(e){};
+	
+	if(!(e && (e.message && e.lineNumber))){
+		message = title;
+		title = e;
+		e = undefined;
+		i = 2;
+	}
+	
+	var errorDefaultStyle = jMod.log.fmt.errorDefaultStyle;
+	
+	var fmtBuild = new jMod.API.logFormatBuilder([
+		['  ', "%s", errorDefaultStyle + jMod.log.fmt.iconStyle],
+		['jMod', "string", errorDefaultStyle + jMod.log.fmt.errorHeaderStyle],
+		
+		[' - ', "string", errorDefaultStyle],
+		[title || ' ', "%s", errorDefaultStyle + jMod.log.fmt.errorTitleStyle],
+		[" \n", "string"],
+		[message || '', "%s", errorDefaultStyle + ' ']
+	]);
+	
+	for(; i < arguments.length; i++){
+		fmtBuild.add([
+			[" \n", "string"],
+			[arguments[i], typeof arguments[i] == "string" ? "string" : "object"]
+		]);
+	}
+	
+	if(typeof e !== _undefined && e != null){
+		fmtBuild.add([
+			[" \n", "string"],
+			[e.message + " ", "%s", errorDefaultStyle + ' '],
+			[e.lineNumber, "%s", errorDefaultStyle + jMod.log.fmt.errorLineStyle],
+			[e]
+		]);
+	}
+	
+	var arr = fmtBuild.build();
+	arr.unshift('error');
+	
+	jMod.log.ScopedConsoleCommand.apply(jMod.log, arr); // This works
+	//jMod.log.ConsoleCommand.apply(jMod.log, arr); // This will not work!
+	
+}
+/*
 var jModError = function(e, title, message){
-	var errorDefaultStyle = '';
+	var errorDefaultStyle = ' ';
 	//var ErrorIconURL = 'http://www.shedworx.com/files/images/error.png';
 	//var ErrorIconURL = 'http://myuserjs.org/img/favicon/favicon.png';
 	//var errorIconStyle = 'font-size:175%;background-image:url("'+ErrorIconURL+'");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;';
@@ -3199,7 +3267,12 @@ var jModError = function(e, title, message){
 				errorDefaultStyle + errorLineStyle, // Line Number Style
 				e.lineNumber, // Line Number
 				e,
-				arguments[3]
+				arguments.length >= 4 ? arguments[3] : undefined,
+				arguments.length >= 5 ? arguments[4] : undefined,
+				arguments.length >= 6 ? arguments[5] : undefined
+				//arguments[4] || undefined,
+				//arguments[5] || undefined,
+				//arguments[6] || undefined
 			);
 		}
 	} else {
@@ -3218,6 +3291,7 @@ var jModError = function(e, title, message){
 
 	}
 };
+*/
 
 var jModLogWarning = function(title, text){
 	if(jMod.log.OUTPUT_TYPES.WARNING.level > jConfig('API.log.verbosity_level'))
@@ -3225,18 +3299,23 @@ var jModLogWarning = function(title, text){
 		
 	var i = 2,
 		warningDefaultStyle = jMod.log.fmt.warningDefaultStyle,
-		fmtBuild = new jMod.API.logFormatBuilder();
+		fmtBuild = new jMod.API.logFormatBuilder([
+			['  ', "%s", warningDefaultStyle + jMod.log.fmt.iconStyle],
+			['jMod Warning', "string", warningDefaultStyle + jMod.log.fmt.warningHeaderStyle]
+		]);
 		
-	fmtBuild.add('  ', "%s", warningDefaultStyle + jMod.log.fmt.iconStyle);
-	fmtBuild.add('jMod Warning', "string", warningDefaultStyle + jMod.log.fmt.warningHeaderStyle);
 	if(_undefined!==typeof text){
-		fmtBuild.add(' - ', "string", warningDefaultStyle);
-		fmtBuild.add(title || ' ', "%s", warningDefaultStyle + jMod.log.fmt.warningTitleStyle);
-		fmtBuild.add(" \n", "string");
-		fmtBuild.add(text || '', "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle);
+		fmtBuild.add([
+			[' - ', "string", warningDefaultStyle],
+			[title || ' ', "%s", warningDefaultStyle + jMod.log.fmt.warningTitleStyle],
+			[" \n", "string"],
+			[text || '', "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle]
+		]);
 	} else {
-		fmtBuild.add(" \n", "string");
-		fmtBuild.add(title || '', "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle);
+		fmtBuild.add([
+			[" \n", "string"],
+			[title || '', "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle]
+		]);
 	}
 	
 	if(arguments.length > 2)
@@ -3255,18 +3334,23 @@ var jModLogInfo = function(title, text){
 		
 	var i = 2,
 		infoDefaultStyle = jMod.log.fmt.infoDefaultStyle,
-		fmtBuild = new jMod.API.logFormatBuilder();
+		fmtBuild = new jMod.API.logFormatBuilder([
+			['  ', "%s", infoDefaultStyle + jMod.log.fmt.iconStyle],
+			['jMod', "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle]
+		]);
 		
-	fmtBuild.add('  ', "%s", infoDefaultStyle + jMod.log.fmt.iconStyle);
-	fmtBuild.add('jMod', "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle);
 	if(_undefined!==typeof text){
-		fmtBuild.add(' - ', "string", infoDefaultStyle);
-		fmtBuild.add(title || ' ', "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle);
-		fmtBuild.add(" \n", "string");
-		fmtBuild.add(text || '', "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle);
+		fmtBuild.add([
+			[' - ', "string", infoDefaultStyle],
+			[title || ' ', "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle],
+			[" \n", "string"],
+			[text || '', "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle]
+		]);
 	} else {
-		fmtBuild.add(" \n", "string");
-		fmtBuild.add(title || '', "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle);
+		fmtBuild.add([
+			[" \n", "string"],
+			[title || '', "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle]
+		]);
 	}
 	
 	if(arguments.length > 2)
@@ -3279,6 +3363,41 @@ var jModLogInfo = function(title, text){
 	jMod.Info.apply(jMod.log,fmtBuild.build());
 }
 
+var jModLog = function(title, text){
+	if(jMod.log.OUTPUT_TYPES.LOG.level > jConfig('API.log.verbosity_level'))
+		return;
+		
+	var i = 2,
+		logDefaultStyle = jMod.log.fmt.infoDefaultStyle,
+		fmtBuild = new jMod.API.logFormatBuilder([
+			['  ', "%s", logDefaultStyle + jMod.log.fmt.iconStyle],
+			['jMod', "string", logDefaultStyle + jMod.log.fmt.logHeaderStyle]
+		]);
+		
+	if(_undefined!==typeof text){
+		fmtBuild.add([
+			[' - ', "string", logDefaultStyle],
+			[title || ' ', "%s", logDefaultStyle + jMod.log.fmt.logTitleStyle],
+			[" \n", "string"],
+			[text || '', "%s", logDefaultStyle + jMod.log.fmt.logTextStyle]
+		]);
+	} else {
+		fmtBuild.add([
+			[" \n", "string"],
+			[title || '', "%s", logDefaultStyle + jMod.log.fmt.logTextStyle]
+		]);
+	}
+	
+	if(arguments.length > 2)
+		fmtBuild.add(" \n", "string");
+		
+	for(i; i < arguments.length; i++){
+		fmtBuild.add(arguments[i]);
+	}
+	
+	jMod.Log.apply(jMod.log,fmtBuild.build());
+}
+
 var jModLogTime = function(title, prefix, suffix){
 	if(jMod.log.OUTPUT_TYPES.INFO.level > jConfig('API.log.verbosity_level'))
 		return;
@@ -3286,17 +3405,18 @@ var jModLogTime = function(title, prefix, suffix){
 	
 	var infoDefaultStyle = jMod.log.fmt.infoDefaultStyle;
 	
-	var fmtBuild = new jMod.API.logFormatBuilder();
-	fmtBuild.add('  ', "%s", infoDefaultStyle + jMod.log.fmt.iconStyle);
-	fmtBuild.add('jMod', "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle);
-	fmtBuild.add(' - ', "string", infoDefaultStyle);
-	fmtBuild.add(title || ' ', "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle);
-	fmtBuild.add(' ', "string");
-	fmtBuild.add(text, "%s", infoDefaultStyle + jMod.log.fmt.time);
+	var fmtBuild = new jMod.API.logFormatBuilder([
+		['  ', "%s", infoDefaultStyle + jMod.log.fmt.iconStyle],
+		['jMod', "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle],
+		[' - ', "string", infoDefaultStyle],
+		[title || ' ', "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle],
+		[' ', "string"],
+		[text, "%s", infoDefaultStyle + jMod.log.fmt.time]
+	]);
 	
 	jMod.Info.apply(jMod.log,fmtBuild.build());
 }
-	
+
 	
 	jMod.log.Info('Loading jMod API v' + jMod.version + ' ' + jMod.build_type + (jMod.debug ? ' (debug enabled)' : '') + ' - ' + (new Date(parseInt(jMod.build_time))).toString());
 	
@@ -3304,6 +3424,10 @@ var jModLogTime = function(title, prefix, suffix){
 		jModLogTime('jMod Init Start Time');
 		
 		jMod.log.group('jMod Start');
+		
+		if(jConfig.script.script_info)
+			jModLogInfo('ScriptInfo.set', 'Get Script_Info Successful!!', jConfig.script.script_info);
+		
 		jMod.log.group('jMod Initialize');
 		
 		if(CurrentRunningScript.el){
@@ -4637,73 +4761,10 @@ jMod.API.Date.getScriptTimeDiff = function(dateObj){
  */
 jMod.jQueryExtensions = {};
 
++(function(){
 
-
-/**
- * Adds Cross Origin support to a jQuery instance by allowing it to use GM_xmlhttpRequest.
- * @function addCrossOriginSupport
- * @memberof jMod.jQueryExtensions
- * @param {object} [_jQueryObj] - jQuery object - Defaults to first jQuery instance accessible by jMod
- * @param {string} [dataType="* text html xml json"] - A string identifying the data types GM_xmlhttpRequest should handle
- * @example
- *if($){
- *	$(document).ready(function() {
- *		function test_jQueryFunctions(){
- *			jMod.jQueryExtensions.addCrossOriginSupport($);
- *			
- *			// Test $.ajax()
- *			console.log('Test $.ajax("http://google.com")');
- *			$.ajax({
- *					url: 'http://google.com',
- *					contentType: 'text/html',
- *					type: 'GET',
- *					dataType: 'html',
- *					onprogress: function(response){
- *						console.log('onprogress response', response);
- *					},
- *					onreadystatechange: function(response){
- *						console.log('onreadystatechange response', response);
- *					}
- *				})
- *				.done(function(data, textStatus, jqXHR) {
- *					console.log("$.ajax() success: ", jqXHR);
- *				})
- *				.fail(function() {
- *					console.log("$.ajax() error");
- *				});
- *			
- *			// Test $(element).load()
- *			console.log('Test $(element).load("http://google.com #hplogo")');
- *			var tmpDiv = document.createElement('div');
- *			tmpDiv.id = 'tmpDiv';
- *			document.body.appendChild(tmpDiv);
- *			
- *			$('#tmpDiv').load('http://google.com #hplogo', function(responseText, textStatus, jqXHR){
- *				console.log('$(element).load() ' + textStatus, jqXHR);
- *			});
- *		}
- *
- *		test_jQueryFunctions();
- *	});
- *} else {
- *	console.log('Test Failed! No jQuery');
- *}
- */
-jMod.jQueryExtensions.addCrossOriginSupport = function(_jQueryObj, dataType){
-	// Make sure GM function exists
-	if(_undefined==typeof GM_xmlhttpRequest)
-		return;
-	
-	// If _jQueryObj isn't defined, default to global jQuery object
-	if(!_jQueryObj && !(_jQueryObj = jMod.jQuery))
-		// Return if there is no global jQuery object
-		return;
-	
-	// Return if already extended
-	if(_jQueryObj.jModCrossOriginSupport === true)
-		return;
-	
-	_jQueryObj.ajaxTransport(dataType || "* text html xml json", function(options, originalOptions, jqXHR){
+jMod.jQueryExtensions.CrossOriginSupportTransportFn = function(_jQueryObj, dataType){
+	return (function(options, originalOptions, jqXHR){
 		var CrossOriginEnabled = true;
 		try{
 			// jMod may no longer be in scope
@@ -4791,9 +4852,110 @@ jMod.jQueryExtensions.addCrossOriginSupport = function(_jQueryObj, dataType){
 			};
 		}
 	});
+}
+
+function exportjQueryTransportFn(_jQueryObj, dataType){
+	return ((unsafeWindow.globaljQueryCrossOriginSupportFn) || (jMod.jQueryExtensions._globaljQueryCrossOriginSupportFn = mExportFunction(jMod.jQueryExtensions.CrossOriginSupportTransportFn(_jQueryObj, dataType), unsafeWindow, {
+		defineAs: 'globaljQueryCrossOriginSupportFn',
+		allowCallbacks: true,
+		allowCrossOriginArguments: true
+	})));
+}
+
+/**
+ * Adds Cross Origin support to a jQuery instance by allowing it to use GM_xmlhttpRequest.
+ * @function addCrossOriginSupport
+ * @memberof jMod.jQueryExtensions
+ * @param {object} [_jQueryObj] - jQuery object - Defaults to first jQuery instance accessible by jMod
+ * @param {string} [dataType="* text html xml json"] - A string identifying the data types GM_xmlhttpRequest should handle
+ * @example
+ *if($){
+ *	$(document).ready(function() {
+ *		function test_jQueryFunctions(){
+ *			jMod.jQueryExtensions.addCrossOriginSupport($);
+ *			
+ *			// Test $.ajax()
+ *			console.log('Test $.ajax("http://google.com")');
+ *			$.ajax({
+ *					url: 'http://google.com',
+ *					contentType: 'text/html',
+ *					type: 'GET',
+ *					dataType: 'html',
+ *					onprogress: function(response){
+ *						console.log('onprogress response', response);
+ *					},
+ *					onreadystatechange: function(response){
+ *						console.log('onreadystatechange response', response);
+ *					}
+ *				})
+ *				.done(function(data, textStatus, jqXHR) {
+ *					console.log("$.ajax() success: ", jqXHR);
+ *				})
+ *				.fail(function() {
+ *					console.log("$.ajax() error");
+ *				});
+ *			
+ *			// Test $(element).load()
+ *			console.log('Test $(element).load("http://google.com #hplogo")');
+ *			var tmpDiv = document.createElement('div');
+ *			tmpDiv.id = 'tmpDiv';
+ *			document.body.appendChild(tmpDiv);
+ *			
+ *			$('#tmpDiv').load('http://google.com #hplogo', function(responseText, textStatus, jqXHR){
+ *				console.log('$(element).load() ' + textStatus, jqXHR);
+ *			});
+ *		}
+ *
+ *		test_jQueryFunctions();
+ *	});
+ *} else {
+ *	console.log('Test Failed! No jQuery');
+ *}
+ */
+jMod.jQueryExtensions.addCrossOriginSupport = function(_jQueryObj, dataType){
+	// Make sure GM function exists
+	if(_undefined==typeof GM_xmlhttpRequest)
+		return;
+	
+	// If _jQueryObj isn't defined, default to global jQuery object
+	if(!_jQueryObj && !(_jQueryObj = jMod.jQuery))
+		// Return if there is no global jQuery object
+		return;
+	
+	// Return if already extended
+	if(_jQueryObj.jModCrossOriginSupport === true)
+		return;
+	
+	_jQueryObj.ajaxTransport(dataType || "* text html xml json", jMod.jQueryExtensions.CrossOriginSupportTransportFn(_jQueryObj, dataType));
 	
 	_jQueryObj.extend({jModCrossOriginSupport: true});
 }
+
+/**
+ * Similar to addCrossOriginSupport, but exports the transport function to the unsafeWindow before extending jQuery. Thus, it can be used on a jQuery instance that exists in the unsafeWindow. This is less safe than using "addCrossOriginSupport" and should only be used if there is no alternative.
+ * @function exportCrossOriginSupport
+ * @memberof jMod.jQueryExtensions
+ * @param {object} [_jQueryObj] - jQuery object - Defaults to first jQuery instance accessible by jMod
+ * @param {string} [dataType="* text html xml json"] - A string identifying the data types GM_xmlhttpRequest should handle
+ */
+jMod.jQueryExtensions.exportCrossOriginSupport = function(_jQueryObj, dataType){
+	// Make sure GM function exists
+	if(_undefined==typeof GM_xmlhttpRequest)
+		return;
+	
+	// If _jQueryObj isn't defined, exit
+	if(!_jQueryObj)
+		return;
+	
+	// Return if already extended
+	if(_jQueryObj.jModCrossOriginSupport === true)
+		return;
+	
+	_jQueryObj.ajaxTransport(dataType || "* text html xml json", exportjQueryTransportFn(_jQueryObj, dataType));
+	
+	_jQueryObj.extend({jModCrossOriginSupport: true});
+}
+})()
 
 
 	/***********************************
@@ -5775,7 +5937,7 @@ Notification.Types = {
 				el.style.display = 'none';
 				Notification.Events.fire('onAfterClose', num, null, el);
 				el.parentElement.removeChild(el);
-			}, 1000, el, num);
+			}, 800, el, num);
 		},
 		
 		init: function(){
@@ -9016,10 +9178,10 @@ InitHandlers = {
 	DOMLoaded: function(){
 		Loading.DOMLoaded = true;
 		if(jMod.debug) jModLogTime('DOM Loaded', null, ' - Begin Init');
-		jMod.Events.fire('onDOMReady');
-		//jMod.API.contentEval(onErrorFunction);
 		Loading.CSSAdded = true;
 		jMod.AddCSS();
+		jMod.Events.fire('onDOMReady');
+		//jMod.API.contentEval(onErrorFunction);
 		jMod.Notification.init();
 		jMod.Modal.init();
 		jMod.Settings.init();

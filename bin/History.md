@@ -3,9 +3,20 @@ jMod History
 
 ## Version 0.0.18
 * **Core**
+    * Looks for resource to load css from when available.
     * Started cleaning up Notifications.
     * Added sessionStorage.
     * Added jQueryExtensions.
+* **Element**
+    * Various efficiency updates.
+* **Log**
+    * Minor improvements to "ScopedConsoleCommand"
+    * Minor improvements to "logFormatBuilder"
+    * Major update/fixes to "jModError"
+* **Script Info**
+    * Minification improvements.
+* **jQuery Ajax Extensions**
+    * Added "exportCrossOriginSupport" so jQuery instances in the unsafeWindow can be extended.
 
 ## Version 0.0.17
 * **Config**
@@ -14,9 +25,9 @@ jMod History
     * Added Observer class.
     * Added Language framework.
 * **ExportFunction**
+    * Better support when "exportFunction" is unavailable.
     * Added condition for arrays when normal copying fails.
     * Added some documentation.
-    * Better support when "exportFunction" is unavailable.
 * **Get Remote Image**
     * History begins.
 * **Get Resource**

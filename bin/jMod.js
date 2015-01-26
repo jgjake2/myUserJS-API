@@ -32,7 +32,7 @@
     };
     jMod.InitializeStartTime = initStart;
     jMod.InitializeEndTime = -1;
-    var API = jMod.API = {}, Slice = Array.prototype.slice, _jQueryAvailable = _undefined != typeof $ ? true : false, jModReady = -1, _css = "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n" + "@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n" + "@font-face {font-family: 'Sansation';font-style: normal;font-weight: 400;src: local('Sansation Regular'), local('Sansation-Regular'), url(http://myuserjs.org/fonts/Sansation-Regular.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: normal;font-weight: 300;src: local('Sansation Light'), local('Sansation-Light'), url(http://myuserjs.org/fonts/Sansation-Light.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: italic;font-weight: 300;src: local('Sansation Light Italic'), local('Sansation-LightItalic'), url(http://myuserjs.org/fonts/Sansation-LightItalic.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: normal;font-weight: 700;src: local('Sansation Bold'), local('Sansation-Bold'), url(http://myuserjs.org/fonts/Sansation-Bold.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: italic;font-weight: 400;src: local('Sansation Italic'), local('Sansation-Italic'), url(http://myuserjs.org/fonts/Sansation-Italic.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: italic;font-weight: 700;src: local('Sansation Bold Italic'), local('Sansation-BoldItalic'), url(http://myuserjs.org/fonts/Sansation-BoldItalic.ttf) format('ttf');}\n", CurrentRunningScript = {
+    var API = jMod.API = {}, Slice = Array.prototype.slice, _jQueryAvailable = _undefined != typeof $ ? true : false, jModReady = -1, _css = "@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n" + "@font-face {font-family: 'Sansation';font-style: normal;font-weight: 400;src: local('Sansation Regular'), local('Sansation-Regular'), url(http://myuserjs.org/fonts/Sansation-Regular.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: normal;font-weight: 300;src: local('Sansation Light'), local('Sansation-Light'), url(http://myuserjs.org/fonts/Sansation-Light.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: italic;font-weight: 300;src: local('Sansation Light Italic'), local('Sansation-LightItalic'), url(http://myuserjs.org/fonts/Sansation-LightItalic.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: normal;font-weight: 700;src: local('Sansation Bold'), local('Sansation-Bold'), url(http://myuserjs.org/fonts/Sansation-Bold.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: italic;font-weight: 400;src: local('Sansation Italic'), local('Sansation-Italic'), url(http://myuserjs.org/fonts/Sansation-Italic.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: italic;font-weight: 700;src: local('Sansation Bold Italic'), local('Sansation-BoldItalic'), url(http://myuserjs.org/fonts/Sansation-BoldItalic.ttf) format('ttf');}\n", defaultjModCSSURL = "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n", CurrentRunningScript = {
         id: "jMod",
         config: {},
         el: unsafeWindow.document && unsafeWindow.document.currentScript ? unsafeWindow.document.currentScript : undefined
@@ -52,13 +52,13 @@
         return CurrentRunningScript.el ? CurrentRunningScript : undefined;
     });
     DefineLockedProp("version", "0.0.18");
-    DefineLockedProp("build_time", "1422032400000");
-    DefineLockedProp("build_type", "release");
+    DefineLockedProp("build_time", "1422294424000");
+    DefineLockedProp("build_type", "beta");
     DefineLockedProp("_debug", false);
     Object.defineProperty(jMod, "debug", {
         get: function() {
             try {
-                return _undefined !== typeof jMod.Config.debug ? jMod.Config.debug : jMod._debug;
+                return _undefined != typeof jMod.Config.debug ? jMod.Config.debug : jMod._debug;
             } catch (e) {
                 return jMod._debug;
             }
@@ -70,16 +70,9 @@
     });
     Object.defineProperty(jMod, "jQueryAvailable", {
         get: function() {
-            if (_jQueryAvailable) return _jQueryAvailable;
-            if (_undefined != typeof $) return _jQueryAvailable = true;
-            if (_undefined != typeof jQuery) {
-                $ = jQuery;
-                return _jQueryAvailable = true;
-            }
-            if (_undefined != typeof unsafeWindow.jQuery) {
-                $ = unsafeWindow.jQuery;
-                return _jQueryAvailable = true;
-            }
+            if (_jQueryAvailable || _undefined != typeof $) return _jQueryAvailable = true;
+            if (_undefined != typeof jQuery) return $ = jQuery, _jQueryAvailable = true;
+            if (_undefined != typeof unsafeWindow.jQuery) return $ = unsafeWindow.jQuery, _jQueryAvailable = true;
             return false;
         },
         set: function(val) {
@@ -481,7 +474,7 @@
         for (;i < length; i++) if (null != (options = arguments[i])) for (name in options) {
             src = target[name];
             try {
-                if (options[name].constructor === {}.constructor || options[name] || target) copy = options[name];
+                if (("object" === typeof options[name] || "function" === typeof options[name]) && options[name].constructor === {}.constructor || options[name] || target) copy = options[name];
             } catch (e) {
                 copy = mCloneInto(options[name], target, {
                     cloneFunctions: true,
@@ -521,7 +514,7 @@
         for (;i < length; i++) if (null != (options = arguments[i])) for (name in options) {
             src = target[name];
             try {
-                if (options[name].constructor === {}.constructor || options[name] || target) copy = options[name];
+                if (("object" === typeof options[name] || "function" === typeof options[name]) && options[name].constructor === {}.constructor || options[name] || target) copy = options[name];
             } catch (e) {
                 copy = mCloneInto(options[name], target, {
                     cloneFunctions: true,
@@ -885,14 +878,13 @@
     };
     ScriptInfo.gotFileInfo = false;
     ScriptInfo.getScriptFileInfo = function() {
-        if (!jConfig.getScriptFileInfo) return;
-        if (ScriptInfo.gotFileInfo) return jConfig.script.script_file_info;
-        var i, tStack, callerScriptInfo, output = {}, e = new Error(), tStackStr = e.stack.toString();
+        if (ScriptInfo.gotFileInfo || !jConfig.getScriptFileInfo) return jConfig.script.script_file_info;
+        var i = 0, tStack, callerScriptInfo, output = {}, e = new Error(), tStackStr = e.stack.toString();
         if (tStackStr.indexOf("user.js") == -1) return;
         tStack = jMod.parseStack(tStackStr);
-        if (tStack.length > 0) for (i = 0; i < tStack.length; i++) {
+        if (tStack.length > 0) for (i; i < tStack.length; i++) {
             callerScriptInfo = tStack[i];
-            if (_undefined === typeof jConfig.jMod_File_Path && [ "jmod.js", "jmod.min.js", "jmod.full.js", "jmod.min.expanded.js", "mujs.js", "mujs.min.js" ].indexOf(callerScriptInfo.fileName.toLowerCase()) != -1) {
+            if (_undefined == typeof jConfig.jMod_File_Path && [ "jmod.js", "jmod.min.js", "jmod.full.js", "jmod.min.expanded.js", "mujs.js", "mujs.min.js" ].indexOf(callerScriptInfo.fileName.toLowerCase()) != -1) {
                 jConfig.jMod_Full_File_Name = callerScriptInfo.fileName;
                 jConfig.jMod_File_Name = callerScriptInfo.fileName.substr(0, callerScriptInfo.fileName.length - 3);
                 jConfig.jMod_File_Path = callerScriptInfo.fullFileName;
@@ -906,7 +898,7 @@
                     caller_lineNumber: callerScriptInfo.lineNumber,
                     caller_functionName: callerScriptInfo.functionName
                 };
-                if (jMod.debug) jModLogInfo("ScriptInfo", "Get Script File Info Successful!!", output, callerScriptInfo);
+                if (jMod.debug) jModLogInfo("ScriptInfo.getScriptFileInfo", "Get Script File Info Successful!!", output, callerScriptInfo);
                 return output;
             }
         }
@@ -914,40 +906,42 @@
     };
     Object.defineProperty(ScriptInfo, "InfoSet", {
         get: function() {
-            return typeof jConfig("script.script_info") !== _undefined;
+            return _undefined != typeof jConfig.script.script_info;
         }
     });
     ScriptInfo.set = function(data) {
-        var output = {};
+        var callerScriptInfo, gm_info, scriptMetaStr, pMetaData, key, tmp, urlInfo, output = {};
         try {
-            var callerScriptInfo = ScriptInfo.getScriptFileInfo();
-            if (typeof callerScriptInfo !== _undefined) output = jMod.extend(output, callerScriptInfo);
+            callerScriptInfo = ScriptInfo.getScriptFileInfo();
+            if (_undefined != typeof callerScriptInfo) output = jMod.extend(output, callerScriptInfo);
         } catch (e) {}
         try {
-            var gm_info;
-            var scriptMetaStr;
-            var pMetaData;
-            if (typeof data === _undefined && typeof GM_info !== _undefined) data = {
-                gm_info: GM_info,
-                has_GM_info: true,
-                has_GM_getMetadata: typeof GM_getMetadata === _undefined ? false : true
-            };
+            if (typeof data === _undefined && (_undefined != typeof GM_info || _undefined != typeof GM_getMetadata)) try {
+                data = {
+                    gm_info: _undefined != typeof GM_info ? GM_info : GM_getMetadata(),
+                    has_GM_info: _undefined != typeof GM_info,
+                    has_GM_getMetadata: _undefined != typeof GM_getMetadata
+                };
+            } catch (e) {}
             if ("object" === typeof data) {
-                gm_info = getFirstValidKeyValue(data, [ "GM_info", "gm_info", "ginfo" ]);
-                if (typeof gm_info === _undefined && typeof data.scriptSource !== _undefined) gm_info = data;
-                if (typeof gm_info !== _undefined && typeof gm_info.scriptMetaStr !== _undefined) scriptMetaStr = gm_info.scriptMetaStr;
+                gm_info = data.GM_info || data.gm_info || data.ginfo;
+                if (_undefined == typeof gm_info && _undefined != typeof data.scriptSource) gm_info = data;
+                if (_undefined != typeof gm_info && _undefined != typeof gm_info.scriptMetaStr) scriptMetaStr = gm_info.scriptMetaStr;
             } else if ("string" === typeof data) scriptMetaStr = data;
-            if (typeof scriptMetaStr !== _undefined) {
+            if (_undefined != typeof scriptMetaStr) {
                 pMetaData = jMod.API.ParseMetaData(scriptMetaStr);
-                for (var key in pMetaData) if (typeof output[key] === _undefined) output[key] = pMetaData[key];
+                for (key in pMetaData) if (_undefined == typeof output[key]) output[key] = pMetaData[key];
             }
-            if (typeof gm_info !== _undefined) {
-                if (typeof gm_info.script !== _undefined) for (var key in gm_info.script) if (typeof output[key] === _undefined) output[key] = gm_info.script[key];
-                if (typeof gm_info.uuid !== _undefined) output["gmUUID"] = gm_info.uuid; else if (typeof gm_info.script.uuid !== _undefined) output["gmUUID"] = gm_info.script.uuid;
-                if (typeof gm_info.scriptHandler !== _undefined) {
+            if (_undefined != typeof gm_info) {
+                if (_undefined != typeof gm_info.script) {
+                    for (key in gm_info.script) if (typeof output[key] === _undefined) output[key] = gm_info.script[key];
+                } else console.warn("ScriptInfo", "GM_info.script does not exist", gm_info, data);
+                if (_undefined != typeof gm_info.uuid) output["gmUUID"] = gm_info.uuid; else if (_undefined != typeof gm_info.script.uuid) output["gmUUID"] = gm_info.script.uuid;
+                if (_undefined != typeof gm_info.scriptHandler) {
                     if ("tampermonkey" == gm_info.scriptHandler.toLowerCase()) {
                         output.script_handler = "Tampermonkey";
                         output.script_handler_version = gm_info.version;
+                        jConfig.getScriptFileInfo = false;
                     } else if ("greasemonkey" == gm_info.scriptHandler.toLowerCase()) {
                         output.script_handler = "Greasemonkey";
                         output.script_handler_version = gm_info.version;
@@ -957,29 +951,26 @@
                     output.script_handler_version = gm_info.version;
                 } else if (data.has_GM_getMetadata) output.script_handler = "Scriptish";
             }
-            if (typeof pMetaData !== _undefined) {
-                var urlInfo;
-                var key = getFirstValidKey(pMetaData, [ "downloadURL", "updateURL", "jModupdateURL", "jModUpdateURL", "jModdownloadURL", "jModDownloadURL" ], function(k, val) {
+            if (_undefined != typeof pMetaData) {
+                key = getFirstValidKey(pMetaData, [ "downloadURL", "updateURL", "jModupdateURL", "jModUpdateURL", "jModdownloadURL", "jModDownloadURL" ], function(k, val) {
                     return jMod.ScriptInfo.getURLInfo(val);
                 });
-                if (typeof key !== _undefined && (urlInfo = ScriptInfo.getURLInfo(pMetaData[key]))) {
-                    jConfig("script.username", urlInfo.username);
-                    jConfig("script.script_name", urlInfo.script_name);
-                    if ([ "meta", "metajs", "data" ].indexOf(urlInfo.get_type.toLowerCase()) != -1) jConfig("script.get_type", urlInfo.get_type.toLowerCase());
+                if (_undefined != typeof key && (urlInfo = ScriptInfo.getURLInfo(pMetaData[key]))) {
+                    jConfig.script.username = urlInfo.username;
+                    jConfig.script.script_name = urlInfo.script_name;
+                    if ([ "meta", "metajs", "data" ].indexOf(urlInfo.get_type.toLowerCase()) != -1) jConfig.script.get_type = urlInfo.get_type.toLowerCase();
                 } else {
-                    var tmp;
-                    if (tmp = getFirstValidKeyValue(pMetaData, [ "jModusername", "jMod_username" ])) jConfig("script.username", tmp);
-                    if (tmp = getFirstValidKeyValue(pMetaData, [ "jModscriptname", "jMod_script_name" ])) jConfig("script.script_name", tmp);
+                    if (tmp = getFirstValidKeyValue(pMetaData, [ "jModusername", "jMod_username" ])) jConfig.script.username = tmp;
+                    if (tmp = getFirstValidKeyValue(pMetaData, [ "jModscriptname", "jMod_script_name" ])) jConfig.script.script_name = tmp;
                 }
-                if (typeof pMetaData["jMod"] != _undefined) try {
-                    var tmpConfig = JSON.parse(pMetaData["jMod"]);
-                    if (tmpConfig) jMod.extend(true, jMod.Config, tmpConfig);
+                if (_undefined != typeof pMetaData.jMod) try {
+                    if (tmp = JSON.parse(pMetaData["jMod"])) jMod.extend(true, jMod.Config, tmp);
                 } catch (e) {
                     jModError(e, "ScriptInfo.set", "Error parsing options in MetaBlock");
                 }
             }
         } catch (e) {
-            jModError(e, "ScriptInfo.set");
+            console.error("Error ScriptInfo.set", e);
         }
         Object.defineProperty(jMod.Config.script, "script_info", {
             value: Object.freeze(output),
@@ -991,9 +982,23 @@
     };
     ScriptInfo.get = function() {
         var r = jMod.Config.script.script_info;
-        return typeof r != _undefined ? r : ScriptInfo.set.apply(this, arguments);
+        return _undefined != typeof r ? r : ScriptInfo.set.apply(this, arguments);
     };
-    if (_undefined == typeof jMod.Config.script.script_info && _undefined != typeof GM_info) ScriptInfo.set();
+    var cssResourceAdded = false;
+    if (_undefined != typeof GM_info || _undefined != typeof GM_getMetadata) {
+        try {
+            ScriptInfo.set();
+        } catch (e) {}
+        var resources = jConfig("script.script_info.resource");
+        if (resources && resources.jModCSS && _undefined != typeof GM_getResourceText) try {
+            var tmp = GM_getResourceText("jModCSS");
+            if (tmp && "" != tmp) {
+                _css += tmp;
+                cssResourceAdded = true;
+            }
+        } catch (e) {}
+    }
+    if (!cssResourceAdded) _css = defaultjModCSSURL + _css;
     var StringFormat = function(str, arr) {
         var i = -1;
         function callback(exp, p0, p1, p2, p3, p4) {
@@ -1169,55 +1174,36 @@
     };
     jMod.Element.isElement = isElement;
     var hasClass = jMod.Element.hasClass = function(el, className) {
-        var classArr = el.className.split(" ");
-        if (classArr.indexOf(className) == -1) return false;
-        return true;
+        return (" " + el.className + " ").indexOf(" " + className + " ") != -1;
     };
     var hasClasses = jMod.Element.hasClasses = function(el, classNames) {
-        var r = [];
-        var classArr = el.className.split(" ");
-        var classNamesArr = "string" === typeof classNames ? classNames.split(" ") : classNames;
-        for (var i in classNamesArr) if (classArr.indexOf(classNamesArr[i]) != -1) r.push(classNamesArr[i]);
-        return r;
+        var classNamesPad = " " + el.className + " ", classNamesArr = "string" == typeof classNames ? classNames.split(" ") : classNames;
+        return classNamesArr.filter(function(name) {
+            return classNamesPad.indexOf(" " + name + " ") != -1;
+        });
     };
     var missingClasses = jMod.Element.missingClasses = function(el, classNames) {
-        var r = [];
-        var classArr = el.className.split(" ");
-        var classNamesArr = "string" === typeof classNames ? classNames.split(" ") : classNames;
-        for (var i in classNamesArr) if (classArr.indexOf(classNamesArr[i]) == -1) r.push(classNamesArr[i]);
-        return r;
+        var classNamesPad = " " + el.className + " ", classNamesArr = "string" == typeof classNames ? classNames.split(" ") : classNames;
+        return classNamesArr.filter(function(name) {
+            return classNamesPad.indexOf(" " + name + " ") == -1;
+        });
     };
     var addClass = jMod.Element.addClass = function(el, className) {
         if (!hasClass(el, className)) el.className = (el.className + " " + className).trim();
         return el;
     };
     var addClasses = jMod.Element.addClasses = function(el, classNames) {
-        var classNamesArr = "string" === typeof classNames ? classNames.split(" ") : classNames;
-        var has = el.className.split(" ");
-        for (var i = 0; i < classNamesArr.length; i++) if (has.indexOf(classNamesArr[i]) == -1) has.push(classNamesArr[i]);
-        el.className = has.join(" ");
-        return el;
+        return el.className = (el.className + " " + missingClasses(el, classNames).join(" ")).trim(), 
+        el;
     };
+    var removeClassRegex = new RegExp("\\w+");
     var removeClass = jMod.Element.removeClass = function(el, className) {
-        var classStr = el.className;
-        var classArr = classStr.split(" ");
-        var index = classArr.indexOf(className);
-        if (index == -1) return el;
-        classArr.splice(index, 1);
-        el.className = classArr.join(" ");
-        return el;
+        return el.className = (" " + el.className + " ").replace(new RegExp(" " + className + " ", "g"), " ").trim(), 
+        el;
     };
     var removeClasses = jMod.Element.removeClasses = function(el, classNames) {
-        var namesArr;
-        if ("string" === typeof classNames) namesArr = Slice.call(arguments, 1); else namesArr = classNames;
-        var classStr = el.className;
-        var classArr = classStr.split(" ");
-        for (var i in namesArr) {
-            var index = classArr.indexOf(namesArr[i]);
-            if (index != -1) classArr.splice(index, 1);
-        }
-        el.className = classArr.join(" ");
-        return el;
+        return el.className = (" " + el.className + " ").replace(new RegExp(" (?:" + ("string" == typeof classNames ? classNames.split(" ") : classNames).join("|") + ") ", "g"), " ").trim(), 
+        el;
     };
     var setAttributes = function(el, attrs) {
         for (var attr in attrs) el.setAttribute(attr, attrs[attr]);
@@ -1236,36 +1222,30 @@
         return el.getAttribute(attr);
     };
     var appendChild = jMod.Element.appendChild = function(el, data) {
+        var nodes, dummy, i;
         try {
             if (!isElement(el) && "object" === typeof el && el.type !== undefined) {
-                var targetKey;
-                if (el.innerHTML !== undefined) targetKey = "innerHTML";
-                if (el.text !== undefined) targetKey = "text";
-                if (!targetKey) el.innerHTML = [ data ]; else if ("array" == RealTypeOf(el[targetKey])) el[targetKey].push(data); else el[targetKey] = [ el[targetKey], data ];
+                i = el.innerHTML === undefined && el.text !== undefined ? "text" : "innerHTML";
+                if ("array" == RealTypeOf(el[i])) el[i].push(data); else el[i] = [ el[i], data ];
             } else if (typeof data === _undefined || null === data) return el; else if (isElement(data)) el.appendChild(data); else switch (RealTypeOf(data)) {
               case _undefined:
               case "null":
                 break;
 
               case "array":
-                for (var i = 0; i < data.length; i++) el = appendChild(el, data[i]);
+                for (i = 0; i < data.length; i++) el = appendChild(el, data[i]);
                 break;
 
               case "object":
               case "map":
-                var tmpEl = createNewElement(data);
-                if (tmpEl) el.appendChild(tmpEl);
+                if (dummy = createNewElement(data)) el.appendChild(dummy);
                 break;
 
-              case "string":
-              case "number":
-              case "symbol":
-              case "boolean":
               default:
-                var dummy = document.createElement("div");
+                nodes, dummy = document.createElement("div");
                 dummy.innerHTML = data;
-                var nodes = dummy.childNodes;
-                for (var i = 0; i < nodes.length; i++) el.appendChild(nodes[i]);
+                nodes = dummy.childNodes;
+                for (i = 0; i < nodes.length; i++) el.appendChild(nodes[i]);
             }
         } catch (e) {
             jModError(e, "jMod.Element.appendChild");
@@ -1273,20 +1253,18 @@
             return el;
         }
     };
-    const validElementProps = [ "checked", "defaultValue", "title", "async", "defer", "src", "onerror", "onload", "responseCallback", "value", "max", "min" ];
+    var validElementProps = [ "id", "className", "checked", "defaultValue", "title", "async", "defer", "src", "onerror", "onload", "responseCallback", "value", "max", "min" ];
     var createNewElement = jMod.Element.createNewElement = function(data) {
-        var i, eventListeners = data.EventListeners || data.eventListeners, newElement = document.createElement(data.type || "div");
-        if (data.id !== undefined) newElement.id = data.id;
-        if (data.className !== undefined) newElement.className = data.className; else if (data["class"] !== undefined) newElement.className = data["class"];
+        var i, eventName, capture, callback, eventListeners = data.EventListeners || data.eventListeners, newElement = document.createElement(data.type || "div");
         if ("string" === typeof data.style) newElement.style = data.style; else if ("object" === typeof data.style) for (i in data.style) newElement.style[i] = data.style[i];
         for (i = 0; i < validElementProps.length; i++) if (data[validElementProps[i]] !== undefined) newElement[validElementProps[i]] = data[validElementProps[i]];
-        if (data.attributes !== undefined) for (i in data.attributes) if (typeof data.attributes[i] !== _undefined && null !== data.attributes[i]) newElement.setAttribute(i, data.attributes[i]);
-        if (eventListeners) for (var eventName in eventListeners) if ("function" === typeof eventListeners[eventName]) newElement.addEventListener(eventName, eventListeners[eventName]); else if ("object" === typeof eventListeners[eventName]) {
-            var capture = eventListeners[eventName].useCapture || eventListeners[eventName].Capture || eventListeners[eventName].capture || false;
-            var callback = eventListeners[eventName].callback || eventListeners[eventName]["function"];
+        if (data.attributes !== undefined) for (i in data.attributes) if (null != data.attributes[i]) newElement.setAttribute(i, data.attributes[i]);
+        if (eventListeners) for (eventName in eventListeners) if ("function" === typeof eventListeners[eventName]) newElement.addEventListener(eventName, eventListeners[eventName]); else if ("object" === typeof eventListeners[eventName]) {
+            capture = eventListeners[eventName].useCapture || eventListeners[eventName].Capture || eventListeners[eventName].capture || false;
+            callback = eventListeners[eventName].callback || eventListeners[eventName]["function"];
             if (callback) if ("array" == RealTypeOf(callback)) for (i in callback) newElement.addEventListener(eventName, callback[i], capture); else newElement.addEventListener(eventName, callback, capture);
         }
-        appendChild(newElement, getFirstValidKeyValue(data, [ "innerHTML", "text" ]));
+        appendChild(newElement, data.innerHTML || data.text);
         return newElement;
     };
     var getOffset = jMod.Element.getOffset = function(el) {
@@ -1396,6 +1374,9 @@
         function functionEnabled(name) {
             return jConfig("API.log.disabled").indexOf(name) == -1 && jConfig("API.log.verbosity_level") > 1;
         }
+        jMod.isFormatted = function(command, value) {
+            return [ "debug", "log", "info", "warn", "error", "exception" ].indexOf(command) != -1 && "string" == typeof value && /(?:\%s|\%c|\%o|\%d|\%f|\%\.\df|\%i)/.test(value);
+        };
         jMod.log = jMod.API.log = {
             OUTPUT_TYPES: OUTPUT_TYPES,
             fb: undefined,
@@ -1426,99 +1407,105 @@
                 this.updateWC(getWC());
             },
             ScopedConsoleCommand: function(command, value) {
-                var isFormatted = [ "debug", "log", "info", "warn", "error", "exception" ].indexOf(command) != -1 && "string" == typeof value && /(?:\%s|\%c|\%o|\%d|\%f|\%\.\df|\%i)/.test(value);
-                var ptr = isFormatted || _undefined != this.fb && _undefined != typeof this.fb[command] ? this.fb : this.wc;
-                if (_undefined == typeof ptr[command]) return false;
-                try {
-                    switch (arguments.length) {
-                      case 1:
-                        ptr[command].call(ptr);
-                        break;
+                var i = 0, ptr, cmd, args = arguments, order = [ "WebConsole", "Firebug" ], objs = {
+                    Firebug: this.fb,
+                    WebConsole: this.wc
+                };
+                if ([ "profile", "profileEnd", "error" ].indexOf(command) != -1 || !jConfig.API.log.WebConsole) order = [ "Firebug", "WebConsole" ];
+                for (;i < order.length; i++) {
+                    ptr = objs[order[i]];
+                    cmd = ptr[command];
+                    if (_undefined == typeof ptr || _undefined == typeof cmd) continue;
+                    try {
+                        switch (args.length) {
+                          case 1:
+                            return cmd.call(ptr);
 
-                      case 2:
-                        ptr[command].call(ptr, arguments[1]);
-                        break;
+                          case 2:
+                            return cmd.call(ptr, args[1]);
 
-                      case 3:
-                        ptr[command].call(ptr, arguments[1], arguments[2]);
-                        break;
+                          case 3:
+                            return cmd.call(ptr, args[1], args[2]);
 
-                      case 4:
-                        ptr[command].call(ptr, arguments[1], arguments[2], arguments[3]);
-                        break;
+                          case 4:
+                            return cmd.call(ptr, args[1], args[2], args[3]);
 
-                      case 5:
-                        ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4]);
-                        break;
+                          case 5:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4]);
 
-                      case 6:
-                        ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5]);
-                        break;
+                          case 6:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5]);
 
-                      case 7:
-                        ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6]);
-                        break;
+                          case 7:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6]);
 
-                      case 8:
-                        ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7]);
-                        break;
+                          case 8:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
 
-                      case 9:
-                        ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8]);
-                        break;
+                          case 9:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]);
 
-                      case 10:
-                        ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9]);
-                        break;
+                          case 10:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]);
 
-                      case 11:
-                        ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10]);
-                        break;
+                          case 11:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10]);
 
-                      case 12:
-                        ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11]);
-                        break;
+                          case 12:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11]);
 
-                      case 13:
-                        ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12]);
-                        break;
+                          case 13:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12]);
 
-                      case 14:
-                        ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13]);
-                        break;
+                          case 14:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13]);
 
-                      case 15:
-                        ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13], arguments[14]);
-                        break;
+                          case 15:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14]);
 
-                      case 16:
-                        ptr[command].call(ptr, arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10], arguments[11], arguments[12], arguments[13], arguments[14], arguments[15]);
-                        break;
+                          case 16:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15]);
 
-                      default:
-                        return false;
-                    }
-                } catch (e) {
-                    return false;
+                          case 17:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16]);
+
+                          case 18:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17]);
+
+                          default:
+                            return false;
+                        }
+                        return true;
+                    } catch (e) {}
                 }
-                return true;
+                return false;
             },
             ConsoleCommand: function(command, value) {
                 try {
-                    var args = Slice.call(arguments, 1);
+                    var i = 0, key, order = [ "WebConsole", "Firebug" ], args = Slice.call(arguments, 1), objs = {
+                        Firebug: this.fb,
+                        WebConsole: this.wc
+                    };
                     var safeArgs = mCloneInto(args, unsafeWindow, {
                         cloneFunctions: true,
                         wrapReflectors: true
                     });
-                    var isFormatted = [ "debug", "log", "info", "warn", "error", "exception" ].indexOf(command) != -1 && "string" == typeof value && /(?:\%s|\%c|\%o|\%d|\%f|\%\.\df|\%i)/.test(value);
-                    try {
-                        if (typeof this.fb !== _undefined && typeof this.fb[command] !== _undefined && jConfig("API.log.Firebug")) this.fb[command].apply(this.fb, args); else if (!isFormatted && typeof this.wc !== _undefined && typeof this.wc[command] !== _undefined && jConfig("API.log.WebConsole")) this.wc[command].apply(this.wc, args);
-                    } catch (e) {
-                        if (typeof this.fb !== _undefined && typeof this.fb[command] !== _undefined && jConfig("API.log.Firebug")) this.fb[command].apply(this.fb, safeArgs); else if (!isFormatted && typeof this.wc !== _undefined && typeof this.wc[command] !== _undefined && jConfig("API.log.WebConsole")) this.wc[command].apply(this.wc, safeArgs);
+                    if ([ "profile", "profileEnd" ].indexOf(command) != -1 || !jConfig.API.log.WebConsole) order = [ "Firebug", "WebConsole" ];
+                    for (;i < order.length; i++) {
+                        key = order[i];
+                        if (typeof objs[key] !== _undefined && objs[key][command] !== _undefined && jConfig.API.log[key]) {
+                            try {
+                                return objs[key][command].apply(objs[key], args);
+                            } catch (e) {}
+                            try {
+                                return objs[key][command].apply(objs[key], safeArgs);
+                            } catch (e) {}
+                        }
                     }
                 } catch (e) {
                     console.error(e);
                 }
+                return false;
             },
             outputMessage: function(output_type, str) {
                 if (output_type.level <= jConfig("API.log.verbosity_level")) this.ConsoleCommand.apply(this, [ output_type.value ].concat(Slice.call(arguments, 1)));
@@ -1527,14 +1514,22 @@
                 time: "font-weight:bold;font-size:120%;color:red;",
                 stchange: "font-weight:bold;font-size:130%;color:blue;",
                 iconStyle: 'font-size:175%;background-image:url("http://myuserjs.org/img/favicon/favicon.png");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;',
-                infoDefaultStyle: " ",
+                logDefaultStyle: "",
+                logHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
+                logTitleStyle: "color:#000;font-size:125%;",
+                logTextStyle: "font-weight:bold;font-size:120%;color:#000;",
+                infoDefaultStyle: "",
                 infoHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
                 infoTitleStyle: "color:#000;font-size:125%;",
                 infoTextStyle: "font-weight:bold;font-size:120%;color:blue;",
-                warningDefaultStyle: " ",
+                warningDefaultStyle: "",
                 warningHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
                 warningTitleStyle: "color:#000;font-size:125%;",
-                warningTextStyle: "font-weight:bold;font-size:120%;color:red;"
+                warningTextStyle: "font-weight:bold;font-size:120%;color:red;",
+                errorDefaultStyle: " ",
+                errorHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
+                errorTitleStyle: "color:#000;font-size:125%;",
+                errorLineStyle: "color:blue;"
             }
         };
         for (i = 0; i < msgList.length; i++) jMod.API.log[msgList[i][0]] = function(oType) {
@@ -1550,7 +1545,7 @@
         for (i = 0; i < exportFunctions.length; i++) jMod[exportFunctions[i]] = jMod.log[exportFunctions[i]].bind(jMod.API.log);
         jMod.API.logFormatBuilder = function() {
             this.args = [];
-            this.add = function(value, type, style) {
+            var addLine = function(value, type, style) {
                 var isUndef = _undefined === typeof value, origType = typeof type;
                 if (typeof type === _undefined) type = typeof value;
                 var fmtType;
@@ -1612,6 +1607,9 @@
                     style: style
                 });
             };
+            this.add = function() {
+                if (1 == arguments.length && "array" == RealTypeOf(arguments[0])) for (var i = 0; i < arguments[0].length; i++) addLine.apply(this, arguments[0][i]); else addLine.apply(this, Slice.call(arguments));
+            };
             this.build = function() {
                 var fmtString = "";
                 var arr = [];
@@ -1622,69 +1620,65 @@
                 }
                 return [ fmtString ].concat(arr);
             };
+            if (arguments.length > 0) this.add.apply(this, arguments);
         };
         jMod.log.UpdateAll();
     }();
-    var jModError = function(e, title, message) {
-        var errorDefaultStyle = "";
-        var errorHeaderStyle = 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;';
-        var errorTitleStyle = "color:#000;font-size:125%;";
-        var errorLineStyle = "color:blue;";
-        if (typeof e !== _undefined && null !== e) if (arguments.length <= 3) jMod.log.ScopedConsoleCommand.call(jMod.log, "error", "%c%s%cjMod Error%c - %c%s \n%s \n%c%s - %c(line %d)", errorDefaultStyle + jMod.log.fmt.iconStyle, "  ", errorDefaultStyle + errorHeaderStyle, " ", errorDefaultStyle + errorTitleStyle, title || " ", message || " ", errorDefaultStyle + " ", e.message, errorDefaultStyle + errorLineStyle, e.lineNumber, e); else jMod.log.ScopedConsoleCommand.call(jMod.log, "error", "%c%s%cjMod Error%c - %c%s \n%s \n%c%s - %c(line %d)", errorDefaultStyle + jMod.log.fmt.iconStyle, "  ", errorDefaultStyle + errorHeaderStyle, " ", errorDefaultStyle + errorTitleStyle, title || " ", message || " ", errorDefaultStyle + " ", e.message, errorDefaultStyle + errorLineStyle, e.lineNumber, e, arguments[3]); else jMod.log.ScopedConsoleCommand.apply(jMod.log, [ "error", "%c%s%cjMod Error%c - %c%s \n%s", errorDefaultStyle + jMod.log.fmt.iconStyle, "  ", errorDefaultStyle + errorHeaderStyle, " ", errorDefaultStyle + errorTitleStyle, title || " ", message || " " ].concat(Slice.call(arguments, 3)));
+    var jModError = function() {
+        var i = 3, e = arguments[0], title = arguments[1], message;
+        try {
+            message = arguments[2];
+        } catch (e) {}
+        if (!(e && e.message && e.lineNumber)) {
+            message = title;
+            title = e;
+            e = undefined;
+            i = 2;
+        }
+        var errorDefaultStyle = jMod.log.fmt.errorDefaultStyle;
+        var fmtBuild = new jMod.API.logFormatBuilder([ [ "  ", "%s", errorDefaultStyle + jMod.log.fmt.iconStyle ], [ "jMod", "string", errorDefaultStyle + jMod.log.fmt.errorHeaderStyle ], [ " - ", "string", errorDefaultStyle ], [ title || " ", "%s", errorDefaultStyle + jMod.log.fmt.errorTitleStyle ], [ " \n", "string" ], [ message || "", "%s", errorDefaultStyle + " " ] ]);
+        for (;i < arguments.length; i++) fmtBuild.add([ [ " \n", "string" ], [ arguments[i], "string" == typeof arguments[i] ? "string" : "object" ] ]);
+        if (typeof e !== _undefined && null != e) fmtBuild.add([ [ " \n", "string" ], [ e.message + " ", "%s", errorDefaultStyle + " " ], [ e.lineNumber, "%s", errorDefaultStyle + jMod.log.fmt.errorLineStyle ], [ e ] ]);
+        var arr = fmtBuild.build();
+        arr.unshift("error");
+        jMod.log.ScopedConsoleCommand.apply(jMod.log, arr);
     };
     var jModLogWarning = function(title, text) {
         if (jMod.log.OUTPUT_TYPES.WARNING.level > jConfig("API.log.verbosity_level")) return;
-        var i = 2, warningDefaultStyle = jMod.log.fmt.warningDefaultStyle, fmtBuild = new jMod.API.logFormatBuilder();
-        fmtBuild.add("  ", "%s", warningDefaultStyle + jMod.log.fmt.iconStyle);
-        fmtBuild.add("jMod Warning", "string", warningDefaultStyle + jMod.log.fmt.warningHeaderStyle);
-        if (_undefined !== typeof text) {
-            fmtBuild.add(" - ", "string", warningDefaultStyle);
-            fmtBuild.add(title || " ", "%s", warningDefaultStyle + jMod.log.fmt.warningTitleStyle);
-            fmtBuild.add(" \n", "string");
-            fmtBuild.add(text || "", "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle);
-        } else {
-            fmtBuild.add(" \n", "string");
-            fmtBuild.add(title || "", "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle);
-        }
+        var i = 2, warningDefaultStyle = jMod.log.fmt.warningDefaultStyle, fmtBuild = new jMod.API.logFormatBuilder([ [ "  ", "%s", warningDefaultStyle + jMod.log.fmt.iconStyle ], [ "jMod Warning", "string", warningDefaultStyle + jMod.log.fmt.warningHeaderStyle ] ]);
+        if (_undefined !== typeof text) fmtBuild.add([ [ " - ", "string", warningDefaultStyle ], [ title || " ", "%s", warningDefaultStyle + jMod.log.fmt.warningTitleStyle ], [ " \n", "string" ], [ text || "", "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle ] ]); else fmtBuild.add([ [ " \n", "string" ], [ title || "", "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle ] ]);
         if (arguments.length > 2) fmtBuild.add(" \n", "string");
         for (i; i < arguments.length; i++) fmtBuild.add(arguments[i]);
         jMod.Warning.apply(jMod.log, fmtBuild.build());
     };
     var jModLogInfo = function(title, text) {
         if (jMod.log.OUTPUT_TYPES.INFO.level > jConfig("API.log.verbosity_level")) return;
-        var i = 2, infoDefaultStyle = jMod.log.fmt.infoDefaultStyle, fmtBuild = new jMod.API.logFormatBuilder();
-        fmtBuild.add("  ", "%s", infoDefaultStyle + jMod.log.fmt.iconStyle);
-        fmtBuild.add("jMod", "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle);
-        if (_undefined !== typeof text) {
-            fmtBuild.add(" - ", "string", infoDefaultStyle);
-            fmtBuild.add(title || " ", "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle);
-            fmtBuild.add(" \n", "string");
-            fmtBuild.add(text || "", "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle);
-        } else {
-            fmtBuild.add(" \n", "string");
-            fmtBuild.add(title || "", "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle);
-        }
+        var i = 2, infoDefaultStyle = jMod.log.fmt.infoDefaultStyle, fmtBuild = new jMod.API.logFormatBuilder([ [ "  ", "%s", infoDefaultStyle + jMod.log.fmt.iconStyle ], [ "jMod", "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle ] ]);
+        if (_undefined !== typeof text) fmtBuild.add([ [ " - ", "string", infoDefaultStyle ], [ title || " ", "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle ], [ " \n", "string" ], [ text || "", "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle ] ]); else fmtBuild.add([ [ " \n", "string" ], [ title || "", "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle ] ]);
         if (arguments.length > 2) fmtBuild.add(" \n", "string");
         for (i; i < arguments.length; i++) fmtBuild.add(arguments[i]);
         jMod.Info.apply(jMod.log, fmtBuild.build());
+    };
+    var jModLog = function(title, text) {
+        if (jMod.log.OUTPUT_TYPES.LOG.level > jConfig("API.log.verbosity_level")) return;
+        var i = 2, logDefaultStyle = jMod.log.fmt.infoDefaultStyle, fmtBuild = new jMod.API.logFormatBuilder([ [ "  ", "%s", logDefaultStyle + jMod.log.fmt.iconStyle ], [ "jMod", "string", logDefaultStyle + jMod.log.fmt.logHeaderStyle ] ]);
+        if (_undefined !== typeof text) fmtBuild.add([ [ " - ", "string", logDefaultStyle ], [ title || " ", "%s", logDefaultStyle + jMod.log.fmt.logTitleStyle ], [ " \n", "string" ], [ text || "", "%s", logDefaultStyle + jMod.log.fmt.logTextStyle ] ]); else fmtBuild.add([ [ " \n", "string" ], [ title || "", "%s", logDefaultStyle + jMod.log.fmt.logTextStyle ] ]);
+        if (arguments.length > 2) fmtBuild.add(" \n", "string");
+        for (i; i < arguments.length; i++) fmtBuild.add(arguments[i]);
+        jMod.Log.apply(jMod.log, fmtBuild.build());
     };
     var jModLogTime = function(title, prefix, suffix) {
         if (jMod.log.OUTPUT_TYPES.INFO.level > jConfig("API.log.verbosity_level")) return;
         var text = (prefix || "") + jMod.timeElapsed.toFixed(2) + "ms" + (suffix || "");
         var infoDefaultStyle = jMod.log.fmt.infoDefaultStyle;
-        var fmtBuild = new jMod.API.logFormatBuilder();
-        fmtBuild.add("  ", "%s", infoDefaultStyle + jMod.log.fmt.iconStyle);
-        fmtBuild.add("jMod", "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle);
-        fmtBuild.add(" - ", "string", infoDefaultStyle);
-        fmtBuild.add(title || " ", "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle);
-        fmtBuild.add(" ", "string");
-        fmtBuild.add(text, "%s", infoDefaultStyle + jMod.log.fmt.time);
+        var fmtBuild = new jMod.API.logFormatBuilder([ [ "  ", "%s", infoDefaultStyle + jMod.log.fmt.iconStyle ], [ "jMod", "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle ], [ " - ", "string", infoDefaultStyle ], [ title || " ", "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle ], [ " ", "string" ], [ text, "%s", infoDefaultStyle + jMod.log.fmt.time ] ]);
         jMod.Info.apply(jMod.log, fmtBuild.build());
     };
     jMod.log.Info("Loading jMod API v" + jMod.version + " " + jMod.build_type + (jMod.debug ? " (debug enabled)" : "") + " - " + new Date(parseInt(jMod.build_time)).toString());
     if (jMod.debug) {
         jModLogTime("jMod Init Start Time");
         jMod.log.group("jMod Start");
+        if (jConfig.script.script_info) jModLogInfo("ScriptInfo.set", "Get Script_Info Successful!!", jConfig.script.script_info);
         jMod.log.group("jMod Initialize");
         if (CurrentRunningScript.el) jMod.Info("CurrentRunningScript", CurrentRunningScript);
     }
@@ -2291,66 +2285,87 @@
         };
     };
     jMod.jQueryExtensions = {};
-    jMod.jQueryExtensions.addCrossOriginSupport = function(_jQueryObj, dataType) {
-        if (_undefined == typeof GM_xmlhttpRequest) return;
-        if (!_jQueryObj && !(_jQueryObj = jMod.jQuery)) return;
-        if (true === _jQueryObj.jModCrossOriginSupport) return;
-        _jQueryObj.ajaxTransport(dataType || "* text html xml json", function(options, originalOptions, jqXHR) {
-            var CrossOriginEnabled = true;
-            try {
-                CrossOriginEnabled = jMod.Config("jQueryExtensions.CrossOrigin");
-            } catch (e) {}
-            if (_undefined != typeof GM_xmlhttpRequest && CrossOriginEnabled) {
-                var extend = (_jQueryObj || $ || jMod).extend, mergedOptions = extend(true, {}, options, originalOptions), optionMap = {
-                    context: "context",
-                    overrideMimeType: "overrideMimeType",
-                    timeout: "timeout",
-                    username: "user",
-                    password: "password",
-                    onreadystatechange: "onreadystatechange",
-                    ontimeout: "ontimeout",
-                    onprogress: "onprogress",
-                    binary: "binary"
-                };
-                return {
-                    send: function(headers, callback) {
-                        var origType = (originalOptions.dataType || "").toLowerCase(), gm_request_options = {
-                            method: options.type || "GET",
-                            url: options.url,
-                            data: extend({}, options.data || {}, originalOptions.data || {}),
-                            headers: headers,
-                            onload: function(response) {
-                                var dResponse = {
-                                    text: response.responseText
-                                }, rContentType = "", key;
-                                try {
-                                    rContentType = /Content-Type:\s*([^\s]+)/i.exec(response.responseHeaders)[1];
-                                } catch (e) {}
-                                if ("html" === origType || /text\/html/i.test(rContentType)) dResponse.html = response.responseText; else if ("json" === origType || "text" !== origType && /\/json/i.test(rContentType)) try {
-                                    dResponse.json = $.parseJSON(response.responseText);
-                                } catch (e) {} else if ("xml" == origType || "text" !== origType && /\/xml/i.test(rContentType)) if (response.responseXML) dResponse.xml = response.responseXML; else try {
-                                    dResponse.xml = new DOMParser().parseFromString(response.responseText, "text/xml");
-                                } catch (e) {}
-                                callback(200, "success", dResponse, response.responseHeaders);
-                            },
-                            onerror: function(response) {
-                                callback(404, "error", {
-                                    text: response.responseText
-                                }, response.responseHeaders);
-                            }
-                        };
-                        for (key in optionMap) if (_undefined != typeof mergedOptions[key]) gm_request_options[optionMap[key]] = mergedOptions[key];
-                        if (false === mergedOptions.async) gm_request_options.synchronous = true;
-                        GM_xmlhttpRequest(gm_request_options);
-                    },
-                    abort: function() {}
-                };
-            }
-        });
-        _jQueryObj.extend({
-            jModCrossOriginSupport: true
-        });
-    };
+    +function() {
+        jMod.jQueryExtensions.CrossOriginSupportTransportFn = function(_jQueryObj, dataType) {
+            return function(options, originalOptions, jqXHR) {
+                var CrossOriginEnabled = true;
+                try {
+                    CrossOriginEnabled = jMod.Config("jQueryExtensions.CrossOrigin");
+                } catch (e) {}
+                if (_undefined != typeof GM_xmlhttpRequest && CrossOriginEnabled) {
+                    var extend = (_jQueryObj || $ || jMod).extend, mergedOptions = extend(true, {}, options, originalOptions), optionMap = {
+                        context: "context",
+                        overrideMimeType: "overrideMimeType",
+                        timeout: "timeout",
+                        username: "user",
+                        password: "password",
+                        onreadystatechange: "onreadystatechange",
+                        ontimeout: "ontimeout",
+                        onprogress: "onprogress",
+                        binary: "binary"
+                    };
+                    return {
+                        send: function(headers, callback) {
+                            var origType = (originalOptions.dataType || "").toLowerCase(), gm_request_options = {
+                                method: options.type || "GET",
+                                url: options.url,
+                                data: extend({}, options.data || {}, originalOptions.data || {}),
+                                headers: headers,
+                                onload: function(response) {
+                                    var dResponse = {
+                                        text: response.responseText
+                                    }, rContentType = "", key;
+                                    try {
+                                        rContentType = /Content-Type:\s*([^\s]+)/i.exec(response.responseHeaders)[1];
+                                    } catch (e) {}
+                                    if ("html" === origType || /text\/html/i.test(rContentType)) dResponse.html = response.responseText; else if ("json" === origType || "text" !== origType && /\/json/i.test(rContentType)) try {
+                                        dResponse.json = $.parseJSON(response.responseText);
+                                    } catch (e) {} else if ("xml" == origType || "text" !== origType && /\/xml/i.test(rContentType)) if (response.responseXML) dResponse.xml = response.responseXML; else try {
+                                        dResponse.xml = new DOMParser().parseFromString(response.responseText, "text/xml");
+                                    } catch (e) {}
+                                    callback(200, "success", dResponse, response.responseHeaders);
+                                },
+                                onerror: function(response) {
+                                    callback(404, "error", {
+                                        text: response.responseText
+                                    }, response.responseHeaders);
+                                }
+                            };
+                            for (key in optionMap) if (_undefined != typeof mergedOptions[key]) gm_request_options[optionMap[key]] = mergedOptions[key];
+                            if (false === mergedOptions.async) gm_request_options.synchronous = true;
+                            GM_xmlhttpRequest(gm_request_options);
+                        },
+                        abort: function() {}
+                    };
+                }
+            };
+        };
+        function exportjQueryTransportFn(_jQueryObj, dataType) {
+            return unsafeWindow.globaljQueryCrossOriginSupportFn || (jMod.jQueryExtensions._globaljQueryCrossOriginSupportFn = mExportFunction(jMod.jQueryExtensions.CrossOriginSupportTransportFn(_jQueryObj, dataType), unsafeWindow, {
+                defineAs: "globaljQueryCrossOriginSupportFn",
+                allowCallbacks: true,
+                allowCrossOriginArguments: true
+            }));
+        }
+        jMod.jQueryExtensions.addCrossOriginSupport = function(_jQueryObj, dataType) {
+            if (_undefined == typeof GM_xmlhttpRequest) return;
+            if (!_jQueryObj && !(_jQueryObj = jMod.jQuery)) return;
+            if (true === _jQueryObj.jModCrossOriginSupport) return;
+            _jQueryObj.ajaxTransport(dataType || "* text html xml json", jMod.jQueryExtensions.CrossOriginSupportTransportFn(_jQueryObj, dataType));
+            _jQueryObj.extend({
+                jModCrossOriginSupport: true
+            });
+        };
+        jMod.jQueryExtensions.exportCrossOriginSupport = function(_jQueryObj, dataType) {
+            if (_undefined == typeof GM_xmlhttpRequest) return;
+            if (!_jQueryObj) return;
+            if (true === _jQueryObj.jModCrossOriginSupport) return;
+            _jQueryObj.ajaxTransport(dataType || "* text html xml json", exportjQueryTransportFn(_jQueryObj, dataType));
+            _jQueryObj.extend({
+                jModCrossOriginSupport: true
+            });
+        };
+    }();
     jMod.Config.Tooltip = jMod.extend({
         enabled: false,
         containerId: "jModTooltipContainer",
@@ -3038,7 +3053,7 @@
                     el.style.display = "none";
                     Notification.Events.fire("onAfterClose", num, null, el);
                     el.parentElement.removeChild(el);
-                }, 1e3, el, num);
+                }, 800, el, num);
             },
             init: function() {
                 var notificationsFullWrapper = Notification("getElement", "notificationsWrapper");
@@ -5098,9 +5113,9 @@
             DOMLoaded: function() {
                 Loading.DOMLoaded = true;
                 if (jMod.debug) jModLogTime("DOM Loaded", null, " - Begin Init");
-                jMod.Events.fire("onDOMReady");
                 Loading.CSSAdded = true;
                 jMod.AddCSS();
+                jMod.Events.fire("onDOMReady");
                 jMod.Notification.init();
                 jMod.Modal.init();
                 jMod.Settings.init();
