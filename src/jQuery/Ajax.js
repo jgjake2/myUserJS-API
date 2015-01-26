@@ -1,72 +1,12 @@
 // +@display_name  jQuery Ajax Extensions
+// +@history (0.0.18) Added "exportCrossOriginSupport" so jQuery instances in the unsafeWindow can be extended.
 
 RequireScript('jQuery.jQueryExtensions');
 
-/**
- * Adds Cross Origin support to a jQuery instance by allowing it to use GM_xmlhttpRequest.
- * @function addCrossOriginSupport
- * @memberof jMod.jQueryExtensions
- * @param {object} [_jQueryObj] - jQuery object - Defaults to first jQuery instance accessible by jMod
- * @param {string} [dataType="* text html xml json"] - A string identifying the data types GM_xmlhttpRequest should handle
- * @example
- *if($){
- *	$(document).ready(function() {
- *		function test_jQueryFunctions(){
- *			jMod.jQueryExtensions.addCrossOriginSupport($);
- *			
- *			// Test $.ajax()
- *			console.log('Test $.ajax("http://google.com")');
- *			$.ajax({
- *					url: 'http://google.com',
- *					contentType: 'text/html',
- *					type: 'GET',
- *					dataType: 'html',
- *					onprogress: function(response){
- *						console.log('onprogress response', response);
- *					},
- *					onreadystatechange: function(response){
- *						console.log('onreadystatechange response', response);
- *					}
- *				})
- *				.done(function(data, textStatus, jqXHR) {
- *					console.log("$.ajax() success: ", jqXHR);
- *				})
- *				.fail(function() {
- *					console.log("$.ajax() error");
- *				});
- *			
- *			// Test $(element).load()
- *			console.log('Test $(element).load("http://google.com #hplogo")');
- *			var tmpDiv = document.createElement('div');
- *			tmpDiv.id = 'tmpDiv';
- *			document.body.appendChild(tmpDiv);
- *			
- *			$('#tmpDiv').load('http://google.com #hplogo', function(responseText, textStatus, jqXHR){
- *				console.log('$(element).load() ' + textStatus, jqXHR);
- *			});
- *		}
- *
- *		test_jQueryFunctions();
- *	});
- *} else {
- *	console.log('Test Failed! No jQuery');
- *}
- */
-jMod.jQueryExtensions.addCrossOriginSupport = function(_jQueryObj, dataType){
-	// Make sure GM function exists
-	if(NOTEXISTS(GM_xmlhttpRequest))
-		return;
-	
-	// If _jQueryObj isn't defined, default to global jQuery object
-	if(!_jQueryObj && !(_jQueryObj = jMod.jQuery))
-		// Return if there is no global jQuery object
-		return;
-	
-	// Return if already extended
-	if(_jQueryObj.jModCrossOriginSupport === true)
-		return;
-	
-	_jQueryObj.ajaxTransport(dataType || "* text html xml json", function(options, originalOptions, jqXHR){
++(function(){
+
+jMod.jQueryExtensions.CrossOriginSupportTransportFn = function(_jQueryObj, dataType){
+	return (function(options, originalOptions, jqXHR){
 		var CrossOriginEnabled = true;
 		try{
 			// jMod may no longer be in scope
@@ -154,6 +94,107 @@ jMod.jQueryExtensions.addCrossOriginSupport = function(_jQueryObj, dataType){
 			};
 		}
 	});
+}
+
+function exportjQueryTransportFn(_jQueryObj, dataType){
+	return ((unsafeWindow.globaljQueryCrossOriginSupportFn) || (jMod.jQueryExtensions._globaljQueryCrossOriginSupportFn = mExportFunction(jMod.jQueryExtensions.CrossOriginSupportTransportFn(_jQueryObj, dataType), unsafeWindow, {
+		defineAs: 'globaljQueryCrossOriginSupportFn',
+		allowCallbacks: true,
+		allowCrossOriginArguments: true
+	})));
+}
+
+/**
+ * Adds Cross Origin support to a jQuery instance by allowing it to use GM_xmlhttpRequest.
+ * @function addCrossOriginSupport
+ * @memberof jMod.jQueryExtensions
+ * @param {object} [_jQueryObj] - jQuery object - Defaults to first jQuery instance accessible by jMod
+ * @param {string} [dataType="* text html xml json"] - A string identifying the data types GM_xmlhttpRequest should handle
+ * @example
+ *if($){
+ *	$(document).ready(function() {
+ *		function test_jQueryFunctions(){
+ *			jMod.jQueryExtensions.addCrossOriginSupport($);
+ *			
+ *			// Test $.ajax()
+ *			console.log('Test $.ajax("http://google.com")');
+ *			$.ajax({
+ *					url: 'http://google.com',
+ *					contentType: 'text/html',
+ *					type: 'GET',
+ *					dataType: 'html',
+ *					onprogress: function(response){
+ *						console.log('onprogress response', response);
+ *					},
+ *					onreadystatechange: function(response){
+ *						console.log('onreadystatechange response', response);
+ *					}
+ *				})
+ *				.done(function(data, textStatus, jqXHR) {
+ *					console.log("$.ajax() success: ", jqXHR);
+ *				})
+ *				.fail(function() {
+ *					console.log("$.ajax() error");
+ *				});
+ *			
+ *			// Test $(element).load()
+ *			console.log('Test $(element).load("http://google.com #hplogo")');
+ *			var tmpDiv = document.createElement('div');
+ *			tmpDiv.id = 'tmpDiv';
+ *			document.body.appendChild(tmpDiv);
+ *			
+ *			$('#tmpDiv').load('http://google.com #hplogo', function(responseText, textStatus, jqXHR){
+ *				console.log('$(element).load() ' + textStatus, jqXHR);
+ *			});
+ *		}
+ *
+ *		test_jQueryFunctions();
+ *	});
+ *} else {
+ *	console.log('Test Failed! No jQuery');
+ *}
+ */
+jMod.jQueryExtensions.addCrossOriginSupport = function(_jQueryObj, dataType){
+	// Make sure GM function exists
+	if(NOTEXISTS(GM_xmlhttpRequest))
+		return;
+	
+	// If _jQueryObj isn't defined, default to global jQuery object
+	if(!_jQueryObj && !(_jQueryObj = jMod.jQuery))
+		// Return if there is no global jQuery object
+		return;
+	
+	// Return if already extended
+	if(_jQueryObj.jModCrossOriginSupport === true)
+		return;
+	
+	_jQueryObj.ajaxTransport(dataType || "* text html xml json", jMod.jQueryExtensions.CrossOriginSupportTransportFn(_jQueryObj, dataType));
 	
 	_jQueryObj.extend({jModCrossOriginSupport: true});
 }
+
+/**
+ * Similar to addCrossOriginSupport, but exports the transport function to the unsafeWindow before extending jQuery. Thus, it can be used on a jQuery instance that exists in the unsafeWindow. This is less safe than using "addCrossOriginSupport" and should only be used if there is no alternative.
+ * @function exportCrossOriginSupport
+ * @memberof jMod.jQueryExtensions
+ * @param {object} [_jQueryObj] - jQuery object - Defaults to first jQuery instance accessible by jMod
+ * @param {string} [dataType="* text html xml json"] - A string identifying the data types GM_xmlhttpRequest should handle
+ */
+jMod.jQueryExtensions.exportCrossOriginSupport = function(_jQueryObj, dataType){
+	// Make sure GM function exists
+	if(NOTEXISTS(GM_xmlhttpRequest))
+		return;
+	
+	// If _jQueryObj isn't defined, exit
+	if(!_jQueryObj)
+		return;
+	
+	// Return if already extended
+	if(_jQueryObj.jModCrossOriginSupport === true)
+		return;
+	
+	_jQueryObj.ajaxTransport(dataType || "* text html xml json", exportjQueryTransportFn(_jQueryObj, dataType));
+	
+	_jQueryObj.extend({jModCrossOriginSupport: true});
+}
+})()
