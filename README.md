@@ -184,24 +184,14 @@ if($){
 <a name="todo"></a>
 ##ToDo / Goals
 <ul>
-	<li>
-		**jMod.jQueryExtensions.addCrossOriginSupport**
-		<p>
-I need to add a version called **jMod.jQueryExtensions.exportCrossOriginSupport**. This would an exported function instead of adding the functions directly. This is for users that want to add cross origin support to a jQuery instance in the public scope from a privileged script. This will prevent any errors caused by an unsafe function trying to indirectly call GM_xmlhttpRequest.
-			
+	<li>**jMod.jQueryExtensions.addCrossOriginSupport**<br /><br />
+I need to add a version called **jMod.jQueryExtensions.exportCrossOriginSupport**. This would an exported function instead of adding the functions directly. This is for users that want to add cross origin support to a jQuery instance in the public scope from a privileged script. This will prevent any errors caused by an unsafe function trying to indirectly call GM_xmlhttpRequest.<br /><br />
 This would, from the script author's perspective, work exactly the same as addCrossOriginSupport. However, a function has to be exported (via **ExportFunction**) to the public scope. This function is what jQuery will actually call, which itself calls the real function available inside jMod.
-		<p>
 	</li>
-	<li>
-		**mCloneInto**
-		<p>
+	<li>**mCloneInto**<br /><br />
 This jMod cloning function needs a better method for cloning objects when **cloneInto** is unavailable / not working. I have already created a function called **jMod.CloneProperties** that can clone an object in a manor similar to jQuery's **extend** method. However, CloneProperties copies non-enumerable properties and reconstructs their property constructors manually. This is a start, but it still needs a lot of work before it can be put into production.
-		</p>
 	</li>
-	<li>
-		**CSS**
-		<p>
+	<li>**CSS**<br /><br />
 jMod uses a stripped-down, namespaced version of bootstrap, fontawesome, and a few other libraries. However, it still comes out to over 270kb! So it still needs to be worked on and trimmed down. Additionally, there is one library that the licensing is ambiguous and needs to be phased out before long.
-		</p>
 	</li>
 </ul>
