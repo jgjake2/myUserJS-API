@@ -75,7 +75,7 @@ function tryInit(e){
 		}
 	}
 	
-	if(totalCallCount > maxCallCount){
+	if(totalCallCount++ > maxCallCount){
 		Loading.Complete = true;
 		clearInterval(checkTimer);
 		
@@ -91,7 +91,6 @@ function tryInit(e){
 		if(jMod.debug) jModLogTime('jMod Finish Init');
 		return;
 	}
-	totalCallCount++;
 	if(jMod.debug) jMod.log.count('Try Init');
 }
 
