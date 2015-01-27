@@ -77,7 +77,6 @@ jMod.Element.isElement = isElement;
  */
 var hasClass = jMod.Element.hasClass = function(el, className) {
 	return (" "+el.className+" ").indexOf(" "+className+" ") != -1;
-	//return (el.className.split(' ').indexOf(className) == -1 ? false : true)
 }
 
 /**
@@ -92,16 +91,6 @@ var hasClasses = jMod.Element.hasClasses = function(el, classNames) {
 	var classNamesPad = " "+el.className+" ",
 		classNamesArr = (ISSTRING(classNames) ? classNames.split(' ') : classNames);
 	return classNamesArr.filter(function(name){return classNamesPad.indexOf(" "+name+" ") != -1});
-	/*
-	var i,
-		r = [],
-		classArr = el.className.split(' '),
-		classNamesArr = (ISSTRING(classNames) ? classNames.split(' ') : classNames);
-	for(i in classNamesArr)
-		if(classArr.indexOf(classNamesArr[i]) != -1)
-			r.push(classNamesArr[i]);
-	return r;
-	*/
 }
 
 /**
@@ -116,16 +105,6 @@ var missingClasses = jMod.Element.missingClasses = function(el, classNames) {
 	var classNamesPad = " "+el.className+" ",
 		classNamesArr = (ISSTRING(classNames) ? classNames.split(' ') : classNames);
 	return classNamesArr.filter(function(name){return classNamesPad.indexOf(" "+name+" ") == -1});
-	/*
-	var i,
-		r = [],
-		classArr = el.className.split(' '),
-		classNamesArr = (ISSTRING(classNames) ? classNames.split(' ') : classNames);
-	for(i in classNamesArr)
-		if(classArr.indexOf(classNamesArr[i]) == -1)
-			r.push(classNamesArr[i]);
-	return r;
-	*/
 }
 
 /**
@@ -151,18 +130,7 @@ var addClass = jMod.Element.addClass = function(el, className) {
  * @returns {Element} The input element
  */
 var addClasses = jMod.Element.addClasses = function(el, classNames) {
-	//var classNamesArr = (typeof classNames === "string" ? classNames.split(' ') : classNames);
 	return el.className = (el.className + ' ' + missingClasses(el, classNames).join(" ")).trim(), el;
-	//return el;
-	/*
-	var has = el.className.split(' ');
-	for(var i = 0; i < classNamesArr.length; i++){
-		if(has.indexOf(classNamesArr[i]) == -1)
-			has.push(classNamesArr[i]);
-	}
-	el.className = has.join(' ');
-	return el;
-	*/
 }
 
 var removeClassRegex = new RegExp('\\w+');
@@ -176,17 +144,6 @@ var removeClassRegex = new RegExp('\\w+');
  */
 var removeClass = jMod.Element.removeClass = function(el, className) {
 	return el.className = ((" "+el.className+" ").replace(new RegExp(" "+className+" ", 'g'), " ")).trim(), el;
-	//return el;
-	/*
-	var classStr = el.className;
-	var classArr = classStr.split(' ');
-	var index = classArr.indexOf(className);
-	if(index == -1)
-		return el;
-	classArr.splice(index, 1);
-	el.className = classArr.join(' ');
-	return el;
-	*/
 }
 
 /**
@@ -199,23 +156,6 @@ var removeClass = jMod.Element.removeClass = function(el, className) {
  */
 var removeClasses = jMod.Element.removeClasses = function(el, classNames) {
 	return el.className = ((" "+el.className+" ").replace(new RegExp(" (?:"+((ISSTRING(classNames) ? classNames.split(' ') : classNames).join("|"))+") ", 'g'), " ")).trim(), el;
-	//return el;
-	/*
-	var namesArr;
-	if(typeof classNames === "string")
-		namesArr = Slice.call(arguments, 1);
-	else
-		namesArr = classNames;
-	var classStr = el.className;
-	var classArr = classStr.split(' ');
-	for(var i in namesArr){
-		var index = classArr.indexOf(namesArr[i]);
-		if(index != -1)
-			classArr.splice(index, 1);
-	}
-	el.className = classArr.join(' ');
-	return el;
-	*/
 }
 
 var setAttributes = function(el, attrs) {
@@ -229,10 +169,10 @@ var hasAttribute = function(el, attr) {
 }
 
 var hasAttributes = function(el, attrs) {
-	r = [];
+	var i = 0, r = [];
 	if(typeof attrs === "string")
 		attrs = attrs.split(' ');
-	for(var i = 0; i < attrs.length; i++)
+	for( ; i < attrs.length; i++)
 		if(el.hasAttribute(attrs[i]))
 			r.push(attrs[i]);
 	return r;
@@ -409,7 +349,7 @@ var isNamespaced = jMod.Element.isNamespaced = function(el, className) {
 	var parent = el;
 	while(parent.parentElement){
 		parent = parent.parentElement;
-		if(jMod.Element.hasClass(parent, className))
+		if(hasClass(parent, className))
 			return true;
 	}
 	return false;
@@ -419,20 +359,17 @@ var findParentWithClass = jMod.Element.findParentWithClass = function(el, classN
 	var parent = el;
 	while(parent.parentElement){
 		parent = parent.parentElement;
-		if(jMod.Element.hasClass(parent, className))
+		if(hasClass(parent, className))
 			return parent;
 	}
-	return;
 }
 
 var findParentWithAttribute = jMod.Element.findParentWithAttribute = function(el, attributeName, attributeValue) {
 	var parent = el;
 	while(parent.parentElement){
 		parent = parent.parentElement;
-		if(parent.hasAttribute(attributeName)){
-			if(_undefined===typeof attributeValue || parent.getAttribute(attributeName) == attributeValue)
-				return parent;
-		}
+		if(parent.hasAttribute(attributeName) && (NOTEXISTS(attributeValue) || parent.getAttribute(attributeName) == attributeValue))
+			return parent;
 	}
 }
 
