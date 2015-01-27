@@ -21,6 +21,7 @@
 // @grant            GM_deleteValue
 // @unwrap
 // @run-at           document-start
+// +@history         (0.0.18) Added new jQuery Selector and Tokenizer Extensions.
 // +@history         (0.0.18) Looks for resource to load css from when available.
 // +@history         (0.0.18) Started cleaning up Notifications.
 // +@history         (0.0.18) Added sessionStorage.
@@ -403,7 +404,17 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	 ** jQuery Ajax Extensions
 	 **********************************/
 	ImportScript('jQuery.Ajax');
+	
+	/***********************************
+	 ** jQuery Selector Extensions
+	 **********************************/
+	ImportScript('jQuery.Selectors');
 
+	/***********************************
+	 ** jQuery Tokenizer Extension
+	 **********************************/
+	ImportScript('jQuery.Tokenizer');
+	
 	/***********************************
 	 ** Tooltip
 	 **********************************/
