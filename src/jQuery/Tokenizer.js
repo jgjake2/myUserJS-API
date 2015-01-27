@@ -1,7 +1,7 @@
 // +@display_name  jQuery Tokenizer
 
 +(function(){
-	var nextRegex = /\s*((?:[^\s\<\>\~\+\|]|[\<\>\~\+\|\^\$\*](?=\=.+\]))+)\s*(.*?)$/;
+	var nextRegex = /^\s*((?:(?:\:\w+\([^\)]+\))|[^\s\<\>\~\+\|]|[\<\>\~\+\|\^\$\*](?=\=.+\]))+)\s*(.*?)$/;
 	
 	function getNext(str){
 		if(!str || str.length < 3){
