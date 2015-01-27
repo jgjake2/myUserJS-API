@@ -26,7 +26,7 @@ jMod is a library of useful tools for userscript authors with features ranging f
 			</li>
 		</ul>
 	</dd>
-	<dt><a href="todo">ToDo / Goals</a></dt>
+	<dt><a href="#todo">ToDo / Goals</a></dt>
 	<dd>
 		<ul>
 			<li>
