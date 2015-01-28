@@ -95,9 +95,8 @@ ImportScript('Core.MacroDoc');
 		jMod.log.groupEnd('jMod Initialize');
 	}
 	window.focus();
-}.call(
-	this,
-	"undefined"!==typeof unsafeWindow?unsafeWindow:("undefined"!==typeof window?window:this),
+}.call(this, "undefined"!==typeof unsafeWindow?unsafeWindow:("undefined"!==typeof window?window:this),
+
 function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	/**
 	 * Calls jMod._call with the given arguments
@@ -131,7 +130,8 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 		+"@font-face {font-family: 'Sansation';font-style: normal;font-weight: 700;src: local('Sansation Bold'), local('Sansation-Bold'), url(http://myuserjs.org/fonts/Sansation-Bold.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 400;src: local('Sansation Italic'), local('Sansation-Italic'), url(http://myuserjs.org/fonts/Sansation-Italic.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 700;src: local('Sansation Bold Italic'), local('Sansation-BoldItalic'), url(http://myuserjs.org/fonts/Sansation-BoldItalic.ttf) format('ttf');}\n",
-		defaultjModCSSURL = "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n",
+		//defaultjModCSSURL = "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n",
+		defaultjModCSSURL = {{{DEBUG}}} ? "@import url(//test2.myuserjs.org/API/{{{API_VERSION}}}/jMod.css);\n" : "@import url(//myuserjs.org/API/{{{API_VERSION}}}/jMod.css);\n",
 		CurrentRunningScript = {
 			id: 'jMod',
 			config: {},
