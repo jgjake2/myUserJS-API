@@ -486,10 +486,6 @@ jMod.Requirements.add({
 
 jMod.CSS = <><![CDATACSS[
 
-.jmod-na .tabbable > .nav.nav-tabs > li > a, .jmod-na .tabbable > .nav.nav-tabs > li > a:hover, .jmod-na .tabbable > .nav.nav-tabs > li > a:active {
-	text-decoration: none;
-}
-
 ]]></>;
 
 
