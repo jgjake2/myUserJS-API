@@ -454,6 +454,14 @@
             
                 <li data-name="jMod.jQueryExtensions.addCrossOriginSupport"><a href="jMod.jQueryExtensions.html#addCrossOriginSupport">addCrossOriginSupport</a></li>
             
+                <li data-name="jMod.jQueryExtensions.addSiblingTokens"><a href="jMod.jQueryExtensions.html#addSiblingTokens">addSiblingTokens</a></li>
+            
+                <li data-name="jMod.jQueryExtensions.exportCrossOriginSupport"><a href="jMod.jQueryExtensions.html#exportCrossOriginSupport">exportCrossOriginSupport</a></li>
+            
+                <li data-name="jMod.jQueryExtensions.extendTokenizer"><a href="jMod.jQueryExtensions.html#extendTokenizer">extendTokenizer</a></li>
+            
+                <li data-name="jMod.jQueryExtensions.removeTokenizer"><a href="jMod.jQueryExtensions.html#removeTokenizer">removeTokenizer</a></li>
+            
             </ul>
             <ul class="events itemMembers">
             
@@ -609,6 +617,8 @@
                 <li data-name="Macros.ISFUNCTION"><a href="Macros.html#ISFUNCTION">ISFUNCTION</a></li>
             
                 <li data-name="Macros.ISOBJECT"><a href="Macros.html#ISOBJECT">ISOBJECT</a></li>
+            
+                <li data-name="Macros.ISSTRING"><a href="Macros.html#ISSTRING">ISSTRING</a></li>
             
                 <li data-name="Macros.NOTEXISTS"><a href="Macros.html#NOTEXISTS">NOTEXISTS</a></li>
             
@@ -837,7 +847,7 @@
     
         
         <div class="tag-source">
-            F:/Projects/jMod/main/bin/jMod.full.js, line 4642
+            F:/Projects/jMod/main/bin/jMod.full.js, line 4798
         </div>
         
     </div>
@@ -1001,6 +1011,580 @@
     
 </dd>
 
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="addSiblingTokens">
+            
+            <span class="type-signature static">static</span>jMod.jQueryExtensions.addSiblingTokens<span class="signature">(<span class="optional">_jQueryObj</span>)</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            F:/Projects/jMod/main/bin/jMod.full.js, line 5215
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Adds custom sibling selectors <b>++</b>, <b>+&#62;</b> and <b>+&#60;</b> to the given jQuery instance.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Default</th>
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>_jQueryObj</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+            
+            
+                <td class="default">
+                
+                    jMod.jQuery
+                
+                </td>
+            
+            
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+                        
+                    
+                
+                jQuery object</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+	
+
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="exportCrossOriginSupport">
+            
+            <span class="type-signature static">static</span>jMod.jQueryExtensions.exportCrossOriginSupport<span class="signature">(<span class="optional">_jQueryObj</span>, <span class="optional">dataType</span>)</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            F:/Projects/jMod/main/bin/jMod.full.js, line 4867
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Similar to addCrossOriginSupport, but exports the transport function to the unsafeWindow before extending jQuery. Thus, it can be used on a jQuery instance that exists in the unsafeWindow. This is less safe than using "addCrossOriginSupport" and should only be used if there is no alternative.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Default</th>
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>_jQueryObj</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+            
+            
+                <td class="default">
+                
+                </td>
+            
+            
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+                        
+                    
+                
+                jQuery object - Defaults to first jQuery instance accessible by jMod</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>dataType</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+                <td class="default">
+                
+                    "* text html xml json"
+                
+                </td>
+            
+            
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+                        
+                    
+                
+                A string identifying the data types GM_xmlhttpRequest should handle</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+	
+
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="extendTokenizer">
+            
+            <span class="type-signature static">static</span>jMod.jQueryExtensions.extendTokenizer<span class="signature">(<span class="optional">_jQueryObj</span>)</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            F:/Projects/jMod/main/bin/jMod.full.js, line 4954
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Extend more than just jQuery's (aka sizzle) pseudo-selectors (ex ".class:selector"). With this you cancompletely override the main jQuery find function with a custom tokenizer. You can augment, or completelyreplace the default selector syntax.<br /><br />For example, you could add the token "++" to select all of an element's siblings that match a selector: $(".example ++ .sibling-class") or $(".example ++ *")<br />Or you could add "+>" and "+<" to match siblings that appear before and after the matched elements: $(".example +> .next-sibling") or $(".example +< .prev-sibling")<br />
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Default</th>
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>_jQueryObj</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+            
+            
+                <td class="default">
+                
+                    jMod.jQuery
+                
+                </td>
+            
+            
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+                        
+                    
+                
+                jQuery object</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+	
+
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+        <h5>Example</h5>
+        
+
+    
+    <pre class="prettyprint"><code>console.log('Test jQuery Tokenizer');var newEl = jMod.Element.createNewElement({	id: 'testElement',	innerHTML: [		{			className: 'tc1',			innerHTML: [				{					className: 'tc1-1 childElement-1'				},				{					className: 'tc1-2 childElement-1'				},				{					className: 'tc1-3 childElement-1',					innerHTML: {						className: 'tc1-3-1 childElement-2',						innerHTML: {							className: 'tc1-3-1-1 childElement-3'						}					}				}			]		},		{			className: 'tc2',			innerHTML: [				{					className: 'tc2-1 childElement-1'				},				{					className: 'tc2-3 childElement-1'				}			]		},		{			className: 'tc3',			innerHTML: [				{					className: 'tc3-1 childElement-1'				}			]		}	]});document.body.appendChild(newEl);console.log('Add Tokenizer');jMod.jQueryExtensions.extendTokenizer($);console.log('Add Sibling Tokens');jMod.jQueryExtensions.addSiblingTokens($);console.log("jQuery Find Function:");console.dir($.find);// Test 1var test1 = $(".tc1-2 + .tc1-3");console.log('test: sibling matching ".tc1-3"', test1, test1.length == 1 ? "Pass!" : "Fail!");// Test 2var test2 = $(".tc1-2 ++ *");console.log('test: all siblings', test2, test2.length == 2 ? "Pass!" : "Fail!");// Test 3var test3 = $(".tc1-2 +< *");console.log('test: all previous siblings', test3, test3.length == 1 ? "Pass!" : "Fail!");// Test 4var test4 = $(".tc1-2 +> *");console.log('test: all next siblings', test4, test4.length == 1 ? "Pass!" : "Fail!");// Test 5var test5 = $(".tc1-2 ++ * .childElement-3");console.log('test: child of sibling with class name "childElement-3"', test5, test5.length == 1 ? "Pass!" : "Fail!");// Test 6var test6 = $(".tc3 ++ * .childElement-1");console.log('test: child of sibling with class name "childElement-1"', test6, test6.length == 5 ? "Pass!" : "Fail!");console.log('End Test jQuery Tokenizer');</code></pre>
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="removeTokenizer">
+            
+            <span class="type-signature static">static</span>jMod.jQueryExtensions.removeTokenizer<span class="signature">(<span class="optional">_jQueryObj</span>)</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            F:/Projects/jMod/main/bin/jMod.full.js, line 5272
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Removes the jMod tokenizer extension from the given jQuery instance.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Default</th>
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>_jQueryObj</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+            
+            
+                <td class="default">
+                
+                    jMod.jQuery
+                
+                </td>
+            
+            
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+                        
+                    
+                
+                jQuery object</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+	
+
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
         </dl>
     
     
@@ -1018,7 +1602,7 @@
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha11</a> on Fri Jan 23 2015 05:00:09 GMT-0600 (CST)
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha11</a> on Wed Jan 28 2015 11:07:32 GMT-0600 (CST)
         </footer>
     </div>
 </div>
