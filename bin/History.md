@@ -3,6 +3,7 @@ jMod History
 
 ## Version 0.0.18
 * **Core**
+    * Added new jQuery Selector and Tokenizer Extensions.
     * Looks for resource to load css from when available.
     * Started cleaning up Notifications.
     * Added sessionStorage.
@@ -15,6 +16,8 @@ jMod History
     * Major update/fixes to "jModError"
 * **Script Info**
     * Minification improvements.
+* **Tooltip**
+    * Fixed bug that prevented tabs from resizing properly.
 * **jQuery Ajax Extensions**
     * Added "exportCrossOriginSupport" so jQuery instances in the unsafeWindow can be extended.
 

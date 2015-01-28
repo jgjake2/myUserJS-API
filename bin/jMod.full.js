@@ -201,9 +201,8 @@
 		jMod.log.groupEnd('jMod Initialize');
 	}
 	window.focus();
-}.call(
-	this,
-	"undefined"!==typeof unsafeWindow?unsafeWindow:("undefined"!==typeof window?window:this),
+}.call(this, "undefined"!==typeof unsafeWindow?unsafeWindow:("undefined"!==typeof window?window:this),
+
 function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	/**
 	 * Calls jMod._call with the given arguments
@@ -237,7 +236,8 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 		+"@font-face {font-family: 'Sansation';font-style: normal;font-weight: 700;src: local('Sansation Bold'), local('Sansation-Bold'), url(http://myuserjs.org/fonts/Sansation-Bold.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 400;src: local('Sansation Italic'), local('Sansation-Italic'), url(http://myuserjs.org/fonts/Sansation-Italic.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 700;src: local('Sansation Bold Italic'), local('Sansation-BoldItalic'), url(http://myuserjs.org/fonts/Sansation-BoldItalic.ttf) format('ttf');}\n",
-		defaultjModCSSURL = "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n",
+		//defaultjModCSSURL = "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n",
+		defaultjModCSSURL = false ? "@import url(//test2.myuserjs.org/API/0.0.18/jMod.css);\n" : "@import url(//myuserjs.org/API/0.0.18/jMod.css);\n",
 		CurrentRunningScript = {
 			id: 'jMod',
 			config: {},
@@ -275,7 +275,7 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	 * @memberOf! jMod
 	 * @type {string}
 	 */
-	DefineLockedProp('build_time', '1422294424000');
+	DefineLockedProp('build_time', '1422486289000');
 	
 	/**
 	 * Current build type (beta|release)
@@ -283,7 +283,7 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	 * @memberOf! jMod
 	 * @type {string}
 	 */
-	DefineLockedProp('build_type', 'beta');
+	DefineLockedProp('build_type', 'release');
 	
 	/**
 	 * Is debug mode enabled
@@ -587,22 +587,18 @@ function mCloneInto(obj, scope, args){
 	return obj;
 }
 function mExportFunction(func, scope, args){
-	if(typeof exportFunction !== _undefined){
+	if(_undefined!=typeof exportFunction){
 		try{
 			return exportFunction(func, scope, args);
 		}catch(e){}
 	}
 	var name = '';
-	if(typeof args === _undefined) args = {};
-	if(typeof args.defineAs !== _undefined)
+	if(args && args.defineAs)
 		name = args.defineAs;
 	else if(typeof func === "function" && func.name != '')
 		name = func.name
-	if(name == '') return;
-	try{
-		scope[name] = func;
-		return scope[name];
-	}catch(e){}
+	if(name != '')
+		try{return (scope[name] = func);}catch(e){}
 }
 jMod.parseStack = function(stackText){
 	var o = [];
@@ -2402,7 +2398,6 @@ jMod.Element.isElement = isElement;
  */
 var hasClass = jMod.Element.hasClass = function(el, className) {
 	return (" "+el.className+" ").indexOf(" "+className+" ") != -1;
-	//return (el.className.split(' ').indexOf(className) == -1 ? false : true)
 }
 
 /**
@@ -2417,16 +2412,6 @@ var hasClasses = jMod.Element.hasClasses = function(el, classNames) {
 	var classNamesPad = " "+el.className+" ",
 		classNamesArr = ("string"==typeof classNames ? classNames.split(' ') : classNames);
 	return classNamesArr.filter(function(name){return classNamesPad.indexOf(" "+name+" ") != -1});
-	/*
-	var i,
-		r = [],
-		classArr = el.className.split(' '),
-		classNamesArr = ("string"==typeof classNames ? classNames.split(' ') : classNames);
-	for(i in classNamesArr)
-		if(classArr.indexOf(classNamesArr[i]) != -1)
-			r.push(classNamesArr[i]);
-	return r;
-	*/
 }
 
 /**
@@ -2441,16 +2426,6 @@ var missingClasses = jMod.Element.missingClasses = function(el, classNames) {
 	var classNamesPad = " "+el.className+" ",
 		classNamesArr = ("string"==typeof classNames ? classNames.split(' ') : classNames);
 	return classNamesArr.filter(function(name){return classNamesPad.indexOf(" "+name+" ") == -1});
-	/*
-	var i,
-		r = [],
-		classArr = el.className.split(' '),
-		classNamesArr = ("string"==typeof classNames ? classNames.split(' ') : classNames);
-	for(i in classNamesArr)
-		if(classArr.indexOf(classNamesArr[i]) == -1)
-			r.push(classNamesArr[i]);
-	return r;
-	*/
 }
 
 /**
@@ -2476,18 +2451,7 @@ var addClass = jMod.Element.addClass = function(el, className) {
  * @returns {Element} The input element
  */
 var addClasses = jMod.Element.addClasses = function(el, classNames) {
-	//var classNamesArr = (typeof classNames === "string" ? classNames.split(' ') : classNames);
 	return el.className = (el.className + ' ' + missingClasses(el, classNames).join(" ")).trim(), el;
-	//return el;
-	/*
-	var has = el.className.split(' ');
-	for(var i = 0; i < classNamesArr.length; i++){
-		if(has.indexOf(classNamesArr[i]) == -1)
-			has.push(classNamesArr[i]);
-	}
-	el.className = has.join(' ');
-	return el;
-	*/
 }
 
 var removeClassRegex = new RegExp('\\w+');
@@ -2501,17 +2465,6 @@ var removeClassRegex = new RegExp('\\w+');
  */
 var removeClass = jMod.Element.removeClass = function(el, className) {
 	return el.className = ((" "+el.className+" ").replace(new RegExp(" "+className+" ", 'g'), " ")).trim(), el;
-	//return el;
-	/*
-	var classStr = el.className;
-	var classArr = classStr.split(' ');
-	var index = classArr.indexOf(className);
-	if(index == -1)
-		return el;
-	classArr.splice(index, 1);
-	el.className = classArr.join(' ');
-	return el;
-	*/
 }
 
 /**
@@ -2524,23 +2477,6 @@ var removeClass = jMod.Element.removeClass = function(el, className) {
  */
 var removeClasses = jMod.Element.removeClasses = function(el, classNames) {
 	return el.className = ((" "+el.className+" ").replace(new RegExp(" (?:"+(("string"==typeof classNames ? classNames.split(' ') : classNames).join("|"))+") ", 'g'), " ")).trim(), el;
-	//return el;
-	/*
-	var namesArr;
-	if(typeof classNames === "string")
-		namesArr = Slice.call(arguments, 1);
-	else
-		namesArr = classNames;
-	var classStr = el.className;
-	var classArr = classStr.split(' ');
-	for(var i in namesArr){
-		var index = classArr.indexOf(namesArr[i]);
-		if(index != -1)
-			classArr.splice(index, 1);
-	}
-	el.className = classArr.join(' ');
-	return el;
-	*/
 }
 
 var setAttributes = function(el, attrs) {
@@ -2554,10 +2490,10 @@ var hasAttribute = function(el, attr) {
 }
 
 var hasAttributes = function(el, attrs) {
-	r = [];
+	var i = 0, r = [];
 	if(typeof attrs === "string")
 		attrs = attrs.split(' ');
-	for(var i = 0; i < attrs.length; i++)
+	for( ; i < attrs.length; i++)
 		if(el.hasAttribute(attrs[i]))
 			r.push(attrs[i]);
 	return r;
@@ -2734,7 +2670,7 @@ var isNamespaced = jMod.Element.isNamespaced = function(el, className) {
 	var parent = el;
 	while(parent.parentElement){
 		parent = parent.parentElement;
-		if(jMod.Element.hasClass(parent, className))
+		if(hasClass(parent, className))
 			return true;
 	}
 	return false;
@@ -2744,20 +2680,17 @@ var findParentWithClass = jMod.Element.findParentWithClass = function(el, classN
 	var parent = el;
 	while(parent.parentElement){
 		parent = parent.parentElement;
-		if(jMod.Element.hasClass(parent, className))
+		if(hasClass(parent, className))
 			return parent;
 	}
-	return;
 }
 
 var findParentWithAttribute = jMod.Element.findParentWithAttribute = function(el, attributeName, attributeValue) {
 	var parent = el;
 	while(parent.parentElement){
 		parent = parent.parentElement;
-		if(parent.hasAttribute(attributeName)){
-			if(_undefined===typeof attributeValue || parent.getAttribute(attributeName) == attributeValue)
-				return parent;
-		}
+		if(parent.hasAttribute(attributeName) && (_undefined==typeof attributeValue || parent.getAttribute(attributeName) == attributeValue))
+			return parent;
 	}
 }
 
@@ -4957,7 +4890,416 @@ jMod.jQueryExtensions.exportCrossOriginSupport = function(_jQueryObj, dataType){
 }
 })()
 
+	
+	/***********************************
+	 ** jQuery Selector Extensions
+	 **********************************/
++(function(){
 
+	var Selectors = jMod.jQueryExtensions.Selectors = function(_jQueryObj, name){
+		if(!_jQueryObj)
+			return;
+		var i;
+		if(arguments.length == 1){
+			for(i in Selectors.ext)
+				Selectors[i](_jQueryObj);
+			return;
+		}
+		
+		for(i = 1; i < arguments.length; i++){
+			if(_undefined!=typeof Selectors.ext[arguments[i]]){
+				Selectors.ext[arguments[i]](_jQueryObj);
+			}
+		}
+	}
+	
+	Selectors.ext = {};
+
+	// Check if element is visible in the viewport:
+	Selectors.ext.inView = function(_jQueryObj){
+		if(_jQueryObj && !_jQueryObj.expr[':'].inView){
+			_jQueryObj.extend(_jQueryObj.expr[':'],{
+				inView: function(a) {
+					win = window || unsafeWindow;
+					doc = document || win.document;
+					var scrollTop = (doc.documentElement.scrollTop || doc.body.scrollTop),
+						offsetTop = _jQueryObj(a).offset().top,
+						windowHeight = (win.innerHeight && win.innerHeight < _jQueryObj(win).height()) ? win.innerHeight : _jQueryObj(win).height();
+					return offsetTop > scrollTop && (_jQueryObj(a).height() + offsetTop) < (scrollTop + windowHeight);
+				}
+			});
+		}
+	}
+	
+
+})()
+
+	/***********************************
+	 ** jQuery Tokenizer Extension
+	 **********************************/
++(function(){
+
+	var nextRegex = /^\s*((?:(?:\:\w+\([^\)]+\))|[^\s\<\>\~\+\|]|[\<\>\~\+\|\^\$\*](?=\=.+\]))+)\s*(.*?)$/;
+
+	function getNext(str){
+		if(!str || str.length < 3){
+			return [str || ''];
+		}
+		
+		var m = nextRegex.exec(str);
+		
+		return (m ? [m[1].trim(), m[2].trim()] : [str]);
+	}
+	
+	/**
+	 * Extend more than just jQuery's (aka sizzle) pseudo-selectors (ex ".class:selector"). With this you can
+	 * completely override the main jQuery find function with a custom tokenizer. You can augment, or completely
+	 * replace the default selector syntax.<br /><br />
+	 * For example, you could add the token "++" to select all of an element's siblings that match a selector: $(".example ++ .sibling-class") or $(".example ++ *")<br />
+	 * Or you could add "+>" and "+<" to match siblings that appear before and after the matched elements: $(".example +> .next-sibling") or $(".example +< .prev-sibling")<br />
+	 * @function extendTokenizer
+	 * @memberof jMod.jQueryExtensions
+	 * @param {object} [_jQueryObj=jMod.jQuery] - jQuery object
+	 * @example
+	 * console.log('Test jQuery Tokenizer');
+	 * var newEl = jMod.Element.createNewElement({
+	 * 	id: 'testElement',
+	 * 	innerHTML: [
+	 * 		{
+	 * 			className: 'tc1',
+	 * 			innerHTML: [
+	 * 				{
+	 * 					className: 'tc1-1 childElement-1'
+	 * 				},
+	 * 				{
+	 * 					className: 'tc1-2 childElement-1'
+	 * 				},
+	 * 				{
+	 * 					className: 'tc1-3 childElement-1',
+	 * 					innerHTML: {
+	 * 						className: 'tc1-3-1 childElement-2',
+	 * 						innerHTML: {
+	 * 							className: 'tc1-3-1-1 childElement-3'
+	 * 						}
+	 * 					}
+	 * 				}
+	 * 			]
+	 * 		},
+	 * 		{
+	 * 			className: 'tc2',
+	 * 			innerHTML: [
+	 * 				{
+	 * 					className: 'tc2-1 childElement-1'
+	 * 				},
+	 * 				{
+	 * 					className: 'tc2-3 childElement-1'
+	 * 				}
+	 * 			]
+	 * 		},
+	 * 		{
+	 * 			className: 'tc3',
+	 * 			innerHTML: [
+	 * 				{
+	 * 					className: 'tc3-1 childElement-1'
+	 * 				}
+	 * 			]
+	 * 		}
+	 * 	]
+	 * });
+	 * 
+	 * document.body.appendChild(newEl);
+	 * 
+	 * console.log('Add Tokenizer');
+	 * jMod.jQueryExtensions.extendTokenizer($);
+	 * 
+	 * console.log('Add Sibling Tokens');
+	 * jMod.jQueryExtensions.addSiblingTokens($);
+	 * 
+	 * console.log("jQuery Find Function:");
+	 * console.dir($.find);
+	 * 
+	 * // Test 1
+	 * var test1 = $(".tc1-2 + .tc1-3");
+	 * console.log('test: sibling matching ".tc1-3"', test1, test1.length == 1 ? "Pass!" : "Fail!");
+	 * 
+	 * // Test 2
+	 * var test2 = $(".tc1-2 ++ *");
+	 * console.log('test: all siblings', test2, test2.length == 2 ? "Pass!" : "Fail!");
+	 * 
+	 * // Test 3
+	 * var test3 = $(".tc1-2 +< *");
+	 * console.log('test: all previous siblings', test3, test3.length == 1 ? "Pass!" : "Fail!");
+	 * 
+	 * // Test 4
+	 * var test4 = $(".tc1-2 +> *");
+	 * console.log('test: all next siblings', test4, test4.length == 1 ? "Pass!" : "Fail!");
+	 * 
+	 * // Test 5
+	 * var test5 = $(".tc1-2 ++ * .childElement-3");
+	 * console.log('test: child of sibling with class name "childElement-3"', test5, test5.length == 1 ? "Pass!" : "Fail!");
+	 * 
+	 * // Test 6
+	 * var test6 = $(".tc3 ++ * .childElement-1");
+	 * console.log('test: child of sibling with class name "childElement-1"', test6, test6.length == 5 ? "Pass!" : "Fail!");
+	 * 
+	 * console.log('End Test jQuery Tokenizer');
+	 */
+	jMod.jQueryExtensions.extendTokenizer = function(_jQueryObj){
+		if (
+				(
+					!_jQueryObj && // If no jQuery object, try to use global jQuery object
+					!(_jQueryObj = jMod.jQuery) // If no global jQuery object, return
+				) ||
+				_undefined!=typeof _jQueryObj.jModTokenizer // if already extended, return
+			) return;
+		
+		// Copy the old find function
+		_jQueryObj._oldFindFn = _jQueryObj.find;
+		
+		// Replace the jQuery (aka sizzle) find function
+		_jQueryObj.find = function(selector, context, results, seed){
+			// reset context if undefined
+			context = context || document || unsafeWindow.document;
+			
+			// new results array if results is undefined
+			results = results || [];
+
+			// If custom tokenizer is enabled, and if a custom token is detected in the selector
+			if(_jQueryObj.jModTokenizer && _jQueryObj.find.jModTokens.regexTest.test(selector)){
+				var i, j, x, t,
+					firstToken, parts, ctx, tmp,
+					next, tokenResults;
+				// Split selector into individual pieces, and loop them
+				parts = selector.split(',');
+				for(x = 0; x < parts.length; x++){
+					// Retest the piece for a custom token
+					if(
+							_jQueryObj.find.jModTokens.regexTest.test(parts[x]) &&
+							(
+								(firstToken = _jQueryObj.find.jModTokens.regex.exec(parts[x])[1]) && // Extract the token
+								(t = _jQueryObj.find.jModTokens.tokens[firstToken]) // Get the token's handler functions
+							)
+						){
+						
+						// Split the selector piece into two pieces where the token was found
+						tmp = parts[x].split(firstToken, 2);
+						// Find the first half of the selector in the old find function to get the new context
+						ctx = _jQueryObj._oldFindFn(tmp[0], context);
+						if(ctx && ctx.length > 0){
+							// Loop through all the returned objects
+							for(i = 0; i < ctx.length; i++){
+								if(t.find){
+									// get the next piece of the selector
+									next = getNext(tmp[1]);
+									
+									// if next if empty or is the final selector in the series,
+									// use the token's custom find function as the results
+									if(next.length == 1 || next[1] == '')
+										t.find(tmp[1], ctx[i], results, seed);
+									else {
+										tokenResults = t.find(next[0], ctx[i]);
+										// Use the token results as the context for the final call to
+										// the jQuery find function (this allows additional tokens to
+										// be handled)
+										for(j = 0; j < tokenResults.length; j++){
+											_jQueryObj.find(next[1], tokenResults[j], results, seed);
+										}
+									}
+								} else {
+									_jQueryObj.find(tmp[1], ctx[i], results, seed);
+								}
+							}
+						}
+						
+					} else {
+						_jQueryObj._oldFindFn(parts[x], context, results, seed);
+					}
+				}
+				return results;
+			}
+			// return normal results if no custom tokens are found
+			return _jQueryObj._oldFindFn(selector, context, results, seed);
+		}
+		
+		// Copy all properties from the original find function to this one
+		for(i in _jQueryObj._oldFindFn){
+			_jQueryObj.find[i] = _jQueryObj._oldFindFn[i];
+		}
+		
+		var restrictedTokens = ",.";
+		
+		_jQueryObj.find.jModTokens = {
+			tokens: {},
+			
+			tokenOrder: [],
+			
+			sortOrder: function(a, b){
+				return (a.length > b.length ? -1 : (a.length < b.length ? 1 : 0));
+			},
+			
+			_regex: null,
+			_regexTest: null,
+			
+			add: function(token, data){
+				if(restrictedTokens.indexOf(token) != -1)
+					return;
+				var jModTokens = _jQueryObj.find.jModTokens;
+				jModTokens._regex = null; // Clear regex
+				jModTokens._regexTest = null; // Clear regexText
+				jModTokens.tokens[token] = data;
+				jModTokens.tokenOrder.push(token);
+				jModTokens.tokenOrder.sort(this.sortOrder);
+			},
+			
+			remove: function(token){
+				var jModTokens = _jQueryObj.find.jModTokens;
+				if(jModTokens.tokens[token]){
+					delete jModTokens.tokens[token];
+					jModTokens._regex = null; // Clear regex
+					jModTokens._regexTest = null; // Clear regexText
+					jModTokens.tokenOrder.splice(jModTokens.tokenOrder.indexOf(token), 1);
+					jModTokens.tokenOrder.sort(this.sortOrder);
+				}
+			},
+			
+			removeAll: function(){
+				var jModTokens = _jQueryObj.find.jModTokens;
+				jModTokens.tokens[token] = {};
+				jModTokens.tokenOrder = [];
+				jModTokens._regex = null; // Clear regex
+				jModTokens._regexTest = null; // Clear regexText
+			}
+		}
+		
+		function convertTokensToRegex(tokens){
+			return tokens.join("|") // Escape any special characters for regex
+					.replace(/\./g, "\\.")
+					.replace(/\+/g, "\\+")
+					.replace(/\</g, "\\<")
+					.replace(/\>/g, "\\>")
+					.replace(/\)/g, "\\)")
+					.replace(/\(/g, "\\(");
+		}
+		
+		Object.defineProperty(_jQueryObj.find.jModTokens, "regex", {
+			get: function(){
+				// Return stored regex if it exists
+				if(_jQueryObj.find.jModTokens._regex)
+					return _jQueryObj.find.jModTokens._regex;
+					
+				var tokens = convertTokensToRegex(_jQueryObj.find.jModTokens.tokenOrder);
+				_jQueryObj.find.jModTokens._regex = new RegExp("(" + tokens + ")");
+				
+				return _jQueryObj.find.jModTokens._regex;
+			}
+		});
+		
+		Object.defineProperty(_jQueryObj.find.jModTokens, "regexTest", {
+			get: function(){
+				// Return stored regex test if it exists
+				if(_jQueryObj.find.jModTokens._regexTest)
+					return _jQueryObj.find.jModTokens._regexTest;
+					
+				var tokens = convertTokensToRegex(_jQueryObj.find.jModTokens.tokenOrder);
+				_jQueryObj.find.jModTokens._regexTest = new RegExp("(?:^|[^\\.])(" + tokens + ")(?:[\\s\\.\\#\\w\\*\\:]|$)");
+				
+				return _jQueryObj.find.jModTokens._regexTest;
+			}
+		});
+		
+		_jQueryObj.extend({jModTokenizer: true});
+		
+		return _jQueryObj;
+	}
+	
+	/**
+	 * Adds custom sibling selectors <b>++</b>, <b>+&#62;</b> and <b>+&#60;</b> to the given jQuery instance.
+	 * @function addSiblingTokens
+	 * @memberof jMod.jQueryExtensions
+	 * @param {object} [_jQueryObj=jMod.jQuery] - jQuery object
+	 */
+	jMod.jQueryExtensions.addSiblingTokens = function(_jQueryObj){
+		if (
+				(
+					!_jQueryObj && // If no jQuery object, try to use global jQuery object
+					!(_jQueryObj = jMod.jQuery) // If no global jQuery object, return
+				) ||
+				_undefined==typeof _jQueryObj.find.jModTokens // if not extended, return
+			) return;
+		
+		// All Siblings
+		_jQueryObj.find.jModTokens.add("++", {
+			find: function(selector, context, results, seed){
+				results = results || [];
+				var i = 0, sibs = _jQueryObj(context).siblings(selector);
+				if(sibs)
+					for( ; i < sibs.length; i++)
+						if(results.indexOf(sibs[i]) == -1)
+							results.push(sibs[i]);
+				return results;
+			}
+		});
+		
+		// All Proceeding Siblings
+		_jQueryObj.find.jModTokens.add("+>", {
+			find: function(selector, context, results, seed){
+				results = results || [];
+				var i = 0, sibs = _jQueryObj(context).nextAll(selector);
+				if(sibs)
+					for( ; i < sibs.length; i++)
+						if(results.indexOf(sibs[i]) == -1)
+							results.push(sibs[i]);
+				return results;
+			}
+		});
+		
+		// All Previous Siblings
+		_jQueryObj.find.jModTokens.add("+<", {
+			find: function(selector, context, results, seed){
+				results = results || [];
+				var i = 0, sibs = _jQueryObj(context).prevAll(selector);
+				if(sibs)
+					for( ; i < sibs.length; i++)
+						if(results.indexOf(sibs[i]) == -1)
+							results.push(sibs[i]);
+				return results;
+			}
+		});
+		
+		
+	}
+	
+	/**
+	 * Removes the jMod tokenizer extension from the given jQuery instance.
+	 * @function removeTokenizer
+	 * @memberof jMod.jQueryExtensions
+	 * @param {object} [_jQueryObj=jMod.jQuery] - jQuery object
+	 */
+	jMod.jQueryExtensions.removeTokenizer = function(_jQueryObj){
+		if (
+				(
+					!_jQueryObj && // If no jQuery object, try to use global jQuery object
+					!(_jQueryObj = jMod.jQuery) // If no global jQuery object, return
+				) ||
+				_undefined==typeof _jQueryObj.jModTokenizer // if not extended, return
+			) return;
+		
+		// Remove enable/disable property
+		delete _jQueryObj.jModTokenizer;
+		
+		// Restore original function
+		_jQueryObj.find = _jQueryObj._oldFindFn;
+		
+		// Remove "_oldFindFn"
+		_jQueryObj._oldFindFn = undefined;
+		delete _jQueryObj._oldFindFn;
+		
+		return _jQueryObj;
+	}
+
+
+})()
+	
 	/***********************************
 	 ** Tooltip
 	 **********************************/
@@ -5503,7 +5845,7 @@ Notification.Types = {
 		generateElement: function(data){
 			var newNotification = {
 				type: 'div',
-				className: 'jModLargeNotification bigBox animated fadeIn fast',
+				className: 'jModLargeNotification animated fadeIn fast',
 				style: {},
 				attributes: {
 					'data-jmod-notification': Notification.count,
@@ -5533,7 +5875,7 @@ Notification.Types = {
 					{
 						type: 'i',
 						id: 'jModbtnClose'+Notification.LargeCount,
-						className: 'botClose fa fa-times',
+						className: 'btnClose fa fa-times',
 						EventListeners: {
 							'click':function(e){
 								Notification.close(e.target);
@@ -5559,7 +5901,7 @@ Notification.Types = {
 			if(typeof data.icon !== _undefined){
 				newNotificationContent.innerHTML.push({
 					type: 'div',
-					className: 'jmod-na bigboxicon',
+					className: 'jmod-na largeIcon',
 					style: {
 						'backgroundColor': 'transparent',
 					},
@@ -5648,7 +5990,7 @@ Notification.Types = {
 
 			var newNotification = {
 				type: 'div',
-				className: 'jModSmallNotification SmallBox animated fadeIn',
+				className: 'jModSmallNotification animated fadeIn',
 				style: {
 					top: tmpTop + 'px'
 				},
@@ -5711,19 +6053,19 @@ Notification.Types = {
 			}
 			
 			if(typeof data.footer === _undefined)
-				newNotificationContent.className += ' textoFull';
+				newNotificationContent.className += ' NotificationContent';
 			else{
-				newNotificationContent.className += ' textoFoto';
+				newNotificationContent.className += ' NotificationContent';
 				
-				var foto = document.createElement("div");
-				foto.className = 'foto';
+				var largeIcon = document.createElement("div");
+				largeIcon.className = 'largeIcon';
 				if(isElement(data.icon)){
-					foto.appendChild(data.icon);
+					largeIcon.appendChild(data.icon);
 				} else {
-					foto.innerHTML = '<i class="fa ' + data.icon + ' '+(data.iconAnimation || 'bounce')+' animated"> </i>';
+					largeIcon.innerHTML = '<i class="fa ' + data.icon + ' '+(data.iconAnimation || 'bounce')+' animated"> </i>';
 				}
 				
-				newNotification.innerHTML.push(foto);
+				newNotification.innerHTML.push(largeIcon);
 			}
 			
 			if(typeof data.title !== _undefined){
@@ -5741,13 +6083,13 @@ Notification.Types = {
 			if(typeof data.icon !== _undefined){
 				newNotificationContent.innerHTML.push({
 					type: 'div',
-					className: 'miniIcono',
+					className: 'smallIcon',
 					style: {
 						'backgroundColor': 'transparent',
 					},
 					innerHTML: {
 						type: 'i',
-						className: 'miniPic fa ' + data.icon + ' ' + (data.iconAnimation || 'swing') + ' animated',
+						className: 'fa ' + data.icon + ' ' + (data.iconAnimation || 'swing') + ' animated',
 						style: {
 							color: '#fff'
 						}
@@ -5841,17 +6183,17 @@ Notification.Types = {
 				innerHTML: [
 					{
 						type: 'div',
-						className: 'MessageBoxMiddle',
+						className: 'NotificationContent',
 						style: {},
 						innerHTML: [
 							{
 								type: 'span',
-								className: 'MsgTitle',
+								className: 'NotificationTitle',
 								innerHTML: data.title
 							},
 							{
 								type: 'p',
-								className: 'pText',
+								className: 'NotificationText',
 								innerHTML: data.body
 							}
 						]
@@ -5872,16 +6214,16 @@ Notification.Types = {
 					newNotification.style.backgroundColor = 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ', ' + (color.a || parseFloat(color.a) === 0.0 ? parseFloat(color.a) : '0.8') + ')';
 			}
 			
-			var buttonSection = {
+			var footer = {
 				type: 'div',
-				className: 'MessageBoxButtonSection',
+				className: 'NotificationFooter',
 				style: {
 					
 				},
 				innerHTML: [
 					{
 						type: 'button',
-						className: 'btn btn-default btn-sm botTempo',
+						className: 'btn btn-default btn-sm',
 						innerHTML: 'Close',
 						EventListeners: {
 							click: function(e){
@@ -5893,7 +6235,7 @@ Notification.Types = {
 				]
 			};
 			
-			newNotification.innerHTML[0].innerHTML.push(buttonSection);
+			newNotification.innerHTML[0].innerHTML.push(footer);
 			
 			var newNotificationContainer = {
 				type: 'div',
@@ -6144,7 +6486,7 @@ Notification.init = function(){
 	Notification.Types.init();
 }
 
-jMod.CSS = '#jModSmallNotificationsWrapper,#jModNotificationsWrapper,.jmod-na .SmallBox span,.jmod-na .bigBox span{font-family:"Open Sans",Arial,Helvetica,sans-serif;}.jmod-na .jModFillNotification{top:35%;color:#FFF;position:relative;width:100%;background-color:rgba(0,0,0,0.8);padding:20px;z-index:100001;}.jmod-na .jModFillNotificationContainer{width:100%;height:100%;position:fixed;top:0px;left:0px;background:none repeat scroll 0% 0% rgba(0,0,0,0.6);z-index:100000;}';
+jMod.CSS = '';
 
 	
 	/***********************************
@@ -6378,14 +6720,15 @@ function resizeTabs(tabsNav, computedNav){
 		return;
 	//var width = parseInt(computedNav.getPropertyValue('width'));
 	var width = parseInt(computedNav.width);
-	if(isNaN(width))
+	if(isNaN(width)){
 		if(jMod.debug)
 			jModLogWarning('Tabs.resize', 'Tab width is NaN!', tabsNav, tabsContent, computedNav);
-	else if(width > 300)
+	}else if(width > 300){
 		if(jMod.debug)
 			jModLogWarning('Tabs.resize', 'Tab width too wide!', width, tabsNav);
-	else if(width > 50)
-			tabsContent.style.marginLeft = (width + 11) + 'px';
+	}else if(width > 50){
+		tabsContent.style.marginLeft = (width + 11) + 'px';
+	}
 }
 
 Tabs.resize = function(tabsNav){
@@ -6876,7 +7219,7 @@ jMod.Requirements.add({
 });
 */
 
-jMod.CSS = '.jmod-na .tabbable > .nav.nav-tabs > li > a,.jmod-na .tabbable > .nav.nav-tabs > li > a:hover,.jmod-na .tabbable > .nav.nav-tabs > li > a:active{text-decoration:none;}';
+jMod.CSS = '';
 
 
 
@@ -6906,7 +7249,7 @@ jMod.Config.Settings = {
 jMod.Config.Settings = jMod.extend({
 		enabled: true,
 		cn: {
-			modal: 'jModSettings'
+			modal: 'jModSettingsModal'
 		},
 		id: {
 			modal: 'jModSettingsModal'
@@ -8329,6 +8672,10 @@ Settings.onResize = function(){
 
 Settings.show = function(){
 	jMod.Modal.show(Settings.settingsModalElement || 0);
+	
+	setTimeout(function(){
+		Settings.onResize();
+	}, 1);
 }
 
 Settings.hide = function(){
@@ -8353,7 +8700,7 @@ Settings.init = function(){
 	Settings.Initialized = true;
 }
 
-jMod.CSS = '.jmod-na .modal-body{min-height:200px;max-height:500px;overflow-y:auto;}.jmod-na .powered-by{font-family:"Sansation",Lato;font-weight:300;font-size:16px;position:absolute;left:0;text-align:center;width:100%;bottom:0;padding-bottom:5px;}.jmod-na .powered-by > a:link,.jmod-na .powered-by > a:visited,.jmod-na .powered-by > a:hover,.jmod-na .powered-by > a:active{text-decoration:none;color:#000;}.jmod-na .powered-by img{margin-right:3px;}.jmod-na .noselect{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}.jmod-na .noselect::selection{background:transparent;}.jmod-na .noselect::-moz-selection{background:transparent;}.jmod-na .imagefile-form{display:inline-block;vertical-align:top;}.jmod-na .imagefile-form > button{margin-right:10px;}.jmod-na .image-preview-container{display:inline-flex;color:rgba(0,0,0,0.7);background-repeat:no-repeat;background-position:center center;background-size:100% 100%;max-width:100%;min-width:35px;min-height:35px;max-height:300px;border:solid 1px #000000;padding:5px;text-align:center;vertical-align:center center;align-items:center;justify-content:center;}';
+jMod.CSS = '.jmod-na .modal-body{min-height:200px;max-height:500px;overflow-y:auto;}';
 
 
 
@@ -9239,7 +9586,7 @@ function tryInit(e){
 		}
 	}
 	
-	if(totalCallCount > maxCallCount){
+	if(totalCallCount++ > maxCallCount){
 		Loading.Complete = true;
 		clearInterval(checkTimer);
 		
@@ -9255,7 +9602,6 @@ function tryInit(e){
 		if(jMod.debug) jModLogTime('jMod Finish Init');
 		return;
 	}
-	totalCallCount++;
 	if(jMod.debug) jMod.log.count('Try Init');
 }
 

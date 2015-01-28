@@ -32,7 +32,7 @@
     };
     jMod.InitializeStartTime = initStart;
     jMod.InitializeEndTime = -1;
-    var API = jMod.API = {}, Slice = Array.prototype.slice, _jQueryAvailable = _undefined != typeof $ ? true : false, jModReady = -1, _css = "@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n" + "@font-face {font-family: 'Sansation';font-style: normal;font-weight: 400;src: local('Sansation Regular'), local('Sansation-Regular'), url(http://myuserjs.org/fonts/Sansation-Regular.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: normal;font-weight: 300;src: local('Sansation Light'), local('Sansation-Light'), url(http://myuserjs.org/fonts/Sansation-Light.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: italic;font-weight: 300;src: local('Sansation Light Italic'), local('Sansation-LightItalic'), url(http://myuserjs.org/fonts/Sansation-LightItalic.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: normal;font-weight: 700;src: local('Sansation Bold'), local('Sansation-Bold'), url(http://myuserjs.org/fonts/Sansation-Bold.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: italic;font-weight: 400;src: local('Sansation Italic'), local('Sansation-Italic'), url(http://myuserjs.org/fonts/Sansation-Italic.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: italic;font-weight: 700;src: local('Sansation Bold Italic'), local('Sansation-BoldItalic'), url(http://myuserjs.org/fonts/Sansation-BoldItalic.ttf) format('ttf');}\n", defaultjModCSSURL = "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n", CurrentRunningScript = {
+    var API = jMod.API = {}, Slice = Array.prototype.slice, _jQueryAvailable = _undefined != typeof $ ? true : false, jModReady = -1, _css = "@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n" + "@font-face {font-family: 'Sansation';font-style: normal;font-weight: 400;src: local('Sansation Regular'), local('Sansation-Regular'), url(http://myuserjs.org/fonts/Sansation-Regular.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: normal;font-weight: 300;src: local('Sansation Light'), local('Sansation-Light'), url(http://myuserjs.org/fonts/Sansation-Light.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: italic;font-weight: 300;src: local('Sansation Light Italic'), local('Sansation-LightItalic'), url(http://myuserjs.org/fonts/Sansation-LightItalic.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: normal;font-weight: 700;src: local('Sansation Bold'), local('Sansation-Bold'), url(http://myuserjs.org/fonts/Sansation-Bold.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: italic;font-weight: 400;src: local('Sansation Italic'), local('Sansation-Italic'), url(http://myuserjs.org/fonts/Sansation-Italic.ttf) format('ttf');}\n" + "@font-face {font-family: 'Sansation';font-style: italic;font-weight: 700;src: local('Sansation Bold Italic'), local('Sansation-BoldItalic'), url(http://myuserjs.org/fonts/Sansation-BoldItalic.ttf) format('ttf');}\n", defaultjModCSSURL = false ? "@import url(//test2.myuserjs.org/API/0.0.18/jMod.css);\n" : "@import url(//myuserjs.org/API/0.0.18/jMod.css);\n", CurrentRunningScript = {
         id: "jMod",
         config: {},
         el: unsafeWindow.document && unsafeWindow.document.currentScript ? unsafeWindow.document.currentScript : undefined
@@ -52,8 +52,8 @@
         return CurrentRunningScript.el ? CurrentRunningScript : undefined;
     });
     DefineLockedProp("version", "0.0.18");
-    DefineLockedProp("build_time", "1422294424000");
-    DefineLockedProp("build_type", "beta");
+    DefineLockedProp("build_time", "1422486289000");
+    DefineLockedProp("build_type", "release");
     DefineLockedProp("_debug", false);
     Object.defineProperty(jMod, "debug", {
         get: function() {
@@ -264,16 +264,13 @@
         return obj;
     }
     function mExportFunction(func, scope, args) {
-        if (typeof exportFunction !== _undefined) try {
+        if (_undefined != typeof exportFunction) try {
             return exportFunction(func, scope, args);
         } catch (e) {}
         var name = "";
-        if (typeof args === _undefined) args = {};
-        if (typeof args.defineAs !== _undefined) name = args.defineAs; else if ("function" === typeof func && "" != func.name) name = func.name;
-        if ("" == name) return;
-        try {
-            scope[name] = func;
-            return scope[name];
+        if (args && args.defineAs) name = args.defineAs; else if ("function" === typeof func && "" != func.name) name = func.name;
+        if ("" != name) try {
+            return scope[name] = func;
         } catch (e) {}
     }
     jMod.parseStack = function(stackText) {
@@ -1213,9 +1210,9 @@
         return el.hasAttribute(attr);
     };
     var hasAttributes = function(el, attrs) {
-        r = [];
+        var i = 0, r = [];
         if ("string" === typeof attrs) attrs = attrs.split(" ");
-        for (var i = 0; i < attrs.length; i++) if (el.hasAttribute(attrs[i])) r.push(attrs[i]);
+        for (;i < attrs.length; i++) if (el.hasAttribute(attrs[i])) r.push(attrs[i]);
         return r;
     };
     var getAttribute = function(el, attr) {
@@ -1284,7 +1281,7 @@
         var parent = el;
         while (parent.parentElement) {
             parent = parent.parentElement;
-            if (jMod.Element.hasClass(parent, className)) return true;
+            if (hasClass(parent, className)) return true;
         }
         return false;
     };
@@ -1292,15 +1289,14 @@
         var parent = el;
         while (parent.parentElement) {
             parent = parent.parentElement;
-            if (jMod.Element.hasClass(parent, className)) return parent;
+            if (hasClass(parent, className)) return parent;
         }
-        return;
     };
     var findParentWithAttribute = jMod.Element.findParentWithAttribute = function(el, attributeName, attributeValue) {
         var parent = el;
         while (parent.parentElement) {
             parent = parent.parentElement;
-            if (parent.hasAttribute(attributeName)) if (_undefined === typeof attributeValue || parent.getAttribute(attributeName) == attributeValue) return parent;
+            if (parent.hasAttribute(attributeName) && (_undefined == typeof attributeValue || parent.getAttribute(attributeName) == attributeValue)) return parent;
         }
     };
     function fireClick(el, bubbles, cancelable) {
@@ -2365,6 +2361,154 @@
                 jModCrossOriginSupport: true
             });
         };
+    }() + function() {
+        var Selectors = jMod.jQueryExtensions.Selectors = function(_jQueryObj, name) {
+            if (!_jQueryObj) return;
+            var i;
+            if (1 == arguments.length) {
+                for (i in Selectors.ext) Selectors[i](_jQueryObj);
+                return;
+            }
+            for (i = 1; i < arguments.length; i++) if (_undefined != typeof Selectors.ext[arguments[i]]) Selectors.ext[arguments[i]](_jQueryObj);
+        };
+        Selectors.ext = {};
+        Selectors.ext.inView = function(_jQueryObj) {
+            if (_jQueryObj && !_jQueryObj.expr[":"].inView) _jQueryObj.extend(_jQueryObj.expr[":"], {
+                inView: function(a) {
+                    win = window || unsafeWindow;
+                    doc = document || win.document;
+                    var scrollTop = doc.documentElement.scrollTop || doc.body.scrollTop, offsetTop = _jQueryObj(a).offset().top, windowHeight = win.innerHeight && win.innerHeight < _jQueryObj(win).height() ? win.innerHeight : _jQueryObj(win).height();
+                    return offsetTop > scrollTop && _jQueryObj(a).height() + offsetTop < scrollTop + windowHeight;
+                }
+            });
+        };
+    }() + function() {
+        var nextRegex = /^\s*((?:(?:\:\w+\([^\)]+\))|[^\s\<\>\~\+\|]|[\<\>\~\+\|\^\$\*](?=\=.+\]))+)\s*(.*?)$/;
+        function getNext(str) {
+            if (!str || str.length < 3) return [ str || "" ];
+            var m = nextRegex.exec(str);
+            return m ? [ m[1].trim(), m[2].trim() ] : [ str ];
+        }
+        jMod.jQueryExtensions.extendTokenizer = function(_jQueryObj) {
+            if (!_jQueryObj && !(_jQueryObj = jMod.jQuery) || _undefined != typeof _jQueryObj.jModTokenizer) return;
+            _jQueryObj._oldFindFn = _jQueryObj.find;
+            _jQueryObj.find = function(selector, context, results, seed) {
+                context = context || document || unsafeWindow.document;
+                results = results || [];
+                if (_jQueryObj.jModTokenizer && _jQueryObj.find.jModTokens.regexTest.test(selector)) {
+                    var i, j, x, t, firstToken, parts, ctx, tmp, next, tokenResults;
+                    parts = selector.split(",");
+                    for (x = 0; x < parts.length; x++) if (_jQueryObj.find.jModTokens.regexTest.test(parts[x]) && (firstToken = _jQueryObj.find.jModTokens.regex.exec(parts[x])[1]) && (t = _jQueryObj.find.jModTokens.tokens[firstToken])) {
+                        tmp = parts[x].split(firstToken, 2);
+                        ctx = _jQueryObj._oldFindFn(tmp[0], context);
+                        if (ctx && ctx.length > 0) for (i = 0; i < ctx.length; i++) if (t.find) {
+                            next = getNext(tmp[1]);
+                            if (1 == next.length || "" == next[1]) t.find(tmp[1], ctx[i], results, seed); else {
+                                tokenResults = t.find(next[0], ctx[i]);
+                                for (j = 0; j < tokenResults.length; j++) _jQueryObj.find(next[1], tokenResults[j], results, seed);
+                            }
+                        } else _jQueryObj.find(tmp[1], ctx[i], results, seed);
+                    } else _jQueryObj._oldFindFn(parts[x], context, results, seed);
+                    return results;
+                }
+                return _jQueryObj._oldFindFn(selector, context, results, seed);
+            };
+            for (i in _jQueryObj._oldFindFn) _jQueryObj.find[i] = _jQueryObj._oldFindFn[i];
+            var restrictedTokens = ",.";
+            _jQueryObj.find.jModTokens = {
+                tokens: {},
+                tokenOrder: [],
+                sortOrder: function(a, b) {
+                    return a.length > b.length ? -1 : a.length < b.length ? 1 : 0;
+                },
+                _regex: null,
+                _regexTest: null,
+                add: function(token, data) {
+                    if (restrictedTokens.indexOf(token) != -1) return;
+                    var jModTokens = _jQueryObj.find.jModTokens;
+                    jModTokens._regex = null;
+                    jModTokens._regexTest = null;
+                    jModTokens.tokens[token] = data;
+                    jModTokens.tokenOrder.push(token);
+                    jModTokens.tokenOrder.sort(this.sortOrder);
+                },
+                remove: function(token) {
+                    var jModTokens = _jQueryObj.find.jModTokens;
+                    if (jModTokens.tokens[token]) {
+                        delete jModTokens.tokens[token];
+                        jModTokens._regex = null;
+                        jModTokens._regexTest = null;
+                        jModTokens.tokenOrder.splice(jModTokens.tokenOrder.indexOf(token), 1);
+                        jModTokens.tokenOrder.sort(this.sortOrder);
+                    }
+                },
+                removeAll: function() {
+                    var jModTokens = _jQueryObj.find.jModTokens;
+                    jModTokens.tokens[token] = {};
+                    jModTokens.tokenOrder = [];
+                    jModTokens._regex = null;
+                    jModTokens._regexTest = null;
+                }
+            };
+            function convertTokensToRegex(tokens) {
+                return tokens.join("|").replace(/\./g, "\\.").replace(/\+/g, "\\+").replace(/\</g, "\\<").replace(/\>/g, "\\>").replace(/\)/g, "\\)").replace(/\(/g, "\\(");
+            }
+            Object.defineProperty(_jQueryObj.find.jModTokens, "regex", {
+                get: function() {
+                    if (_jQueryObj.find.jModTokens._regex) return _jQueryObj.find.jModTokens._regex;
+                    var tokens = convertTokensToRegex(_jQueryObj.find.jModTokens.tokenOrder);
+                    _jQueryObj.find.jModTokens._regex = new RegExp("(" + tokens + ")");
+                    return _jQueryObj.find.jModTokens._regex;
+                }
+            });
+            Object.defineProperty(_jQueryObj.find.jModTokens, "regexTest", {
+                get: function() {
+                    if (_jQueryObj.find.jModTokens._regexTest) return _jQueryObj.find.jModTokens._regexTest;
+                    var tokens = convertTokensToRegex(_jQueryObj.find.jModTokens.tokenOrder);
+                    _jQueryObj.find.jModTokens._regexTest = new RegExp("(?:^|[^\\.])(" + tokens + ")(?:[\\s\\.\\#\\w\\*\\:]|$)");
+                    return _jQueryObj.find.jModTokens._regexTest;
+                }
+            });
+            _jQueryObj.extend({
+                jModTokenizer: true
+            });
+            return _jQueryObj;
+        };
+        jMod.jQueryExtensions.addSiblingTokens = function(_jQueryObj) {
+            if (!_jQueryObj && !(_jQueryObj = jMod.jQuery) || _undefined == typeof _jQueryObj.find.jModTokens) return;
+            _jQueryObj.find.jModTokens.add("++", {
+                find: function(selector, context, results, seed) {
+                    results = results || [];
+                    var i = 0, sibs = _jQueryObj(context).siblings(selector);
+                    if (sibs) for (;i < sibs.length; i++) if (results.indexOf(sibs[i]) == -1) results.push(sibs[i]);
+                    return results;
+                }
+            });
+            _jQueryObj.find.jModTokens.add("+>", {
+                find: function(selector, context, results, seed) {
+                    results = results || [];
+                    var i = 0, sibs = _jQueryObj(context).nextAll(selector);
+                    if (sibs) for (;i < sibs.length; i++) if (results.indexOf(sibs[i]) == -1) results.push(sibs[i]);
+                    return results;
+                }
+            });
+            _jQueryObj.find.jModTokens.add("+<", {
+                find: function(selector, context, results, seed) {
+                    results = results || [];
+                    var i = 0, sibs = _jQueryObj(context).prevAll(selector);
+                    if (sibs) for (;i < sibs.length; i++) if (results.indexOf(sibs[i]) == -1) results.push(sibs[i]);
+                    return results;
+                }
+            });
+        };
+        jMod.jQueryExtensions.removeTokenizer = function(_jQueryObj) {
+            if (!_jQueryObj && !(_jQueryObj = jMod.jQuery) || _undefined == typeof _jQueryObj.jModTokenizer) return;
+            delete _jQueryObj.jModTokenizer;
+            _jQueryObj.find = _jQueryObj._oldFindFn;
+            _jQueryObj._oldFindFn = undefined;
+            delete _jQueryObj._oldFindFn;
+            return _jQueryObj;
+        };
     }();
     jMod.Config.Tooltip = jMod.extend({
         enabled: false,
@@ -2729,7 +2873,7 @@
             generateElement: function(data) {
                 var newNotification = {
                     type: "div",
-                    className: "jModLargeNotification bigBox animated fadeIn fast",
+                    className: "jModLargeNotification animated fadeIn fast",
                     style: {},
                     attributes: {
                         "data-jmod-notification": Notification.count,
@@ -2750,7 +2894,7 @@
                     innerHTML: [ {
                         type: "i",
                         id: "jModbtnClose" + Notification.LargeCount,
-                        className: "botClose fa fa-times",
+                        className: "btnClose fa fa-times",
                         EventListeners: {
                             click: function(e) {
                                 Notification.close(e.target);
@@ -2769,7 +2913,7 @@
                 });
                 if (typeof data.icon !== _undefined) newNotificationContent.innerHTML.push({
                     type: "div",
-                    className: "jmod-na bigboxicon",
+                    className: "jmod-na largeIcon",
                     style: {
                         backgroundColor: "transparent"
                     },
@@ -2840,7 +2984,7 @@
                 }
                 var newNotification = {
                     type: "div",
-                    className: "jModSmallNotification SmallBox animated fadeIn",
+                    className: "jModSmallNotification animated fadeIn",
                     style: {
                         top: tmpTop + "px"
                     },
@@ -2884,12 +3028,12 @@
                     innerHTML: [],
                     style: {}
                 };
-                if (typeof data.footer === _undefined) newNotificationContent.className += " textoFull"; else {
-                    newNotificationContent.className += " textoFoto";
-                    var foto = document.createElement("div");
-                    foto.className = "foto";
-                    if (isElement(data.icon)) foto.appendChild(data.icon); else foto.innerHTML = '<i class="fa ' + data.icon + " " + (data.iconAnimation || "bounce") + ' animated"> </i>';
-                    newNotification.innerHTML.push(foto);
+                if (typeof data.footer === _undefined) newNotificationContent.className += " NotificationContent"; else {
+                    newNotificationContent.className += " NotificationContent";
+                    var largeIcon = document.createElement("div");
+                    largeIcon.className = "largeIcon";
+                    if (isElement(data.icon)) largeIcon.appendChild(data.icon); else largeIcon.innerHTML = '<i class="fa ' + data.icon + " " + (data.iconAnimation || "bounce") + ' animated"> </i>';
+                    newNotification.innerHTML.push(largeIcon);
                 }
                 if (typeof data.title !== _undefined) newNotificationContent.innerHTML.push({
                     type: "span",
@@ -2901,13 +3045,13 @@
                 });
                 if (typeof data.icon !== _undefined) newNotificationContent.innerHTML.push({
                     type: "div",
-                    className: "miniIcono",
+                    className: "smallIcon",
                     style: {
                         backgroundColor: "transparent"
                     },
                     innerHTML: {
                         type: "i",
-                        className: "miniPic fa " + data.icon + " " + (data.iconAnimation || "swing") + " animated",
+                        className: "fa " + data.icon + " " + (data.iconAnimation || "swing") + " animated",
                         style: {
                             color: "#fff"
                         }
@@ -2980,15 +3124,15 @@
                     },
                     innerHTML: [ {
                         type: "div",
-                        className: "MessageBoxMiddle",
+                        className: "NotificationContent",
                         style: {},
                         innerHTML: [ {
                             type: "span",
-                            className: "MsgTitle",
+                            className: "NotificationTitle",
                             innerHTML: data.title
                         }, {
                             type: "p",
-                            className: "pText",
+                            className: "NotificationText",
                             innerHTML: data.body
                         } ]
                     } ]
@@ -3000,13 +3144,13 @@
                     } else if ("object" === typeof data.background && _undefined != typeof data.background.color) if ((color = parseColorString(data.background.color)) && _undefined != typeof data.background.opacity) color.a = parseFloat(data.background.opacity);
                     if (color) newNotification.style.backgroundColor = "rgba(" + color.r + ", " + color.g + ", " + color.b + ", " + (color.a || 0 === parseFloat(color.a) ? parseFloat(color.a) : "0.8") + ")";
                 }
-                var buttonSection = {
+                var footer = {
                     type: "div",
-                    className: "MessageBoxButtonSection",
+                    className: "NotificationFooter",
                     style: {},
                     innerHTML: [ {
                         type: "button",
-                        className: "btn btn-default btn-sm botTempo",
+                        className: "btn btn-default btn-sm",
                         innerHTML: "Close",
                         EventListeners: {
                             click: function(e) {
@@ -3015,7 +3159,7 @@
                         }
                     } ]
                 };
-                newNotification.innerHTML[0].innerHTML.push(buttonSection);
+                newNotification.innerHTML[0].innerHTML.push(footer);
                 var newNotificationContainer = {
                     type: "div",
                     className: "jModFillNotificationContainer animated fadeIn fast",
@@ -3204,7 +3348,7 @@
         }
         Notification.Types.init();
     };
-    jMod.CSS = '#jModSmallNotificationsWrapper,#jModNotificationsWrapper,.jmod-na .SmallBox span,.jmod-na .bigBox span{font-family:"Open Sans",Arial,Helvetica,sans-serif;}.jmod-na .jModFillNotification{top:35%;color:#FFF;position:relative;width:100%;background-color:rgba(0,0,0,0.8);padding:20px;z-index:100001;}.jmod-na .jModFillNotificationContainer{width:100%;height:100%;position:fixed;top:0px;left:0px;background:none repeat scroll 0% 0% rgba(0,0,0,0.6);z-index:100000;}';
+    jMod.CSS = "";
     jMod.Config.Tabs = jMod.extend({
         enabled: true,
         att: {
@@ -3356,7 +3500,11 @@
         var tabsContent = tabsNav.parentElement.querySelector(".tab-content");
         if (null === tabsContent.offsetParent) return;
         var width = parseInt(computedNav.width);
-        if (isNaN(width)) if (jMod.debug) jModLogWarning("Tabs.resize", "Tab width is NaN!", tabsNav, tabsContent, computedNav); else if (width > 300) if (jMod.debug) jModLogWarning("Tabs.resize", "Tab width too wide!", width, tabsNav); else if (width > 50) tabsContent.style.marginLeft = width + 11 + "px";
+        if (isNaN(width)) {
+            if (jMod.debug) jModLogWarning("Tabs.resize", "Tab width is NaN!", tabsNav, tabsContent, computedNav);
+        } else if (width > 300) {
+            if (jMod.debug) jModLogWarning("Tabs.resize", "Tab width too wide!", width, tabsNav);
+        } else if (width > 50) tabsContent.style.marginLeft = width + 11 + "px";
     }
     Tabs.resize = function(tabsNav) {
         waitForComputeableWidth(tabsNav, resizeTabs);
@@ -3659,11 +3807,11 @@
             document.body.appendChild(modalContainer);
         }
     };
-    jMod.CSS = ".jmod-na .tabbable > .nav.nav-tabs > li > a,.jmod-na .tabbable > .nav.nav-tabs > li > a:hover,.jmod-na .tabbable > .nav.nav-tabs > li > a:active{text-decoration:none;}";
+    jMod.CSS = "";
     jMod.Config.Settings = jMod.extend({
         enabled: true,
         cn: {
-            modal: "jModSettings"
+            modal: "jModSettingsModal"
         },
         id: {
             modal: "jModSettingsModal"
@@ -4686,6 +4834,9 @@
     };
     Settings.show = function() {
         jMod.Modal.show(Settings.settingsModalElement || 0);
+        setTimeout(function() {
+            Settings.onResize();
+        }, 1);
     };
     Settings.hide = function() {
         jMod.Modal.hide(Settings.settingsModalElement);
@@ -4706,7 +4857,7 @@
     Settings.init = function() {
         Settings.Initialized = true;
     };
-    jMod.CSS = '.jmod-na .modal-body{min-height:200px;max-height:500px;overflow-y:auto;}.jmod-na .powered-by{font-family:"Sansation",Lato;font-weight:300;font-size:16px;position:absolute;left:0;text-align:center;width:100%;bottom:0;padding-bottom:5px;}.jmod-na .powered-by > a:link,.jmod-na .powered-by > a:visited,.jmod-na .powered-by > a:hover,.jmod-na .powered-by > a:active{text-decoration:none;color:#000;}.jmod-na .powered-by img{margin-right:3px;}.jmod-na .noselect{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}.jmod-na .noselect::selection{background:transparent;}.jmod-na .noselect::-moz-selection{background:transparent;}.jmod-na .imagefile-form{display:inline-block;vertical-align:top;}.jmod-na .imagefile-form > button{margin-right:10px;}.jmod-na .image-preview-container{display:inline-flex;color:rgba(0,0,0,0.7);background-repeat:no-repeat;background-position:center center;background-size:100% 100%;max-width:100%;min-width:35px;min-height:35px;max-height:300px;border:solid 1px #000000;padding:5px;text-align:center;vertical-align:center center;align-items:center;justify-content:center;}';
+    jMod.CSS = ".jmod-na .modal-body{min-height:200px;max-height:500px;overflow-y:auto;}";
     jMod.getDOMTiming = function() {
         var _timingData, timingData = {};
         try {
@@ -5155,7 +5306,7 @@
                     return;
                 }
             }
-            if (totalCallCount > maxCallCount) {
+            if (totalCallCount++ > maxCallCount) {
                 Loading.Complete = true;
                 clearInterval(checkTimer);
                 if (!Loading.DOMLoaded) InitHandlers.DOMLoaded();
@@ -5164,7 +5315,6 @@
                 if (jMod.debug) jModLogTime("jMod Finish Init");
                 return;
             }
-            totalCallCount++;
             if (jMod.debug) jMod.log.count("Try Init");
         }
         function checkTimer() {
