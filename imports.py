@@ -70,14 +70,22 @@ def fixCDATACSS(subject):
         commentBlockMatches.reverse()
         for cbm in commentBlockMatches:
             sanatized = sanatized[0:cbm.span()[0]] + sanatized[cbm.span()[1]:]
-        
-        #sanatized = re.sub(r"[\r\n]", "", sanatized, 0, re.MULTILINE + re.IGNORECASE)
-        #sanatized = re.sub(r"\s+", " ", sanatized, 0, re.MULTILINE + re.IGNORECASE)
+
         sanatized = re.sub(r"(?:\t|\r|\n|\s{2,})+", " ", sanatized, 0, re.MULTILINE + re.IGNORECASE).strip()
         sanatized = re.sub(r"(?:\s*(?P<char>\,|\{|\}|\;|\:)\s*)", r"\g<char>", sanatized, 0, re.MULTILINE + re.IGNORECASE).strip()
-        #(?:\s*(?<char>\,)\s*|\s*(?<char>\{)\s*|\s*(?<char>\})\s*|\s*(?<char>\;)\s*)
         sanatized = re.sub(r"'", "\\'", sanatized, 0, re.MULTILINE + re.IGNORECASE)
         subject = subject[0:m.span()[0]] + "'" + sanatized + "'" + subject[m.span()[1]:]
+        
+    return subject
+    
+def fixCDATAREGEX(subject):
+    matches = list(re.finditer(r"(\<\>\<\!\[CDATAREGEX\[((?:.*?[\r\n]*)+)\]\]\>\<\/\>)", subject, re.MULTILINE + re.IGNORECASE))
+    matches.reverse()
+    for m in matches:
+        sanatized = m.group(2)
+        sanatized = re.sub(r"(?:\t|\r|\n|\s)+", "", sanatized, 0, re.MULTILINE + re.IGNORECASE)
+        sanatized = re.sub(r"\\", "\\\\", sanatized, 0, re.MULTILINE + re.IGNORECASE)
+        subject = subject[0:m.span()[0]] + "/" + sanatized + "/" + subject[m.span()[1]:]
         
     return subject
     
@@ -299,6 +307,7 @@ class Source:
         
     def fixCDATABlocks(self):
         self.coreFile.fileContent = fixCDATACSS(self.coreFile.fileContent)
+        self.coreFile.fileContent = fixCDATAREGEX(self.coreFile.fileContent)
         self.coreFile.fileContent = fixCDATA(self.coreFile.fileContent)
         
     def addTests(self):
