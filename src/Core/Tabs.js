@@ -1,6 +1,7 @@
 // +@display_name  Tooltip
 // +@history (0.0.15) History begins.
 // +@history (0.0.17) Fix resizing bug that causes content to disappear when tab width is not computable or too large.
+// +@history (0.0.18) Fixed bug that prevented tabs from resizing properly.
 
 /**
  * Tabs Configuration Options
@@ -230,14 +231,15 @@ function resizeTabs(tabsNav, computedNav){
 		return;
 	//var width = parseInt(computedNav.getPropertyValue('width'));
 	var width = parseInt(computedNav.width);
-	if(isNaN(width))
+	if(isNaN(width)){
 		if(jMod.debug)
 			jModLogWarning('Tabs.resize', 'Tab width is NaN!', tabsNav, tabsContent, computedNav);
-	else if(width > 300)
+	}else if(width > 300){
 		if(jMod.debug)
 			jModLogWarning('Tabs.resize', 'Tab width too wide!', width, tabsNav);
-	else if(width > 50)
-			tabsContent.style.marginLeft = (width + 11) + 'px';
+	}else if(width > 50){
+		tabsContent.style.marginLeft = (width + 11) + 'px';
+	}
 }
 
 Tabs.resize = function(tabsNav){
