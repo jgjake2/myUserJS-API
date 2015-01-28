@@ -25,7 +25,7 @@ jMod.Config.Settings = {
 jMod.Config.Settings = jMod.extend({
 		enabled: true,
 		cn: {
-			modal: 'jModSettings'
+			modal: 'jModSettingsModal'
 		},
 		id: {
 			modal: 'jModSettingsModal'
@@ -784,6 +784,10 @@ Settings.onResize = function(){
 
 Settings.show = function(){
 	jMod.Modal.show(Settings.settingsModalElement || 0);
+	
+	setTimeout(function(){
+		Settings.onResize();
+	}, 1);
 }
 
 Settings.hide = function(){
@@ -822,70 +826,6 @@ jMod.CSS = <><![CDATACSS[
 /***********************************
  ** Transition to global css
  **********************************/
-.jmod-na .powered-by {
-	font-family: "Sansation", Lato;
-	font-weight: 300;
-	font-size: 16px;
-	position: absolute;
-	left: 0;
-	text-align: center;
-	width: 100%;
-	bottom: 0;
-	padding-bottom: 5px;
-}
-
-.jmod-na .powered-by > a:link, .jmod-na .powered-by > a:visited, .jmod-na .powered-by > a:hover, .jmod-na .powered-by > a:active {
-	text-decoration: none;
-	color: #000;
-}
-
-.jmod-na .powered-by img {
-	margin-right: 3px;
-}
- 
-.jmod-na .noselect {
-	-webkit-touch-callout: none;
-	-webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-}
-
-.jmod-na .noselect::selection { background: transparent; }
-.jmod-na .noselect::-moz-selection { background: transparent; }
-
-.jmod-na .imagefile-form {
-	display: inline-block;
-	vertical-align: top;
-}
-
-.jmod-na .imagefile-form > button {
-	margin-right: 10px;
-}
-
-.jmod-na .image-preview-container {
-	display: inline-flex;
-	color: rgba(0,0,0,0.7);
-	
-	background-repeat: no-repeat;
-	background-position: center center;
-	background-size: 100% 100%;
-	
-	max-width: 100%;
-	min-width: 35px;
-	min-height: 35px;
-	max-height: 300px;
-	border: solid 1px #000000;
-	
-	padding: 5px;
-	
-	text-align: center;
-	vertical-align: center center;
-	align-items: center;
-	justify-content: center;
-}
-
 
 ]]></>;
 
