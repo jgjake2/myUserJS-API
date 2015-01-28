@@ -51,6 +51,9 @@ function testSelector(){
 	console.log('Add Tokenizer');
 	jMod.jQueryExtensions.extendTokenizer($);
 	
+	console.log('Add Sibling Tokens');
+	jMod.jQueryExtensions.addSiblingTokens($);
+	
 	console.log("jQuery Find Function:");
 	console.dir($.find);
 	
