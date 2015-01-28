@@ -34,7 +34,7 @@
 
 			var newNotification = {
 				type: 'div',
-				className: 'jModSmallNotification SmallBox animated fadeIn',
+				className: 'jModSmallNotification animated fadeIn',
 				style: {
 					top: tmpTop + 'px'
 				},
@@ -97,19 +97,19 @@
 			}
 			
 			if(typeof data.footer === _undefined)
-				newNotificationContent.className += ' textoFull';
+				newNotificationContent.className += ' NotificationContent';
 			else{
-				newNotificationContent.className += ' textoFoto';
+				newNotificationContent.className += ' NotificationContent';
 				
-				var foto = document.createElement("div");
-				foto.className = 'foto';
+				var largeIcon = document.createElement("div");
+				largeIcon.className = 'largeIcon';
 				if(isElement(data.icon)){
-					foto.appendChild(data.icon);
+					largeIcon.appendChild(data.icon);
 				} else {
-					foto.innerHTML = '<i class="fa ' + data.icon + ' '+(data.iconAnimation || 'bounce')+' animated"> </i>';
+					largeIcon.innerHTML = '<i class="fa ' + data.icon + ' '+(data.iconAnimation || 'bounce')+' animated"> </i>';
 				}
 				
-				newNotification.innerHTML.push(foto);
+				newNotification.innerHTML.push(largeIcon);
 			}
 			
 			if(typeof data.title !== _undefined){
@@ -127,13 +127,13 @@
 			if(typeof data.icon !== _undefined){
 				newNotificationContent.innerHTML.push({
 					type: 'div',
-					className: 'miniIcono',
+					className: 'smallIcon',
 					style: {
 						'backgroundColor': 'transparent',
 					},
 					innerHTML: {
 						type: 'i',
-						className: 'miniPic fa ' + data.icon + ' ' + (data.iconAnimation || 'swing') + ' animated',
+						className: 'fa ' + data.icon + ' ' + (data.iconAnimation || 'swing') + ' animated',
 						style: {
 							color: '#fff'
 						}

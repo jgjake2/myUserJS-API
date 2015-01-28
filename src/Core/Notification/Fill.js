@@ -30,17 +30,17 @@
 				innerHTML: [
 					{
 						type: 'div',
-						className: 'MessageBoxMiddle',
+						className: 'NotificationContent',
 						style: {},
 						innerHTML: [
 							{
 								type: 'span',
-								className: 'MsgTitle',
+								className: 'NotificationTitle',
 								innerHTML: data.title
 							},
 							{
 								type: 'p',
-								className: 'pText',
+								className: 'NotificationText',
 								innerHTML: data.body
 							}
 						]
@@ -61,16 +61,16 @@
 					newNotification.style.backgroundColor = 'rgba(' + color.r + ', ' + color.g + ', ' + color.b + ', ' + (color.a || parseFloat(color.a) === 0.0 ? parseFloat(color.a) : '0.8') + ')';
 			}
 			
-			var buttonSection = {
+			var footer = {
 				type: 'div',
-				className: 'MessageBoxButtonSection',
+				className: 'NotificationFooter',
 				style: {
 					
 				},
 				innerHTML: [
 					{
 						type: 'button',
-						className: 'btn btn-default btn-sm botTempo',
+						className: 'btn btn-default btn-sm',
 						innerHTML: 'Close',
 						EventListeners: {
 							click: function(e){
@@ -82,7 +82,7 @@
 				]
 			};
 			
-			newNotification.innerHTML[0].innerHTML.push(buttonSection);
+			newNotification.innerHTML[0].innerHTML.push(footer);
 			
 			var newNotificationContainer = {
 				type: 'div',

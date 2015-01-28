@@ -22,7 +22,7 @@
 		generateElement: function(data){
 			var newNotification = {
 				type: 'div',
-				className: 'jModLargeNotification bigBox animated fadeIn fast',
+				className: 'jModLargeNotification animated fadeIn fast',
 				style: {},
 				attributes: {
 					'data-jmod-notification': Notification.count,
@@ -52,7 +52,7 @@
 					{
 						type: 'i',
 						id: 'jModbtnClose'+Notification.LargeCount,
-						className: 'botClose fa fa-times',
+						className: 'btnClose fa fa-times',
 						EventListeners: {
 							'click':function(e){
 								Notification.close(e.target);
@@ -78,7 +78,7 @@
 			if(typeof data.icon !== _undefined){
 				newNotificationContent.innerHTML.push({
 					type: 'div',
-					className: 'jmod-na bigboxicon',
+					className: 'jmod-na largeIcon',
 					style: {
 						'backgroundColor': 'transparent',
 					},
