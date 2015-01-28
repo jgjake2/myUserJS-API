@@ -260,7 +260,9 @@ if not os.path.exists('./jMod/current'):
 if(args.b == True or args.r == True):        
     shutil.copyfile('./bin/jMod.full.js', './jMod/' + args.v + '/jMod.full.js')
     shutil.copyfile('./bin/jMod.js', './jMod/' + args.v + '/jMod.js')
-
+    if(os.path.isfile('./bin/jMod.css')):
+        shutil.copyfile('./bin/jMod.css', './jMod/' + args.v + '/jMod.css')
+    
     if(args.m == True):
         shutil.copyfile('./bin/jMod.min.js', './jMod/' + args.v + '/jMod.min.js')
         shutil.copyfile('./bin/jMod.min.expanded.js', './jMod/' + args.v + '/jMod.min.expanded.js')
@@ -269,6 +271,8 @@ if(args.b == True or args.r == True):
 if(args.r == True):
     shutil.copyfile('./bin/jMod.full.js', './jMod/current/jMod.full.js')
     shutil.copyfile('./bin/jMod.js', './jMod/current/jMod.js')
+    if(os.path.isfile('./bin/jMod.css')):
+        shutil.copyfile('./bin/jMod.css', './jMod/current/jMod.css')
 
     if(args.m == True):
         shutil.copyfile('./bin/jMod.min.js', './jMod/current/jMod.min.js')
