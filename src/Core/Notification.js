@@ -306,28 +306,5 @@ Notification.init = function(){
 }
 
 jMod.CSS = <><![CDATACSS[
-#jModSmallNotificationsWrapper, #jModNotificationsWrapper, .jmod-na .SmallBox span, .jmod-na .bigBox span {
-	font-family: "Open Sans",Arial,Helvetica,sans-serif;
-}
-
-.jmod-na .jModFillNotification {
-	top: 35%;
-	color: #FFF;
-	position: relative;
-	width: 100%;
-	background-color: rgba(0, 0, 0, 0.8);
-	padding: 20px;
-	z-index: 100001;
-}
-
-.jmod-na .jModFillNotificationContainer {
-	width: 100%;
-	height: 100%;
-	position: fixed;
-	top: 0px;
-	left: 0px;
-	background: none repeat scroll 0% 0% rgba(0, 0, 0, 0.6);
-	z-index: 100000;
-}
 
 ]]></>;
