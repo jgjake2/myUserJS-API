@@ -24,6 +24,14 @@ jMod is a library of useful tools for userscript authors with features ranging f
 					<li><a href="#jMod_jQuery_xmlhttpRequest">GM_xmlhttpRequest in jQuery Ajax Requests</a></li>
 				</ul>
 			</li>
+			<li>
+				<a href="#css">CSS</a>
+				<ul>
+					<li><a href="#Bootstrap">Bootstrap</a></li>
+					<li><a href="#FontAwesome">Font Awesome</a></li>
+					<li><a href="#Libraries">Libraries Used</a></li>
+				</ul>
+			</li>
 		</ul>
 	</dd>
 	<dt><a href="#todo">ToDo / Goals</a></dt>
@@ -192,9 +200,28 @@ if($){
 }
 ```
 
+<a name="css"></a>
+##CSS
+jMod loads in fully namespaced versions of several popular CSS libraries. They will not interact or change the web page in any way until the namespace is added to an element.
+
+<a name="Bootstrap"></a>
+###Bootstrap 3.3.2
+The bootstrap stylesheet is namespaced with the class "<b>.jmod-na</b>". Many of its standard components have been removed, while others have been heavily modified. For example, tooltip classes have been renamed to avoid having the content page's Bootstrap instance try and interact with it.
+
+<a name="FontAwesome"></a>
+###Font Awesome
+The bootstrap stylesheet is namespaced with the class "<b>.jmod-fa</b>", and defines the font-face as "<b>jModFontAwesome</b>". It doesn't use the same namespace as the other libraries to avoid overriding a page's font awesome instance when doing so is undesirable.
+
+<a name="Libraries"></a>
+###Libraries Used
+ * [Animate.css](http://daneden.github.io/animate.css/)
+ * [LESS Elements](http://lesselements.com)
+ * Bootstrap 3.3.2
+ * Font Awesome 4.3.0
+
 <a name="todo"></a>
 #ToDo / Goals
 
 - [x] <a name="todo_exportCrossOriginSupport"></a><b>jMod.jQueryExtensions.addCrossOriginSupport</b><br />I need to add a version called <b>jMod.jQueryExtensions.exportCrossOriginSupport</b>. This would an exported function instead of adding the functions directly. This is for users that want to add cross origin support to a jQuery instance in the public scope from a privileged script. This will prevent any errors caused by an unsafe function trying to indirectly call GM_xmlhttpRequest.<br /><br />This would, from the script author's perspective, work exactly the same as addCrossOriginSupport. However, a function has to be exported (via <b>ExportFunction</b>) to the public scope. This function is what jQuery will actually call, which itself calls the real function available inside jMod.
 - [ ] <a name="todo_mCloneInto"></a><b>mCloneInto</b><br />This jMod cloning function needs a better method for cloning objects when <b>cloneInto</b> is unavailable / not working. I have already created a function called <b>jMod.CloneProperties</b> that can clone an object in a manor similar to jQuery's <b>extend</b> method. However, CloneProperties copies non-enumerable properties and reconstructs their property constructors manually. This is a start, but it still needs a lot of work before it can be put into production.
-- [ ] <a name="todo_CSS"></a><b>CSS</b><br />jMod uses a stripped-down, namespaced version of bootstrap, fontawesome, and a few other libraries. However, it still comes out to over 270kb! So it still needs to be worked on and trimmed down. Additionally, there is one library that the licensing is ambiguous and needs to be phased out before long.
+- [x] <a name="todo_CSS"></a><b>CSS</b><br />Trim down and clean up CSS.
