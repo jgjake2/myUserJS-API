@@ -91,16 +91,12 @@
 			
 			var newNotificationContent = {
 				type: 'div',
-				className: '',
+				className: 'NotificationContent',
 				innerHTML: [],
 				style: {}
 			}
 			
-			if(typeof data.footer === _undefined)
-				newNotificationContent.className += ' NotificationContent';
-			else{
-				newNotificationContent.className += ' NotificationContent';
-				
+			if(typeof data.footer != _undefined){
 				var largeIcon = document.createElement("div");
 				largeIcon.className = 'largeIcon';
 				if(isElement(data.icon)){
@@ -112,19 +108,30 @@
 				newNotification.innerHTML.push(largeIcon);
 			}
 			
-			if(typeof data.title !== _undefined){
+			
+			if(data.title){
 				newNotificationContent.innerHTML.push({
 					type: 'span',
 					innerHTML: data.title
 				});
 			}
 			
-			newNotificationContent.innerHTML.push({
-				type: 'p',
-				innerHTML: data.body
-			});
+			if(data.body){
+				newNotificationContent.innerHTML.push({
+					type: 'p',
+					innerHTML: data.body
+				});
+			}
 			
-			if(typeof data.icon !== _undefined){
+			if(data.footer){
+				newNotificationContent.innerHTML.push({
+					type: 'p',
+					style: 'text-align: right;',
+					innerHTML: data.footer
+				});
+			}
+			
+			if(data.icon && !data.footer){
 				newNotificationContent.innerHTML.push({
 					type: 'div',
 					className: 'smallIcon',
@@ -162,6 +169,7 @@
 			removeClass(el, 'fadeIn');
 			addClass(el, 'fast');
 			addClass(el, 'fadeOut');
+			el.style.zIndex = "9998";
 			
 			while(tSib.nextElementSibling != null && tSib.nextElementSibling.hasAttribute('data-jmod-small-notification')){
 				tSib = tSib.nextElementSibling;
