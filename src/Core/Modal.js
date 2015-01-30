@@ -470,22 +470,28 @@ Modal.init = function(){
 	if(modalContainer == null){
 		modalContainer = document.createElement("div");
 		modalContainer.id = jConfig(Modal_ContainerElementId_Key);
-		modalContainer.className = 'jmod-na jmod-fa ' + jConfig(Modal_ContainerElementClass_Key);
+		modalContainer.className = 'jmod-na jmod-fa jmod-gi ' + jConfig(Modal_ContainerElementClass_Key);
 		document.body.appendChild(modalContainer);
 	}
 
 }
 
-
-/*
-jMod.Requirements.add({
-	type: 'imagepreload',
-	'value': '//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif'
-});
-*/
-
 jMod.CSS = <><![CDATACSS[
 
+.jmod-na .nav.nav-tabs {
+    border-width: 0px;
+    border-right-width: 1px !important;
+    border-style: solid !important;
+    -webkit-border-image: 
+      -webkit-gradient(linear, 0 0, 0 100%, from(rgba(221, 221, 221, 1)), color-stop(65%,rgba(221, 221, 221, 1)), to(rgba(0, 0, 0, 0))) 1 100%;
+    -webkit-border-image: 
+      -webkit-linear-gradient(rgba(221, 221, 221, 1) 65%, rgba(221, 221, 221, 1), rgba(0, 0, 0, 0)) 1 100%;
+    -moz-border-image:
+      -moz-linear-gradient(rgba(221, 221, 221, 1) 65%, rgba(221, 221, 221, 1), rgba(0, 0, 0, 0)) 1 100%;    
+    -o-border-image:
+      -o-linear-gradient(rgba(221, 221, 221, 1) 65%, rgba(221, 221, 221, 1), rgba(0, 0, 0, 0)) 1 100%;
+    border-image:
+      linear-gradient(to bottom, rgba(221, 221, 221, 1) 65%, rgba(221, 221, 221, 1), rgba(0, 0, 0, 0)) 1 100%;
+}
+
 ]]></>;
-
-
