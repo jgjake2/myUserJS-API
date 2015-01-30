@@ -2,6 +2,7 @@
 
 var SettingsTest = function(){
 	console.log('jMod.Settings Test');
+	
 	var SettingOptions = {
 		title: 'Example Title',
 		settings: [
@@ -37,6 +38,10 @@ var SettingsTest = function(){
 							src: "https://assets-cdn.github.com/images/modules/logos_page/GitHub-Logo.png",
 							height: "10px"
 						}
+					},
+					{
+						type: 'span',
+						className: 'glyphicon glyphicon-plus'
 					}
 				]
 			},
@@ -292,6 +297,110 @@ var SettingsTest = function(){
 				type: 'imagefile',
 				'default': ''
 			},
+			{
+				name: 'Notification_Examples',
+				tab: 'Tab Name 2',
+				section: 'Other',
+				type: 'element',
+				innerHTML: [
+					'Notification Examples: ',
+					{
+						type: 'ul',
+						style: 'list-style-type: none;',
+						innerHTML: [
+							{
+								type: 'li',
+								innerHTML: {
+									type: 'button',
+									className: 'btn btn-primary',
+									style: 'width: 140px; margin-bottom: 5px;',
+									innerHTML: 'Small Notification',
+									EventListeners: {
+										click: function(){
+											jMod.Notification({
+												'title': 'Small Notification',
+												'body': 'Notification Body - 100% Opacity',
+												'icon': 'fa-thumbs-up',
+												'type': 'small',
+												'background': {
+													color: '#739E73',
+													opacity: '1'
+												}
+											});
+										}
+									}
+								}
+							},
+							{
+								type: 'li',
+								innerHTML: {
+									type: 'button',
+									className: 'btn btn-primary',
+									style: 'width: 140px; margin-bottom: 5px;',
+									innerHTML: 'Large Notification',
+									EventListeners: {
+										click: function(){
+											jMod.Notification({
+												'title': 'Large Notification',
+												'body': 'Notification Body - 50% Opacity',
+												'icon': 'fa-bell',
+												'type': 'large',
+												'background': 'rgb(199, 145, 33, 0.5)',
+											});
+										}
+									}
+								}
+							},
+							{
+								type: 'li',
+								innerHTML: {
+									type: 'button',
+									className: 'btn btn-primary',
+									style: 'width: 140px; margin-bottom: 5px;',
+									innerHTML: 'Fill Notification',
+									EventListeners: {
+										click: function(){
+											jMod.Notification({
+												'title': 'Fill Notification Title',
+												'body': 'Notification Body - 40% Opacity',
+												'type': 'fill',
+												'background': {
+													color: 'rgb(199, 145, 33)',
+													opacity: '0.4'
+												}
+											});
+										}
+									}
+								}
+							},
+							{
+								type: 'li',
+								innerHTML: {
+									type: 'button',
+									className: 'btn btn-primary',
+									style: 'width: 140px; margin-bottom: 5px;',
+									innerHTML: 'Update Notification',
+									EventListeners: {
+										click: function(){
+											jMod.Notification('UpdateNotification', {
+												'version': jMod.version,
+												'time': '2 Days Ago',
+												'visit': {
+													'onClick': function(e){
+														console.log('Visit Clicked!!', e);
+														eventCancel(e);
+														return false;
+													}
+												}
+											});
+										}
+									}
+								}
+							}
+						]
+					}
+				]
+			},
 		],
 		tabs: [
 			// (optional) Additional Custom tab
@@ -347,5 +456,7 @@ var SettingsTest = function(){
 		//jMod.Tabs.show(settingsNav, 1);
 	//},2000);
 };
+console.log('addGlyphicons');
+jMod.API.addGlyphicons();
 
 jMod.onReady = SettingsTest;
