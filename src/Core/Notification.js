@@ -120,7 +120,7 @@ ImportScript('Core.Notification.Small');
 ImportScript('Core.Notification.Fill');
 
 Notification.UpdateNotification = function(data){
-	var options = merge({
+	var options = jMod.extend(true, {
 		'version': 'N/A',
 		'script_name': null,
 		'time': 'N/A',
@@ -184,12 +184,29 @@ Notification.UpdateNotification = function(data){
 	btnClose.setAttribute('href', 'javascript:void(0);');
 	btnClose.className = 'btn btn-danger btn-sm';
 	btnClose.innerHTML = 'Close';
-	
+	/*
 	var footer = document.createElement("p");
 	footer.className = 'text-align-right';
 	footer.appendChild(btnInstall);
 	footer.appendChild(btnVisit);
 	footer.appendChild(btnClose);
+	*/
+	/*
+	var footer = {
+		type: 'p',
+		style: 'text-align: right;',
+		innerHTML: [
+			btnInstall,
+			btnVisit,
+			btnClose
+		]
+	};
+	*/
+	var footer =[
+		btnInstall,
+		btnVisit,
+		btnClose
+	];
 	
 	Notification({
 		'title': title,
