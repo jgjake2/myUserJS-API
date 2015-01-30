@@ -76,7 +76,7 @@ jMod.API.sessionStorage = {
  * @type {object}
  */
 Object.defineProperty(jMod.API.sessionStorage, "stor", {
-	get: function(){return (sessionStorage?sessionStorage:(unsafeWindow.sessionStorage?unsafeWindow.sessionStorage:window.sessionStorage));},
+	get: function(){return (sessionStorage?sessionStorage:(window.sessionStorage?window.sessionStorage:unsafeWindow.sessionStorage));},
 	enumerable: false
 });
 

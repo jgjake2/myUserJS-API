@@ -83,7 +83,7 @@ jMod.API.localStorage = {
  * @type {object}
  */
 Object.defineProperty(jMod.API.localStorage, "stor", {
-	get: function(){return (localStorage?localStorage:(unsafeWindow.localStorage?unsafeWindow.localStorage:window.localStorage));},
+	get: function(){return (localStorage?localStorage:(window.localStorage?window.localStorage:unsafeWindow.localStorage));},
 	enumerable: false
 });
 
