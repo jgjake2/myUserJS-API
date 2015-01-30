@@ -3,7 +3,8 @@
 // @namespace        http://myuserjs.org/
 // @author           jgjake2
 // @homepage         http://myuserjs.org/
-// @include          *
+// @license          GNU GPL version 3; http://www.gnu.org/licenses/gpl-3.0.txt
+// @exclude          *
 // @version          {{{API_VERSION}}}
 // @grant            unsafeWindow
 // @grant            GM_info
@@ -21,6 +22,7 @@
 // @grant            GM_deleteValue
 // @unwrap
 // @run-at           document-start
+// +@history         (0.0.19) Possible fix for Add-on incompatibility
 // +@history         (0.0.18) Added new jQuery Selector and Tokenizer Extensions.
 // +@history         (0.0.18) Looks for resource to load css from when available.
 // +@history         (0.0.18) Started cleaning up Notifications.
@@ -80,7 +82,10 @@
  ** MacroDoc
  **********************************/
 ImportScript('Core.MacroDoc');
- 
+
+var isWindowInstance = function(win){
+	return Object.prototype.toString.call(win).replace(/^\[object |\]$/g,'').toLowerCase() === "window";
+};
 /**
  * @global
  * @namespace jMod
@@ -88,14 +93,21 @@ ImportScript('Core.MacroDoc');
  * @version {{{API_VERSION}}}
  * @tutorial jMod-tutorial
  */
-+function(unsafeWindow, jMod){
-	unsafeWindow.jMod = this.jMod = jMod;
-	
++function(unsafeWindow, window, jMod){
+	this.jMod = jMod;
+	try{
+		unsafeWindow.jMod = jMod;
+	} catch(e) {
+		try{
+			window.jMod = jMod;
+		}catch(x){
+			console.log('cannot add jMod to global scope', x);
+		}
+	}
 	if(jMod.debug){
 		jMod.log.groupEnd('jMod Initialize');
 	}
-	window.focus();
-}.call(this, "undefined"!==typeof unsafeWindow?unsafeWindow:("undefined"!==typeof window?window:this),
+}.call(this, "undefined"!==typeof unsafeWindow&&unsafeWindow.top&&isWindowInstance(unsafeWindow)?unsafeWindow:("undefined"!==typeof window&&window.top&&isWindowInstance(window)?window:this), window,
 
 function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	/**
@@ -109,17 +121,11 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	 * // Get the current value of script.username
 	 * jMod('get', 'script.username')
 	 */
-	var jMod = function(){return jMod._call.apply(jMod, arguments);};
+	function jMod(){return jMod._call.apply(jMod, arguments);};
 	jMod.InitializeStartTime = initStart;
 	jMod.InitializeEndTime = -1;
 	
-	/**
-	 * API Namespace
-	 * @memberOf! jMod
-	 * @namespace jMod.API
-	 */
-	var API = jMod.API = {},
-		Slice = Array.prototype.slice,
+	var Slice = Array.prototype.slice,
 		_jQueryAvailable = EXISTS($)?true:false,
 		jModReady = -1,
 		//({{{DEBUG}}} ? "@import url(//test2.myuserjs.org/css/smartadmin-production-all-namespaced.css);\n" : "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n")
@@ -130,13 +136,25 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 		+"@font-face {font-family: 'Sansation';font-style: normal;font-weight: 700;src: local('Sansation Bold'), local('Sansation-Bold'), url(http://myuserjs.org/fonts/Sansation-Bold.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 400;src: local('Sansation Italic'), local('Sansation-Italic'), url(http://myuserjs.org/fonts/Sansation-Italic.ttf) format('ttf');}\n"
 		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 700;src: local('Sansation Bold Italic'), local('Sansation-BoldItalic'), url(http://myuserjs.org/fonts/Sansation-BoldItalic.ttf) format('ttf');}\n",
-		//defaultjModCSSURL = "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n",
 		defaultjModCSSURL = {{{DEBUG}}} ? "@import url(//test2.myuserjs.org/API/{{{API_VERSION}}}/jMod.css);\n" : "@import url(//myuserjs.org/API/{{{API_VERSION}}}/jMod.css);\n",
 		CurrentRunningScript = {
 			id: 'jMod',
 			config: {},
-			el: unsafeWindow.document&&unsafeWindow.document.currentScript?unsafeWindow.document.currentScript:undefined
-		}
+			el: undefined
+		},
+		/**
+		 * API Namespace
+		 * @namespace jMod.API
+		 */
+		API = jMod.API = {
+			addGlyphicons: function(){
+				// Import must happen at beginning of css files
+				_css = "@import url(//myuserjs.org/API/assets/glyphicons.css);\n" + _css;
+				// Use jMod.CSS to add css if DOM is available
+				jMod.CSS = "";
+			}
+		};
+		try{CurrentRunningScript.el = unsafeWindow.document&&unsafeWindow.document.currentScript?unsafeWindow.document.currentScript:undefined;}catch(e){}
 		
 	var DefineLockedProp = function(name, value, target, en){
 		var opts = {
@@ -477,11 +495,11 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	if(jMod.debug) jModLogTime('jMod Initialize Time Elapsed');
 	return jMod;
 }(
-	("undefined"!==typeof window.performance?window.performance.now():0.0),
+	(window&&"undefined"!==typeof window.performance?window.performance.now():0.0),
 	"undefined"!==typeof jQuery?jQuery:undefined,
 	console,
 	window,
-	"undefined"!==typeof unsafeWindow?unsafeWindow:("undefined"!==typeof window?window:this),
+	"undefined"!==typeof unsafeWindow&&unsafeWindow.top&&isWindowInstance(unsafeWindow)?unsafeWindow:("undefined"!==typeof window&&window.top&&isWindowInstance(window)?window:this),
 	"undefined"
 ));
 
