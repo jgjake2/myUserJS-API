@@ -7,7 +7,7 @@ setlocal enabledelayedexpansion
 set paramIndex=0
 set paramValue=EMPTY
 
-set JMOD_VERSION=0.0.18
+set JMOD_VERSION=0.0.19
 set COPY_OUTPUT_TO=C:\Users\Spud\AppData\Roaming\Mozilla\Firefox\Profiles\hatqckbp.Dev\gm_scripts\Anti-Pagination\jMod.js
 set JSDOC_DIR=F:\Software\jsdoc
 
