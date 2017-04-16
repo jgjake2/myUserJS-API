@@ -3,8 +3,9 @@
 // @namespace        http://myuserjs.org/
 // @author           jgjake2
 // @homepage         http://myuserjs.org/
-// @include          *
-// @version          0.0.18
+// @license          GNU GPL version 3; http://www.gnu.org/licenses/gpl-3.0.txt
+// @exclude          *
+// @version          0.0.20
 // @grant            unsafeWindow
 // @grant            GM_info
 // @grant            GM_log
@@ -25,8 +26,10 @@
 /*
  * @overview [API for interacting with myUserJS.org]{@link jMod}
  * @author jgjake2
- * @version 0.0.18
+ * @version 0.0.20
  * @see {@link jMod}
+ * @todo Add cookie storage
+ * @todo Finish documentation
  */
 
 /***********************************
@@ -186,24 +189,166 @@
  * @example
  * ISSTRING&#40;foo&#41; //result: "string"==typeof foo
  */
- 
+
 /**
  * @global
  * @namespace jMod
  * @author jgjake2
- * @version 0.0.18
+ * @version 0.0.20
  * @tutorial jMod-tutorial
  */
-+function(unsafeWindow, jMod){
-	unsafeWindow.jMod = this.jMod = jMod;
++function($, unsafeWindow, window, factory){
+	function exportArgs(name, cb, coa){
+		var length = arguments.length;
+		var t = {
+			"allowCallbacks": (length > 1 ? (cb == true) : true),
+			"allowCrossOriginArguments": (length > 2 ? (coa == true) : true)
+			};
+		if(length > 0 && name)
+			t.defineAs = name;
+		return t;
+	};
+	var validDeepExports = ["Element"];
 	
+	
+	function exportProxy(obj, args){
+		args = args || {};
+		var exportHandlers = cloneInto({}, unsafeWindow, {cloneFunctions: true, wrapReflectors: true});
+		exportFunction(args["get"] || function(oTarget, sKey){
+			if(typeof obj[sKey] !== "undefined" || sKey in obj){
+				try{
+					if(obj === jMod && validDeepExports.indexOf(sKey) > -1){
+						return exportProxy(obj[sKey]);
+					}
+				}catch(e){}
+				if(typeof obj[sKey] === "object" || typeof obj[sKey] === "function"){
+					try{
+						return cloneInto(obj[sKey], unsafeWindow, {cloneFunctions: true, wrapReflectors: true});
+					}catch(e){}
+				}
+				return obj[sKey];
+			} else {
+				return undefined;
+			}
+		}, exportHandlers, exportArgs("get"));
+		
+		exportFunction(args["set"] || function(oTarget, sKey, vValue){
+			try{
+				obj[sKey] = vValue;
+			}catch(e){return false;}
+			return true;
+		}, exportHandlers, exportArgs("set"));
+		
+		exportFunction(args["has"] || function(oTarget, sKey){
+			return (sKey in obj);
+		}, exportHandlers, exportArgs("has"));
+		
+		exportFunction(args["enumerate"] || function(oTarget, sKey){
+			try{
+				return (obj.keys())[Symbol.iterator]();
+			}catch(e){}
+			try{
+				// To Do:
+				// Check for .keys existence before use (ES5 support)
+				return obj.keys();
+			}catch(e){}
+		}, exportHandlers, exportArgs("enumerate"));
+		
+		exportFunction(args["ownKeys"] || function(oTarget, sKey){
+			return Object.getOwnPropertyNames(obj);
+		}, exportHandlers, exportArgs("ownKeys"));
+		
+		exportFunction(args["defineProperty"] || function(oTarget, sKey, oDesc){
+			if (oDesc && !(sKey in obj)){
+				Object.defineProperty(obj, sKey, oDesc);
+			}
+			return obj;
+		}, exportHandlers, exportArgs("defineProperty"));
+		
+		exportFunction(function(oTarget, sKey){
+			return Object.getOwnPropertyDescriptor(obj, sKey);
+		}, exportHandlers, exportArgs("getOwnPropertyDescriptor"));
+		
+		exportFunction(args["construct"] || function(oTarget, argumentsList){
+			return obj.apply(obj, argumentsList);
+		}, exportHandlers, exportArgs("construct"));
+		
+		exportFunction(function(oTarget, sKey){
+			return obj.prototype;
+		}, exportHandlers, exportArgs("getPrototypeOf"));
+		
+		exportFunction(function(oTarget, thisArg, argumentsList){
+			return obj.apply(obj, argumentsList);
+		}, exportHandlers, exportArgs("apply"));
+		
+		try{
+			//unsafeWindow.jMod = new unsafeWindow.Proxy(unsafeWindow.__jMod, unsafeWindow.__jModExport);
+			
+			return new unsafeWindow.Proxy(exportFunction(function(){return obj.apply(obj, arguments);}, unsafeWindow, exportArgs()), exportHandlers);
+			
+			//unsafeWindow.jMod = new unsafeWindow.Proxy(exportFunction(jMod, unsafeWindow, exportArgs()), unsafeWindow.__jModExport);
+			//unsafeWindow.jMod = new unsafeWindow.Proxy(jMod, unsafeWindow.__jModExport);
+			//unsafeWindow.jMod = new unsafeWindow.Proxy(cloneInto({}, unsafeWindow, {cloneFunctions: false, wrapReflectors: false}), unsafeWindow.__jModExport);
+		}catch(e){
+			console.log('export error', e);
+			return undefined;
+		}
+	};
+	var jMod = factory.call(
+			this,
+			(window&&"undefined"!==typeof window.performance?window.performance.now():0.0),
+			$,
+			console,
+			window,
+			unsafeWindow,
+			"undefined",
+			undefined
+		);
+	var addToGlobalScope = jMod.Config.addToGlobalScope;
+	if(this.jMod) {
+		this._jMod = this.jMod;
+		if(addToGlobalScope && unsafeWindow && unsafeWindow.jMod && unsafeWindow !== this) {
+			unsafeWindow._jMod = unsafeWindow.jMod;
+		}
+	}
+	this.jMod = jMod;
+	if(addToGlobalScope) {
+		try{
+			if(jMod.isFirefox && jMod.isSandbox && typeof unsafeWindow.Proxy !== "undefined" && typeof cloneInto !== "undefined" && typeof exportFunction !== "undefined") {
+				console.log('Export jMod');
+				unsafeWindow.jMod = exportProxy(jMod);
+				if(window !== unsafeWindow) {
+					window.jMod = jMod;
+				}
+			} else {
+				if(unsafeWindow !== this){
+					unsafeWindow.jMod = jMod;
+				}
+			}
+		} catch(e) {
+			try{
+				if(window !== this) {
+					window.jMod = jMod;
+				}
+			}catch(x){
+				console.log('cannot add jMod to global scope', x);
+			}
+		}
+	}
 	if(jMod.debug){
 		jMod.log.groupEnd('jMod Initialize');
 	}
-	window.focus();
-}.call(this, "undefined"!==typeof unsafeWindow?unsafeWindow:("undefined"!==typeof window?window:this),
-
-function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
+}.call(
+ this,
+ "undefined"!==typeof jQuery?jQuery:undefined,
+ (
+	"undefined"!==typeof unsafeWindow && Object.prototype.toString.call(unsafeWindow).replace(/^\[object |\]$/g,'').toLowerCase() === "window" ? unsafeWindow :
+	"undefined"!==typeof this.unsafeWindow && Object.prototype.toString.call(this.unsafeWindow).replace(/^\[object |\]$/g,'').toLowerCase() === "window" ? this.unsafeWindow :
+	"undefined"!==typeof window && window.top && Object.prototype.toString.call(window).replace(/^\[object |\]$/g,'').toLowerCase() === "window" ? window : this
+ ),
+ this.window || window,
+ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
+	var _global = this;
 	/**
 	 * Calls jMod._call with the given arguments
 	 * @global
@@ -216,35 +361,41 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	 * jMod('get', 'script.username')
 	 */
 	var jMod = function(){return jMod._call.apply(jMod, arguments);};
+	
 	jMod.InitializeStartTime = initStart;
 	jMod.InitializeEndTime = -1;
 	
-	/**
-	 * API Namespace
-	 * @memberOf! jMod
-	 * @namespace jMod.API
-	 */
-	var API = jMod.API = {},
-		Slice = Array.prototype.slice,
+	// Const Values
+	const fontBaseURL = 'http://code.jmod.info/fonts';
+	
+	
+	var Slice = Array.prototype.slice,
 		_jQueryAvailable = _undefined!=typeof $?true:false,
 		jModReady = -1,
-		//(false ? "@import url(//test2.myuserjs.org/css/smartadmin-production-all-namespaced.css);\n" : "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n")
 		_css = "@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n"
-		+"@font-face {font-family: 'Sansation';font-style: normal;font-weight: 400;src: local('Sansation Regular'), local('Sansation-Regular'), url(http://myuserjs.org/fonts/Sansation-Regular.ttf) format('ttf');}\n"
-		+"@font-face {font-family: 'Sansation';font-style: normal;font-weight: 300;src: local('Sansation Light'), local('Sansation-Light'), url(http://myuserjs.org/fonts/Sansation-Light.ttf) format('ttf');}\n"
-		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 300;src: local('Sansation Light Italic'), local('Sansation-LightItalic'), url(http://myuserjs.org/fonts/Sansation-LightItalic.ttf) format('ttf');}\n"
-		+"@font-face {font-family: 'Sansation';font-style: normal;font-weight: 700;src: local('Sansation Bold'), local('Sansation-Bold'), url(http://myuserjs.org/fonts/Sansation-Bold.ttf) format('ttf');}\n"
-		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 400;src: local('Sansation Italic'), local('Sansation-Italic'), url(http://myuserjs.org/fonts/Sansation-Italic.ttf) format('ttf');}\n"
-		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 700;src: local('Sansation Bold Italic'), local('Sansation-BoldItalic'), url(http://myuserjs.org/fonts/Sansation-BoldItalic.ttf) format('ttf');}\n",
-		//defaultjModCSSURL = "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n",
-		defaultjModCSSURL = false ? "@import url(//test2.myuserjs.org/API/0.0.18/jMod.css);\n" : "@import url(//myuserjs.org/API/0.0.18/jMod.css);\n",
+		+"@import url(http://code.jmod.info/fonts/sansation.css);\n",
+		defaultjModCSSURL = true ? "@import url(//test2.myuserjs.org/API/0.0.20/jMod.css);\n" : "@import url(http://code.jmod.info/0.0.20/jMod.css);\n",
 		CurrentRunningScript = {
 			id: 'jMod',
 			config: {},
-			el: unsafeWindow.document&&unsafeWindow.document.currentScript?unsafeWindow.document.currentScript:undefined
-		}
+			el: undefined
+		},
+		/**
+		 * API Namespace
+		 * @namespace jMod.API
+		 */
+		API = jMod.API = {
+			addGlyphicons: function(){
+				// Import must happen at beginning of css files
+				_css = "@import url(http://code.jmod.info/css/glyphicons.css);\n" + _css;
+				// Use jMod.CSS to add css if DOM is available
+				jMod.CSS = "";
+				// Namespace: .jmod-gi
+			}
+		};
+		try{CurrentRunningScript.el = unsafeWindow.document&&unsafeWindow.document.currentScript?unsafeWindow.document.currentScript:undefined;}catch(e){}
 		
-	var DefineLockedProp = function(name, value, target, en){
+	function DefineLockedProp(name, value, target, en){
 		var opts = {
 			configurable: false,
 			enumerable: en===false?en:true
@@ -257,7 +408,9 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 		}
 		Object.defineProperty(target || jMod, name, opts);
 	}
-
+	
+	DefineLockedProp('displayName', 'jMod', null, false); // Fix minify rename'
+	DefineLockedProp('typeOfName', 'jMod', null, false); // Fix minify rename'
 	
 	DefineLockedProp('ScriptElement', function(){return (CurrentRunningScript.el ? CurrentRunningScript : undefined);});
 	
@@ -267,7 +420,7 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	 * @memberOf! jMod
 	 * @type {string}
 	 */
-	DefineLockedProp('version', '0.0.18');
+	DefineLockedProp('version', '0.0.20');
 	
 	/**
 	 * Date of build
@@ -275,7 +428,7 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	 * @memberOf! jMod
 	 * @type {string}
 	 */
-	DefineLockedProp('build_time', '1422486289000');
+	DefineLockedProp('build_time', '1424632041000');
 	
 	/**
 	 * Current build type (beta|release)
@@ -291,7 +444,7 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	 * @memberOf! jMod
 	 * @type {boolean}
 	 */
-	DefineLockedProp('_debug', false);
+	DefineLockedProp('_debug', true);
 	
 	Object.defineProperty(jMod, 'debug', {
 		get: function(){
@@ -331,6 +484,27 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	});
 	
 	DefineLockedProp('jQuery', function(){return (jMod.jQueryAvailable ? $ : undefined);});
+	
+	Object.defineProperties(jMod, {
+		'isSandbox': {
+			value: (function(){return Object.prototype.toString.call(this).replace(/^\[object |\]$/g,'').toLowerCase() === "sandbox";})(),
+			enumerable: true,
+			writable: false,
+			configurable: false
+		},
+		'isFirefox': {
+			get: function(){
+				return (typeof navigator != _undefined ? navigator : (window.navigator || unsafeWindow.navigator)).userAgent.toLowerCase().indexOf('firefox') > -1;
+			},
+			enumerable: false
+		},
+		'isChrome': {
+			get: function(){
+				return (typeof navigator != _undefined ? navigator : (window.navigator || unsafeWindow.navigator)).userAgent.toLowerCase().indexOf('chrome') > -1;
+			},
+			enumerable: false
+		}
+	});
 	
 	/***********************************
 	 ** Performance
@@ -401,6 +575,7 @@ var performance = new function(){
 	 * @property {boolean} Complete
 	 */
 	var Loading = jMod.Loading = {
+		headAvailable: false,
 		DOMLoaded: false,
 		CSSAdded: false,
 		performanceReady: false,
@@ -424,12 +599,289 @@ var performance = new function(){
 	jMod.AddCSS = function(input){
 		addStyle(_css + (input || ''));
 		_css = '';
-	}
+	};
 	
 
 	/***********************************
 	 ** Functions/Classes/Prototypes
 	 **********************************/
++(function(){
+	function Watcher(obj, property, handler){
+		if(!(Watcher.browserSupportsWatch && typeof obj.watch === "function") || !Watcher.browserSupportsObserve){
+			throw new jModError('Browser does not support watch or observe');
+		}
+		
+		if(obj.__watcher){
+			obj.__watcher.add(property, handler);
+			return obj.__watcher;
+		}
+		
+		var _this = this;
+		_this.target = obj;
+		_this.properties = {};
+		if(property && handler) {
+			_this.defaultHandler = handler;
+			_this.properties[property] = handler;
+		}
+		_this.enabled = true;
+		obj.__watcher = this;
+		
+		if(Watcher.browserSupportsWatch && typeof obj.watch === "function") {
+			if(property && handler) obj.watch(property, handler);
+		} else if(Watcher.browserSupportsObserve) {
+			
+			Object.observe(obj, function(changes) {
+				var i = 0, errs = [];
+				
+				for( ; i < changes.length; i++){
+					var change = changes[i],
+						changeObj = change.object,
+						changeName = change.name,
+						changeOldValue = change.oldValue,
+						changeType = change.type,
+						changeWatcher = change.__watcher || _this || this;
+					if (
+						!changeWatcher
+						|| !changeWatcher.enabled
+						|| changeName === "__watcher"
+						//|| ["__watcher"].indexOf(changeName) !== -1
+						|| !changeWatcher.properties[changeName]
+					) return;
+					try {
+						(changeWatcher.properties[changeName] || changeWatcher.defaultHandler).call(changeObj, changeName, changeOldValue, changeObj[changeName]);
+					} catch(e) {
+						changeWatcher.enabled = false;
+						switch(type){
+							case "update":
+								changeObj[changeName] = changeOldValue;
+								break;
+							case "add":
+								delete changeObj[changeName];
+								break;
+							case "delete":
+								changeObj[changeName] = changeOldValue;
+								break;
+						}
+						changeWatcher.enabled = true;
+						errs.push(e);
+					}
+				}
+				if(errs.length > 0) {
+					throw errs;
+				}
+			});
+			
+		}
+		
+		return _this;
+	}
+	
+	Watcher.displayName = "Watcher";
+	Watcher.browserSupportsWatch = Object.prototype.watch ? true : false;
+	Watcher.browserSupportsObserve = Object.observe ? true : false;
+	
+	Watcher.prototype = {
+		add: function(property, handler){
+			if(property && (handler || this.defaultHandler)){
+				if(!this.defaultHandler && handler)
+					this.defaultHandler = handler;
+				this.properties[property] = handler || null;
+				if(Watcher.browserSupportsWatch && typeof obj.watch === "function") {
+					obj.watch(property, handler || this.defaultHandler);
+				}
+			}
+			return this;
+		},
+		unwatch: function(property){
+			this.enabled = false;
+			
+			if(property){
+				if(this.properties[property])
+					delete this.properties[property];
+				
+				if(Watcher.browserSupportsWatch) {
+					this.target.unwatch(property);
+				}// else if(Watcher.browserSupportsObserve) {
+					//if(this.properties && this.properties[property]){
+						//delete this.properties[property];
+					//}
+				//}
+			} else {
+				for(var prop in this.properties){
+					if(prop){
+						this.unwatch(prop);
+					}
+				}
+			}
+			this.enabled = true;
+			return this;
+		}
+	};
+	
+	jMod.Watcher = Watcher;
+})();
+
+/*
++(function(){
+	var browserSupportsWatch = Object.prototype.watch ? true : false;
+	var browserSupportsObserve = Object.observe ? true : false;
+	jMod.watcher = function(obj, property, handler){
+		if(browserSupportsWatch && typeof obj.watch === "function") {
+			if(!obj.__watchPropertiesHandler) {
+				if(!handler) {
+					throw new jModError('No handler provided');
+				}
+				Object.defineProperty(obj, '__watchPropertiesHandler', {
+					value: handler,
+					enumerable: false,
+					configurable: false,
+					writable: true
+				});
+			}
+			obj.watch(property, handler || obj.__watchPropertiesHandler);
+		} else if(browserSupportsObserve) {
+			if(obj.__watchProperties) {
+				if(obj.__watchProperties[property]) {
+					if(handler) {
+						obj.__watchProperties[property] = handler;
+					}
+				} else {
+					obj.__watchProperties[property] = handler || null;
+				}
+			} else {
+				if(!handler) {
+					throw new jModError('No handler provided');
+				}
+				Object.defineProperties(obj, {
+					'__watchProperties': {
+						value: {},
+						enumerable: false,
+						configurable: false,
+						writable: true
+					},
+					
+					'__watchPropertiesEnabled': {
+							value: true,
+							enumerable: false,
+							configurable: false,
+							writable: true
+					},
+					
+					'__watchPropertiesHandler': {
+						value: handler,
+						enumerable: false,
+						configurable: false,
+						writable: true
+					}
+				});
+				
+				obj.__watchProperties[property] = handler;
+			
+				Object.observe(obj, function(changes) {
+					var i = 0, errs = [];
+					
+					for( ; i < changes.length; i++){
+						var change = changes[i],
+							changeObj = change.object,
+							changeName = change.name,
+							changeOldValue = change.oldValue,
+							changeType change.type;
+						if (
+							!changeObj.__watchPropertiesEnabled
+							|| ["__watchProperties", "__watchPropertiesEnabled", "__watchPropertiesHandler"].indexOf(changeName) !== -1
+							|| !changeObj.__watchProperties[changeName]
+						) return;
+						try {
+							(changeObj.__watchProperties[changeName] || changeObj.__watchPropertiesHandler).call(changeObj, changeName, changeOldValue, changeObj[changeName]);
+						} catch(e) {
+							changeObj.__watchPropertiesEnabled = false;
+							switch(type){
+								case "update":
+									changeObj[changeName] = changeOldValue;
+									break;
+								case "add":
+									delete changeObj[changeName];
+									break;
+								case "delete":
+									changeObj[changeName] = changeOldValue;
+									break;
+							}
+							changeObj.__watchPropertiesEnabled = true;
+							errs.push(e);
+						}
+					}
+					if(errs.length > 0) {
+						throw errs;
+					}
+				});
+			}
+
+		} else {
+			throw new jModError('Browser does not support watch or observe');
+		}
+	};
+	
+	jMod.unwatch = function(obj, property){
+		if(browserSupportsWatch) {
+			obj.unwatch(property);
+		} else if(browserSupportsObserve) {
+			if(obj.__watchProperties && obj.__watchProperties[property]){
+				
+				obj.__watchPropertiesEnabled = false;
+
+				delete obj.__watchProperties[property];
+				
+				obj.__watchPropertiesEnabled = true;
+			}
+		} else {
+			throw new jModError('Browser does not support watch or observe');
+		}
+	};
+})();
+*/
+/*
+if (!Object.prototype.watch) {
+	Object.defineProperty(Object.prototype, "watch", {
+		enumerable: false,
+		configurable: true,
+		writable: false,
+		value: function (prop, handler) {
+			var oldval = this[prop],
+				newval = oldval,
+				getter = function() {
+					return newval;
+				},
+				setter = function(val) {
+					oldval = newval;
+					return newval = handler.call(this, prop, oldval, val);
+				};
+			
+			if (delete this[prop]) { // can't watch constants
+				Object.defineProperty(this, prop, {
+					get: getter,
+					set: setter,
+					enumerable: true,
+					configurable: true
+				});
+			}
+		}
+	});
+}
+
+if (!Object.prototype.unwatch) {
+	Object.defineProperty(Object.prototype, "unwatch", {
+		enumerable: false,
+		configurable: true,
+		writable: false,
+		value: function (prop) {
+			var val = this[prop];
+			delete this[prop]; // remove accessors
+			this[prop] = val;
+		}
+	});
+}
+*/
+
 function getFirstValidKey(obj, arr, filter){
 	var hasFilter = (typeof filter === "function" ? true : false);
 	var args = arr;
@@ -522,63 +974,135 @@ var props = {
 	SearchForKeyI: {value: Object_SearchForKeyCaseInsensitive, enumerable: false},
 	setKeyValueI: {value: Object_setKeyValueCaseInsensitive, enumerable: false}
 };
-function mCloneInto(obj, scope, args){
+function cloneErrorObject(eObj, scope){
+	scope = scope || unsafeWindow;
+	var r,
+		errRef = "Error", // Default error type is a generic "Error" object
+		scopeRef = scope.Error && typeof scope.Error === "function" ? scope : unsafeWindow; // Check input scope for "Error" class. Otherwise, use unsafeWindow.
+	if(!scopeRef) return;
+	
+	// Check if the input error has a name and if that name has a constructor in scopeRef.
+	if(eObj.name && eObj.name != "Error" && typeof scopeRef[eObj.name] == "function"){
+		errRef = eObj.name;
+	}
+	
+	// Create the object and copy its properties.
+	r = new scopeRef[errRef](eObj.message || null, eObj.fileName || null, eObj.lineNumber || null);
+	r.name = eObj.name + "";
+	r.stack = (eObj.stack || "") + "";
+	r.message = eObj.message + "";
+	r.fileName = typeof eObj.fileName != _undefined ? (eObj.fileName + "") : null;
+	r.lineNumber = typeof eObj.lineNumber != _undefined ? parseInt(eObj.lineNumber) : null;
+	r.columnNumber = typeof eObj.columnNumber != _undefined ? parseInt(eObj.columnNumber) : null;
+	
+	// Completely overwrite the toString function.
+	delete r.toString;
+	r.toString = function(){ return this.name + ': ' + this.message }.bind(r);
+	return r;
+};
+
+function mCloneInto(obj, scope, args, debug, depth){
 	if(typeof cloneInto !== _undefined){
+		depth = depth || 0;
 		try{
 			// Should work 99% of the time, unless there is a scope-locked property like an error event object from a privileged userscript
 			return cloneInto(obj, scope, args);
+		}catch(e){
+			if(debug){
+				console.log('mCloneInto error', e);
+			}
+		}
+		//
+		// If it fails, copy it piece-by-piece excluding any properties that fail to copy cleanly.
+		//
+		
+		
+		var x, output,
+			objType = typeof obj;
+		try{
+			// Some objects must be cloned specially
+			if(objType == "object"){
+				if(obj instanceof Error){
+					objType = "error";
+				} else if(obj.constructor === (new Array).constructor){
+					objType = "array";
+				} else if(obj === null){
+					objType = "null";
+				}
+			}
 		}catch(e){}
 		
-		// Very crude, will clean up later with some recursion
-		// If it fails, copy it piece-by-piece excluding any properties that fail to copy cleanly.
-		var i, type, tmp = {};
-		/*
-		var i, type, cloneCount = 0;
-		while(typeof (scope || unsafeWindow)["tmpCloneObj" + cloneCount] != _undefined){
-			cloneCount++;
-		}
-		var tmp = (typeof createObjectIn !== "undefined" ? createObjectIn(scope || unsafeWindow, {defineAs: "tmpCloneObj" + cloneCount}) : {});
-		*/
-		for(i in obj){
-			if(Object.prototype.hasOwnProperty.call(obj, i)){
-				type = typeof obj[i];
-				// Copy strings, numbers, and booleans normally
-				if(["string", "number", "boolean"].indexOf(type)){
+		var objFn = function(o) {
+			var type = typeof o;
+			
+			// Copy strings, numbers, booleans, nulls and undefined objects normally
+			if(type == "string" || type == "number" || type == "boolean" || type == _undefined || o === null){
+				return o;
+			} else if(o instanceof Error) {
+				return cloneErrorObject(o, scope);
+			} else if(type == "object") {
+				if(depth < 3) {
 					try{
-						tmp[i] = cloneInto(obj[i], scope, args);
+						return mCloneInto(o, scope, args, debug, depth + 1);
 					}catch(e){}
-				// Copy objects by doing a "shallow" copy of its properties
-				} else if(type == "object"){
-					// Check if obj[i] is an array
-					// Don't risk checking its constructor, just look for length property
-					if(typeof obj[i].length !== "number"){
-						tmp[i] = {};
-						for(var x in obj[i]){
-							try{
-								if(Object.prototype.hasOwnProperty.call(obj[i], x)){
-									tmp[i][x] = cloneInto(obj[i][x], scope, args);
-								}
-							}catch(e){}
-						}
-					} else {
-						tmp[i] = [];
-						for(var x = 0; x < obj[i].length; x++){
-							try{
-								tmp[i].push(cloneInto(obj[i][x], scope, args));
-							}catch(e){
-								tmp[i].push(undefined);
-							}
-						}
-					}
+				}
+				try {
+					return cloneInto(o, scope, args);
+				} catch(e) {}
+				
+			} else if(type == "function" && args.cloneFunctions) {
+
+				try {
+					return cloneInto(o, scope, args);
+				} catch(e) {}
+			}
+		};
+		
+		
+		if(objType == "undefined" || objType == "null"){
+			return obj;
+		} else if(objType == "error") {
+			try{
+				output = cloneErrorObject(obj, scope);
+			}catch(e){}
+		} else if(objType == "array") {
+			output = cloneInto([], scope, args);
+			for(x = 0; x < obj.length; x++){
+				var tmpValue;
+				try{
+					tmpValue = objFn(obj[x]);
+				}catch(e){}
+				try{
+					output.push(tmpValue);
+				}catch(e){
+					output.push(undefined);
+				}
+			}
+		//} else if(objType == "function") {
+			// to Do:
+			// Create a new function (call it newFn) using the "Function"
+			// constructor in the desired scope or the unsafeWindow.
+			// Then export original function (obj) as newFn's constructor.
+			// Copy all other properties normally the same as a normal object
+			//
+			// However, this mExportFunction should still be used instead of
+			// directly cloning it.
+			//
+			// Does not depend on "args.cloneFunctions"
+			// Only properties of 
+		} else {
+			output = cloneInto({}, scope, args);
+			for(x in obj){
+				if(x != "constructor" && Object.prototype.hasOwnProperty.call(obj, x)) {
+					var tmpValue;
+					try{
+						tmpValue = objFn(obj[x]);
+					}catch(e){}
+					output[x] = tmpValue;
 				}
 			}
 		}
-		try{
-			return cloneInto(tmp, scope, args);
-		}catch(e){
-			//return tmp;
-			return obj;
-		}
+		return output;
 	} else {
 		// Manually clone object
 		// ToDo
@@ -840,6 +1364,160 @@ var URLBuilder = jMod.URLBuilder = function(input){
 	
 }
 
+var jModError = (function(){
+
+	function jModError(arg0){
+		var err,
+			i = 0,
+			data = {},
+			//arg0 = _undefined!=typeof arguments[0] ? arguments[0] : undefined,
+			length = arguments.length;
+		
+		//this.constructor.prototype.__proto__ = Error.prototype;
+		//this.__proto__ = Error.prototype;
+		//Object.setPrototypeOf(this, Error.prototype);
+		
+		if(length > 0){
+			if(typeof arg0 !== "string"){
+				if(arg0 instanceof Error){
+					data.e = arg0;
+				} else {
+					data = arg0;
+				}
+				arg0 = length > 1 ? arguments[1] : undefined;
+				i++;
+			}
+			if(typeof arg0 === "string"){
+				data.message = arg0;
+				if(length > (i + 1))
+					data.fileName = arguments[i + 1];
+					
+				if(length > (i + 2))
+					data.lineNumber = arguments[i + 2];
+					
+				if(length > (i + 3))
+					data.columnNumber = arguments[i + 3];
+					
+				if(length > (i + 4)){
+					if(arguments[i + 4] instanceof Error)
+						data.e = arguments[i + 4];
+				}
+			}
+			
+			if(data.e){
+				try {
+					err = data.e;
+					
+					this.stack = err.stack;
+				} catch(e){}
+			}
+		
+		}
+		
+		if(!err){
+			err = new Error(data.message || null, data.fileName || null, data.lineNumber || null);
+			err.constructor = jModError;
+			err.__proto__ = Object.create(err.__proto__, {
+				name: { value: 'jModError', enumerable: false },
+				toString: {
+					value: function () { return this.name + ': ' + this.message }
+				}
+			});
+			//err.name = "jModError";
+			delete err.toString;
+			err.toString = function () { return this.name + ': ' + this.message }.bind(err);
+			if (err.stack) {
+				// remove one stack level:
+				if (typeof(Components) != 'undefined') {
+					// Firefox:
+					err.stack = this.stack = err.stack.substring(err.stack.indexOf('\n')+1);
+				} else if (typeof(chrome) != 'undefined' || typeof(process) != 'undefined') {
+					// Google Chrome/Node.js:
+					err.stack = this.stack = err.stack.replace(/\n[^\n]*/,'');
+					Object.defineProperty(err, 'stack', {
+						value: this.stack,
+					});
+				} else {
+					this.stack = err.stack;
+				}
+			}
+		}
+		
+		if(this.stack && !data.fileName){
+			var tmp = jMod.parseStack(this.stack);
+			if(tmp && tmp.length > 0){
+				this.pStack = tmp;
+				data.lineNumber = parseInt(tmp[0].lineNumber);
+				data.columnNumber = parseInt(tmp[0].columnNumber || 0);
+				data.fileName = tmp[0].fileName;
+				if(!err.fileName || err.fileName == "null"){
+					try{
+						err.lineNumber = data.lineNumber;
+						err.columnNumber = data.columnNumber;
+						err.fileName = data.fileName;
+						err.stack = this.stack;
+					}catch(e){
+						try{
+							//err = new Error(data.message || null, data.fileName || null, data.lineNumber || null);
+							//err.stack = this.stack;
+						}catch(e){}
+					}
+				}
+			}
+		}
+		
+		//this.constructor.prototype.__proto__ = Error.prototype;
+		//err.constructor = jModError;
+		//err.displayName = err.name
+		this.displayName = this.name = "jModError";
+		
+		this.err = err;
+		this.message = data.message || err.message;
+		this.fileName = data.fileName || err.fileName;
+		this.lineNumber = data.lineNumber != null ? data.lineNumber : err.lineNumber;
+		this.columnNumber = data.columnNumber != null ? data.columnNumber : err.columnNumber;
+		this.toString = function () { return this.name + ': ' + this.message };
+		this.constructor = Error;
+	};
+	
+	jModError.prototype = Object.create(Error.prototype, { name: { value: 'jModError', enumerable: true } });
+	
+	jModError.prototype.constructor = jModError;
+	jModError.prototype.constructor.constructor = Error;
+	jModError.prototype.log = function(title, message){
+		/*
+		console.log(this);
+		console.log("%o", {
+			_this: this,
+			err: this.err,
+			err_toStr: this.err.toString(),
+			instanceOfjModError: (this instanceof jModError),
+			instanceOfError: (this instanceof Error),
+			instanceOfIntermediateInheritor: (this instanceof IntermediateInheritor),
+			isPrototypeOfError: (Error.isPrototypeOf(this)),
+			isPrototypeOfIntermediateInheritor: (IntermediateInheritor.isPrototypeOf(this))
+		});
+		*/
+		var title = title || "jMod Error",
+			message = message || this.message;
+		jModLogError(this, title, message);
+	}
+	return jModError;
+})();
+
+/*
+try{
+	var x = fofofo(a);
+	//throw new jModError('Error test');
+}catch(e){
+	//e.log('Error Title', 'Error body');
+	var foo = new jModError(e);
+	foo.log('Error Title', 'Error body');
+}
+*/
+	// jMod Error Class
+
+	
 	// URL Builder Class
 
 	
@@ -861,17 +1539,44 @@ var URLBuilder = jMod.URLBuilder = function(input){
 	// Object Prototypes
 
 	
+	// Object Prototypes
+
+	
+	if (!String.prototype.trim) {
+		(function() {
+			Object.defineProperty(String.prototype, 'trim', {
+				value: function() {return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');},
+				enumerable: false
+			});
+		})();
+	}
+	
 	function eventCancel(e){
-		if(!e)
-		if(window.event)
-			e = window.event;
-		else
-			return;
+		var win = window || unsafeWindow;
+		if(!e){
+			if(win.event)
+				e = win.event;
+			else
+				return;
+		}
 		if(e.cancelBubble != null) e.cancelBubble = true;
 		if(e.stopPropagation) e.stopPropagation();
 		if(e.preventDefault) e.preventDefault();
-		if(window.event) e.returnValue = false;
+		if(win.event) e.returnValue = false;
 		if(e.cancel != null) e.cancel = true;
+	}
+	
+	function isEvent(a){
+		var patt = /^\[object |\]$/g;
+		try{
+			if(Object.prototype.toString.call(a).replace(patt,'').toLowerCase() == "event") return true;
+		}catch(e){}
+		
+		try{
+			if(a.constructor.toString().replace(patt,'').toLowerCase() == "event") return true;
+		}catch(e){}
+		
+		return false;
 	}
 	
 	/***********************************
@@ -912,6 +1617,12 @@ var RealTypeOf = jMod.RealTypeOf = function(_obj){
 			}
 			if (obj.constructor === (new RegExp).constructor) return "regex";
 			return Object.prototype.toString.call(obj).replace(/^\[object |\]$/g,'').toLowerCase();
+		}
+	}catch(e){}
+	try{
+		if(typeof(obj) === "function"){
+			if(obj.typeOfName && typeof obj.typeOfName === "string") return obj.typeOfName;
+			if(obj.displayName && typeof obj.displayName === "string") return obj.displayName;
 		}
 	}catch(e){}
 	return typeof(obj);
@@ -1441,61 +2152,6 @@ test_assign();
 
 
 	
-	
-	/*! https://github.com/tysonmatanich/viewportSize */
-	/*! viewportSize | Author: Tyson Matanich, 2013 | License: MIT */
-	unsafeWindow.viewportSize = {};
-
-	unsafeWindow.viewportSize.getHeight = function () {
-		return getSize("Height");
-	};
-
-	unsafeWindow.viewportSize.getWidth = function () {
-		return getSize("Width");
-	};
-
-	var getSize = function (Name) {
-		var size;
-		var name = Name.toLowerCase();
-		var document = unsafeWindow.document;
-		var documentElement = document.documentElement;
-		if (unsafeWindow["inner" + Name] === undefined) {
-			// IE6 & IE7 don't have window.innerWidth or innerHeight
-			size = documentElement["client" + Name];
-		}
-		else if (unsafeWindow["inner" + Name] != documentElement["client" + Name]) {
-			// WebKit doesn't include scrollbars while calculating viewport size so we have to get fancy
-
-			// Insert markup to test if a media query will match document.doumentElement["client" + Name]
-			var bodyElement = document.createElement("body");
-			bodyElement.id = "vpw-test-b";
-			bodyElement.style.cssText = "overflow:scroll";
-			var divElement = document.createElement("div");
-			divElement.id = "vpw-test-d";
-			divElement.style.cssText = "position:absolute;top:-1000px";
-			// Getting specific on the CSS selector so it won't get overridden easily
-			divElement.innerHTML = "<style>@media(" + name + ":" + documentElement["client" + Name] + "px){body#vpw-test-b div#vpw-test-d{" + name + ":7px!important}}</style>";
-			bodyElement.appendChild(divElement);
-			documentElement.insertBefore(bodyElement, document.head);
-
-			if (divElement["offset" + Name] == 7) {
-				// Media query matches document.documentElement["client" + Name]
-				size = documentElement["client" + Name];
-			}
-			else {
-				// Media query didn't match, use window["inner" + Name]
-				size = unsafeWindow["inner" + Name];
-			}
-			// Cleanup
-			documentElement.removeChild(bodyElement);
-		}
-		else {
-			// Default to use window["inner" + Name]
-			size = unsafeWindow["inner" + Name];
-		}
-		return size;
-	};
-	
 	/***********************************
 	 ** Hex To RGB
 	 **********************************/
@@ -1526,6 +2182,19 @@ test_assign();
 	var parseColorString = function(str){
 		var r = parseRGB(str);
 		return r ? r : hexToRgb(str);
+	}
+	
+	var PI_OVER_2 = 0.5 * Math.PI,
+		TEN_LOG2 = 10 * Math.log( 2 );
+		
+	var timeFromPosition = function( b, c, d, x ) {
+		return 2 * d / Math.PI * Math.asin(( x - b ) / c );
+	}
+	
+	var easeOutSin = function( c, d, t ) {
+		var b = PI_OVER_2 / d,
+			a = c * b;
+		return Math.round( a * Math.cos( b * t ));
 	}
 
 	/***********************************
@@ -1614,6 +2283,7 @@ test_assign();
 		'secure': false,
 		'browser': jMod.Browser.getBrowser(),
 		'getScriptFileInfo': true,
+		'addToGlobalScope': true,
 		'script': {
 			username: undefined,
 			script_name: undefined
@@ -1658,10 +2328,10 @@ test_assign();
 		'jQueryExtensions': {
 			'CrossOrigin': true
 		},
-		'debug': false
+		'debug': true
 	});
 	/*
-	if(false){
+	if(true){
 		try{
 			if(['firefox', 'waterfox'].indexOf(jMod.Config.browser.name.toLowerCase()) == -1){
 				jMod.Config.API.log.GM_log = false;
@@ -1773,9 +2443,9 @@ test_assign();
 		if(CurrentRunningScript.el.id && CurrentRunningScript.el.id.trim() != ''){
 			CurrentRunningScript.id = CurrentRunningScript.el.id;
 		} else {
-			if(unsafeWindow.document.getElementById(CurrentRunningScript.id)){
+			if((window || unsafeWindow).document.getElementById(CurrentRunningScript.id)){
 				var i = 0;
-				while(unsafeWindow.document.getElementById(CurrentRunningScript.id + '-' + i))
+				while((window || unsafeWindow).document.getElementById(CurrentRunningScript.id + '-' + i))
 					i++;
 				CurrentRunningScript.id = CurrentRunningScript.id + '-' + i;
 			}
@@ -2046,7 +2716,7 @@ jMod.API.ParseMetaData = function(headerBlock){
 							jMod.extend(true, jMod.Config, tmp);
 					} catch(e) {
 						//console.error('Error parsing options in MetaBlock', e);
-						jModError(e, 'ScriptInfo.set', 'Error parsing options in MetaBlock');
+						jModLogError(e, 'ScriptInfo.set', 'Error parsing options in MetaBlock');
 					}
 				}
 				
@@ -2055,7 +2725,7 @@ jMod.API.ParseMetaData = function(headerBlock){
 			
 		} catch(e) {
 			console.error('Error ScriptInfo.set', e);
-			//jModError(e, 'ScriptInfo.set');
+			//jModLogError(e, 'ScriptInfo.set');
 		}
 		
 		Object.defineProperty(jMod.Config.script, 'script_info', {
@@ -2283,8 +2953,7 @@ jMod._call = function(){
 	 ** Element Manipulation Functions
 	 **********************************/
 jMod.$ = function(selector, target, nojQuery){
-	if(!target)
-		target = (_undefined!==typeof document?document:unsafeWindow.document);
+	target = target || jMod.Element.document;
 
 	try{
 		if(nojQuery !== true && jMod.jQueryAvailable){
@@ -2305,8 +2974,7 @@ jMod.$ = function(selector, target, nojQuery){
 }
 
 jMod.$$ = function(selector, target, nojQuery){
-	if(!target)
-		target = (_undefined!==typeof document?document:unsafeWindow.document);
+	target = target || jMod.Element.document;
 	try{
 		if(nojQuery !== true && jMod.jQueryAvailable){
 			try{
@@ -2376,7 +3044,7 @@ jMod.Element = function(data, data2){
 		}
 	}catch(e){
 		//console.log('error, jMod.Element', e);
-		jModError(e, 'jMod.Element');
+		jModLogError(e, 'jMod.Element');
 	}
 };
 
@@ -2384,6 +3052,26 @@ jMod.Element._call = function(command){
 	if(typeof jMod.Element[command] === "function")
 		return jMod.Element[command].apply(jMod.Element, Slice.call(arguments, 1));
 }
+
+Object.defineProperty(jMod.Element, 'document', {
+	get: function(){
+		try {
+			return (_undefined!=typeof document ? document : (window.document || unsafeWindow.document));
+		} catch(e) {}
+		return null;
+	}
+});
+
+Object.defineProperty(jMod.Element, 'head', {
+	get: function(){
+		try {
+			var doc = jMod.Element.document;
+			return doc.head || doc.getElementsByTagName('head')[0];
+		} catch(e) {}
+		return null;
+	}
+});
+
 
 
 jMod.Element.isElement = isElement;
@@ -2499,10 +3187,219 @@ var hasAttributes = function(el, attrs) {
 	return r;
 }
 
-var getAttribute = function(el, attr) {
-	return el.getAttribute(attr);
+var getAttribute = function(el, attr, type) {
+	var t, r = el.getAttribute(attr);
+	if(!type)
+		return r;
+	
+	switch(type){
+		case "int":
+		case "integer":
+			return parseInt(r);
+			break;
+		case "bool":
+		case "boolean":
+			t = r != null && r != "" ? r.trim().toLowerCase() : 'false';
+			return (t.indexOf("true") !== -1 || t == "t" ? true : false);
+			break;
+	}
+	return r;
 }
 
+
+
+var changeElementType = function(el, type, removeChildren){
+	var i = 0,
+		doc = el.ownerDocument || jMod.Element.document,
+		newElement = doc.createElement(type),
+		attrs = el.attributes,
+		nodes = el.childNodes,
+		ElementPropertiesToCopy = ["scrollLeft", "scrollTop"];
+	//getEventListeners
+	for( ; i < attrs.length; i++){
+		//newElement.setAttribute(attrs[i].nodeName, attrs[i].nodeValue);
+		newElement.setAttributeNode(attrs[i]);
+	}
+	for(i = 0; i < nodes.length; i++){
+		if(removeChildren)
+			newElement.appendChild(newElement.removeChild(nodes[i]));
+		else
+			newElement.appendChild(nodes[i]);
+	}
+	
+	for(i = 0; i < ElementPropertiesToCopy.length; i++){
+		newElement[ElementPropertiesToCopy[i]] = el[ElementPropertiesToCopy[i]];
+	}
+	
+	return newElement;
+}
+
+// Add/Remove Event Listeners
+var addEventListener = jMod.Element.addEventListener = function(el, eventName, handler, useCapture) {
+	if (el.addEventListener) {
+		el.addEventListener(eventName, handler, useCapture ? true : false);
+	} else if (el.attachEvent) {
+		el.attachEvent('on' + eventName, handler);
+	} else {
+		el['on' + eventName] = handler;
+	}
+}
+
+var removeEventListener = jMod.Element.removeEventListener = function(el, eventName, handler, useCapture) {
+	if (el.removeEventListener) {
+		el.removeEventListener(eventName, handler, useCapture ? true : false);
+	} else if (el.detachEvent) {
+		el.detachEvent('on' + eventName, handler);
+	} else {
+		el['on' + eventName] = null;
+	}
+}
+
+
+// ViewportSize
+/*! https://github.com/tysonmatanich/viewportSize */
+/*! viewportSize | Author: Tyson Matanich, 2013 | License: MIT */
+jMod.Element.viewportSize = {
+	getHeight: function () {
+		return this.getSize("Height");
+	},
+
+	getWidth: function () {
+		return this.getSize("Width");
+	},
+
+	getSize: function (Name) {
+		var size;
+		var name = Name.toLowerCase();
+		var win = (window || unsafeWindow);
+		var doc = jMod.Element.document;
+		var head = jMod.Element.head;
+		var documentElement = doc.documentElement;
+		if (win["inner" + Name] === undefined) {
+			// IE6 & IE7 don't have window.innerWidth or innerHeight
+			size = documentElement["client" + Name];
+		}
+		else if (win["inner" + Name] != documentElement["client" + Name]) {
+			// WebKit doesn't include scrollbars while calculating viewport size so we have to get fancy
+
+			// Insert markup to test if a media query will match document.doumentElement["client" + Name]
+			var bodyElement = doc.createElement("body");
+			bodyElement.id = "vpw-test-b";
+			bodyElement.style.cssText = "overflow:scroll";
+			var divElement = doc.createElement("div");
+			divElement.id = "vpw-test-d";
+			divElement.style.cssText = "position:absolute;top:-1000px";
+			// Getting specific on the CSS selector so it won't get overridden easily
+			divElement.innerHTML = "<style>@media(" + name + ":" + documentElement["client" + Name] + "px){body#vpw-test-b div#vpw-test-d{" + name + ":7px!important}}</style>";
+			bodyElement.appendChild(divElement);
+			documentElement.insertBefore(bodyElement, head);
+
+			if (divElement["offset" + Name] == 7) {
+				// Media query matches document.documentElement["client" + Name]
+				size = documentElement["client" + Name];
+			}
+			else {
+				// Media query didn't match, use window["inner" + Name]
+				size = win["inner" + Name];
+			}
+			// Cleanup
+			documentElement.removeChild(bodyElement);
+		}
+		else {
+			// Default to use window["inner" + Name]
+			size = win["inner" + Name];
+		}
+		return size;
+	}
+};
+
+
+function ElementBuilderClass(data){
+	this.data = data || {};
+}
+
+ElementBuilderClass.prototype = {
+	appendChild: function(data){
+		var i,
+			thisData = this.data,
+			thisType = RealTypeOf(thisData),
+			dataType = RealTypeOf(data);
+		
+		if(dataType == "array"){
+			for(i = 0; i < data.length; i++)
+				this.appendChild(data[i]);
+			return this;
+		}
+		
+		if(isElement(thisData)){
+			if(isElement(data)){
+				return thisData.appendChild(data), this;
+			}
+			if(dataType == "ElementBuilderClass"){
+				return thisData.appendChild(data.toElement()), this;
+			}
+		}
+		
+		if(thisType == "ElementBuilderClass"){
+			return thisData.appendChild(data), this;
+		}
+		
+		if(typeof thisData == "object"){
+			i = (thisData.innerHTML === undefined && thisData.text !== undefined ? 'text' : 'innerHTML');
+			if(RealTypeOf(thisData[i]) == "array")
+				thisData[i].push(data);
+			else if(typeof thisData[i] == _undefined || thisData[i] == null)
+				thisData[i] = [data];
+			else
+				thisData[i] = [thisData[i], data];
+			return this;
+		}
+		
+		return this;
+	},
+	toElement: function(){
+		if(isElement(this.data))
+			return this.data;
+		return (this.data = createNewElement(this.data));
+	}
+};
+
+Object.defineProperties(ElementBuilderClass.prototype, {
+	type: {
+		get: function(){
+			if(isElement(this.data)){
+				return this.data.nodeName.toLowerCase();
+			} else {
+				return this.data.type.toLowerCase();
+			}
+		},
+		set: function(newType){
+			if(isElement(this.data)){
+				//this.data.nodeName;
+				var parentElement = this.data.parentElement;
+					tmp = changeElementType(this.data, newType, true);
+				parentElement.replaceChild(tmp, this.data);
+				this.data = tmp;
+			} else {
+				this.data.type = newType;
+			}
+		},
+		configurable: false,
+		enumerable: true
+	},
+	children: {
+		get: function(){
+			if(isElement(this.data)){
+				return this.data.children;
+			} else {
+				var i = (this.data.innerHTML === undefined && this.data.text !== undefined ? 'text' : 'innerHTML');
+				return (this.data[i] || null);
+			}
+		},
+		configurable: false,
+		enumerable: true
+	}
+});
 /**
  * Append a child to a DOM Element. The input can be an a simple element or string. It can be an object containing Element information {@link createNewElement}. Additionally, it can be an array of any of the preciously mentioned types.
  * @function appendChild
@@ -2515,7 +3412,8 @@ var getAttribute = function(el, attr) {
 var appendChild = jMod.Element.appendChild = function(el, data) {
 	var nodes, dummy, i;
 	try{
-		if(!isElement(el) && typeof el === "object" && el.type !== undefined){
+		// If appending object instead of Element
+		if(!isElement(el) && typeof el === "object" && el.type != null){
 			i = (el.innerHTML === undefined && el.text !== undefined ? 'text' : 'innerHTML');
 			if(RealTypeOf(el[i]) == "array")
 				el[i].push(data);
@@ -2545,7 +3443,7 @@ var appendChild = jMod.Element.appendChild = function(el, data) {
 					//case "symbol":
 					//case "boolean":
 					default:
-						nodes, dummy = document.createElement('div');
+						nodes, dummy = (el.ownerDocument || jMod.Element.document).createElement('div');
 						dummy.innerHTML = data;
 						nodes = dummy.childNodes;
 						for(i = 0; i < nodes.length; i++)
@@ -2555,10 +3453,11 @@ var appendChild = jMod.Element.appendChild = function(el, data) {
 			}
 		}
 	} catch(e) {
-		jModError(e, 'jMod.Element.appendChild');
+		jModLogError(e, 'jMod.Element.appendChild');
 	} finally {
 		return el;
 	}
+	return el; // just in case...
 }
 
 /**
@@ -2602,12 +3501,31 @@ var validElementProps = ['id', 'className', 'checked', 'defaultValue', 'title', 
  * @returns {Element} The newly created element
  */
 var createNewElement = jMod.Element.createNewElement = function(data) {
-	var i, eventName, capture, callback,
+	var i, x, eventName, capture, callback, event,
 		eventListeners = data.EventListeners || data.eventListeners,
-		newElement = document.createElement(data.type || 'div');
+		// Get Document
+		doc = jMod.Element.document,
+		// Create Element
+		newElement = doc.createElement(data.type || "div"),
+		addListener = function(eventName, obj){
+			if(typeof obj === "function")
+				return addEventListener(newElement, eventName, obj);
+			capture = obj.useCapture || obj.Capture || obj.capture || false;
+			callback = obj.callback || obj['function'];
+			if(callback){
+				if(RealTypeOf(callback) == "array")
+					for(i in callback){
+						if(typeof callback[i] !== "function")
+							capture = callback[i].useCapture || callback[i].Capture || callback[i].capture || capture;
+						addEventListener(newElement, eventName, callback[i], capture);
+					}
+				else
+					addEventListener(newElement, eventName, callback, capture);
+			}
+		}
 	
 	if(typeof data.style === "string")
-		newElement.style = data.style;
+		newElement.setAttribute("style", data.style);
 	else if(typeof data.style === "object"){
 		for(i in data.style)
 			newElement.style[i] = data.style[i];
@@ -2620,7 +3538,6 @@ var createNewElement = jMod.Element.createNewElement = function(data) {
 	
 	if(data.attributes !== undefined){
 		for(i in data.attributes){
-			//if(typeof data.attributes[i] !== _undefined && data.attributes[i] !== null)
 			if(data.attributes[i] != null)
 				newElement.setAttribute(i, data.attributes[i]);
 		}
@@ -2628,24 +3545,16 @@ var createNewElement = jMod.Element.createNewElement = function(data) {
 	
 	if(eventListeners){
 		for(eventName in eventListeners){
-			if(typeof eventListeners[eventName] === "function"){
-				newElement.addEventListener(eventName, eventListeners[eventName]);
-			} else if(typeof eventListeners[eventName] === "object"){
-				capture = eventListeners[eventName].useCapture || eventListeners[eventName].Capture || eventListeners[eventName].capture || false;
-				callback = eventListeners[eventName].callback || eventListeners[eventName]['function'];
-				if(callback){
-					if(RealTypeOf(callback) == "array")
-						for(i in callback)
-							newElement.addEventListener(eventName, callback[i], capture);
-					else
-						newElement.addEventListener(eventName, callback, capture);
-				}
-				
-			}
+			event = eventListeners[eventName];
+			if(RealTypeOf(event) == "array"){
+				for(x = 0; x < event.length; x++)
+					addListener(eventName, event[x]);
+			} else
+				addListener(eventName, event);
 		}
 	}
 	
-	appendChild(newElement, data.innerHTML || data.text);
+	appendChild(newElement, data.innerHTML || data.text || null);
 	
 	return newElement;
 }
@@ -2692,21 +3601,199 @@ var findParentWithAttribute = jMod.Element.findParentWithAttribute = function(el
 		if(parent.hasAttribute(attributeName) && (_undefined==typeof attributeValue || parent.getAttribute(attributeName) == attributeValue))
 			return parent;
 	}
-}
+};
 
 function fireClick(el, bubbles, cancelable){
+	var doc = jMod.Element.document;
 	if(jMod.jQueryAvailable){
 		$(el).click();
-	} else if(document.createEvent) {
-		var evt = document.createEvent('MouseEvents');
+	} else if(doc.createEvent) {
+		var evt = doc.createEvent('MouseEvents');
 		evt.initEvent('click', bubbles || true, cancelable || true);
 		el.dispatchEvent(evt);	
-	} else if(document.createEventObject) {
+	} else if(doc.createEventObject) {
 		el.fireEvent('onclick');	
 	} else if(typeof el.onclick == "function") {
 		el.onclick();	
 	}
-}
+};
+
+jMod.Element.getCompStyleObj = function(el, pseudoEl){
+	var doc = el.ownerDocument || jMod.Element.document;
+	if (el.currentStyle) //IE
+		return el.currentStyle;
+	else if (doc.defaultView && doc.defaultView.getComputedStyle) //Firefox
+		return doc.defaultView.getComputedStyle(el, pseudoEl || null);
+};
+
+
+//jMod.Element.getCompStyle = function(el, cssprop, pseudoEl, comp){
+jMod.Element.getCompStyle = function(){
+	var i = 0, arg, el, cssprop, pseudoEl, comp, doc;
+	for( ; i < arguments.length; i++){
+		arg = arguments[i];
+		if(isElement(arg)){
+			el = arg;
+		} else if(typeof arg == "string"){
+			if(!cssprop)
+				cssprop = arg;
+			else
+				pseudoEl = arg;
+		} else {
+			comp = arg;
+		}
+	}
+	
+	if (comp) {
+		if (comp[cssprop])
+			return comp[cssprop];
+	} else {
+		if (el.currentStyle) {
+			return el.currentStyle[cssprop];
+		}
+		doc = el.ownerDocument || jMod.Element.document;
+		if (doc.defaultView && doc.defaultView.getComputedStyle){
+			comp = doc.defaultView.getComputedStyle(el, pseudoEl || null);//[cssprop];
+			if(comp){
+				return comp[cssprop] ? comp[cssprop] : comp.getPropertyValue(cssprop);
+			}
+		}
+	}
+	
+	return el ? el.style[cssprop] : null;
+};
+
+jMod.Element.getClientRect = function(el){
+	try{
+		var comp, r = jMod.extend({}, el.getBoundingClientRect());
+		
+		if (r.height == null || r.width == null) {
+			comp = jMod.Element.getCompStyleObj(el);
+			//r.height = parseFloat(jMod.Element.getCompStyle(el, 'height'));
+			/*
+			r.height = parseFloat(comp['height']);
+			r.width = parseFloat(comp['width']);
+			*/
+			
+			r.height = parseFloat(jMod.Element.getCompStyle(el, 'height', comp));
+			r.width = parseFloat(jMod.Element.getCompStyle(el, 'width', comp));
+		}
+		
+		return r;
+	}catch(e){}
+};
+
+// Animation Frame
++(function(){
+
+	var win = window || unsafeWindow;
+	
+	
+	var _requestAnimationFrameKey =
+			win.requestAnimationFrame ? 'requestAnimationFrame' :
+			win.mozRequestAnimationFrame ? 'mozRequestAnimationFrame' :
+			win.webkitRequestAnimationFrame ? 'webkitRequestAnimationFrame' :
+			win.oRequestAnimationFrame ? 'oRequestAnimationFrame' :
+			win.msRequestAnimationFrame ? 'msRequestAnimationFrame' :
+			null;
+	
+	var _cancelAnimationFrameKey =
+			win.cancelAnimationFrame ? 'cancelAnimationFrame' :
+			win.mozCancelAnimationFrame ? 'mozCancelAnimationFrame' :
+			win.webkitCancelAnimationFrame ? 'webkitCancelAnimationFrame' :
+			win.oCancelAnimationFrame ? 'oCancelAnimationFrame' :
+			win.msCancelAnimationFrame ? 'msCancelAnimationFrame' :
+			win.clearTimeout ? 'clearTimeout' :
+			null;
+	
+	jMod.Element.requestAnimationFrame = function(fn){
+		if(_requestAnimationFrameKey){
+			try{
+				return win[_requestAnimationFrameKey](fn);
+			}catch(e){}
+		}
+		return win.setTimeout(fn, 17);
+	}
+	
+	jMod.Element.cancelAnimationFrame = function(id){
+		if(_cancelAnimationFrameKey){
+			return win[_cancelAnimationFrameKey](id);
+		}
+	}
+	
+})();
+
+
+// Resize Listener
++(function(){
+
+	function resetTriggers(element){
+		var triggers = element.__resizeTriggers__,
+			expand = triggers.firstElementChild,
+			contract = triggers.lastElementChild,
+			expandChild = expand.firstElementChild;
+			contract.scrollLeft = contract.scrollWidth;
+			contract.scrollTop = contract.scrollHeight;
+			expandChild.style.width = expand.offsetWidth + 1 + 'px';
+			expandChild.style.height = expand.offsetHeight + 1 + 'px';
+			expand.scrollLeft = expand.scrollWidth;
+			expand.scrollTop = expand.scrollHeight;
+	};
+	
+
+	function checkTriggers(element){
+		return element.offsetWidth != element.__resizeLast__.width ||
+		element.offsetHeight != element.__resizeLast__.height;
+	}
+
+	function scrollListener(e){
+		var element = this;
+		resetTriggers(this);
+		//if (this.__resizeRAF__) cancelFrame(this.__resizeRAF__);
+		if (this.__resizeRAF__) jMod.Element.cancelAnimationFrame(this.__resizeRAF__);
+		//this.__resizeRAF__ = requestFrame(function(){
+		this.__resizeRAF__ = jMod.Element.requestAnimationFrame(function(){
+			if (checkTriggers(element)) {
+				element.__resizeLast__.width = element.offsetWidth;
+				element.__resizeLast__.height = element.offsetHeight;
+				element.__resizeListeners__.forEach(function(fn){
+					fn.call(element, e);
+				});
+			}
+		});
+	};
+	
+	jMod.Element.addResizeListener = function(el, fn){
+		if (el.attachEvent) el.attachEvent('onresize', fn);
+		else {
+			if (!el.__resizeTriggers__) {
+				if((window || unsafeWindow).getComputedStyle(el, null).position == 'static') el.style.position = 'relative';
+				//createStyles();
+				el.__resizeLast__ = {};
+				el.__resizeListeners__ = [];
+				(el.__resizeTriggers__ = (jMod.Element.document).createElement('div')).className = 'resize-triggers';
+				el.__resizeTriggers__.innerHTML = '<div class="expand-trigger"><div></div></div>' +
+					'<div class="contract-trigger"></div>';
+				el.appendChild(el.__resizeTriggers__);
+				resetTriggers(el);
+				el.addEventListener('scroll', scrollListener, true);
+				
+				/* Listen for a css animation to detect element display/re-attach */
+				el.__resizeTriggers__.addEventListener('animationstart', function(e) {
+					if(e.animationName == 'resizeanim')
+						resetTriggers(el);
+				});
+			}
+			el.__resizeListeners__.push(fn);
+		}
+	}
+	
+	
+
+})();
+
+jMod.CSS = '@-webkit-keyframes resizeanim{0%{opacity:0;}100%{opacity:0;}}@keyframes resizeanim{0%{opacity:0;}100%{opacity:0;}}.jmod-na .resize-triggers{-webkit-animation:1ms resizeanim;animation:1ms resizeanim;visibility:hidden;opacity:0;}.jmod-na .resize-triggers,.jmod-na .resize-triggers > div,.jmod-na .contract-trigger:before{content:" ";display:block;position:absolute;top:0;left:0;height:100%;width:100%;overflow:hidden;}.jmod-na .resize-triggers > div{background:#eee;overflow:auto;}.jmod-na .contract-trigger:before{width:200%;height:200%;}';
+
 
 
 	/***********************************
@@ -2724,6 +3811,55 @@ function fireClick(el, bubbles, cancelable){
  * @memberof jMod.API
  */
 
+var LogFormatCSS = new (function(){
+	var _this = this,
+		SansationFontFamily = 'font-family:"Sansation","Open Sans",Arial;',
+		jModHeaderFontStyle = 'font-size:175%;font-weight:300;' + SansationFontFamily,
+		stripedBackground = 'repeating-linear-gradient(-45deg, red, red 5px, transparent 5px, transparent 10px);background-size:auto 75% 100%, 0px 0px;'
+	
+	_this.time = 'font-weight:bold;font-size:120%;color:red;';
+	
+	_this.stchange = 'font-weight:bold;font-size:130%;color:blue;';
+	
+	//_this.iconStyle = 'font-size:175%;background-image:url("http://myuserjs.org/img/favicon/favicon.png");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;';
+	_this.iconStyle = ''
+		//+'font-size:175%;'
+		+'font-size:1.75em;'
+		+'background-color: transparent;'
+		+'background-image:url("http://myuserjs.org/img/favicon/favicon.png");'
+		//+'background-origin: border-box;'
+		+'background-clip: border-box;'
+		+'background-position:left center;'
+		+'background-size:auto 75%;'
+		//+'background-size:auto 0.75em;'
+		+'background-repeat: no-repeat;'
+		+'letter-spacing: 20px;'
+		+'white-space: pre;'
+		//+'background-size: contain;'
+		+'display: run-in;';
+		
+	
+	_this.logDefaultStyle = 'display: run-in;';
+	_this.logHeaderStyle = jModHeaderFontStyle;
+	_this.logTitleStyle = 'color:#000;font-size:125%;';
+	_this.logTextStyle = 'font-weight:bold;font-size:120%;color:#000;';
+	
+	_this.infoDefaultStyle = 'display: run-in;';
+	_this.infoHeaderStyle = jModHeaderFontStyle;
+	_this.infoTitleStyle = 'color:#000;font-size:125%;';
+	_this.infoTextStyle = 'font-weight:bold;font-size:120%;color:blue;';
+	
+	_this.warningDefaultStyle = 'display: run-in;';
+	_this.warningHeaderStyle = jModHeaderFontStyle;
+	_this.warningTitleStyle = 'color:#000;font-size:125%;';
+	_this.warningTextStyle = 'font-weight:bold;font-size:120%;color:red;';
+	
+	_this.errorDefaultStyle = 'display: run-in;';
+	_this.errorHeaderStyle = jModHeaderFontStyle + 'color:red;';
+	_this.errorTitleStyle = 'color:#000;font-size:125%;';
+	_this.errorLineStyle = 'color:blue;';
+})();
+ 
 +function(){
 	var i;
 	var OUTPUT_TYPES = {
@@ -2789,11 +3925,17 @@ function fireClick(el, bubbles, cancelable){
 	}
 	
 	function checkConsole(fn){
+		if(fn(window.console)) return window.console;
 		if(fn(console)) return console;
 		if(fn(this.console)) return this.console;
-		if(fn(window.console)) return window.console;
 		if(fn(unsafeWindow.console)) return unsafeWindow.console;
 		if(fn(unsafeWindow.window.console)) return unsafeWindow.window.console;
+		
+		if(_undefined!=typeof Console && fn(Console)) return Console;
+		if(fn(this.Console)) return this.Console;
+		if(fn(window.Console)) return window.Console;
+		if(fn(unsafeWindow.Console)) return unsafeWindow.Console;
+		if(fn(unsafeWindow.window.Console)) return unsafeWindow.window.Console;
 		
 		return undefined;
 	}
@@ -2818,7 +3960,7 @@ function fireClick(el, bubbles, cancelable){
 		return (['debug','log','info','warn','error','exception'].indexOf(command)!=-1&&"string"==typeof value&&/(?:\%s|\%c|\%o|\%d|\%f|\%\.\df|\%i)/.test(value)); // Don't use GM_log on formatted logs
 	}
 	
-	jMod.log = jMod.API.log = {
+	jMod.log = API.log = {
 		'OUTPUT_TYPES': OUTPUT_TYPES,
 		fb: undefined,
 		c2: undefined,
@@ -2856,6 +3998,7 @@ function fireClick(el, bubbles, cancelable){
 			this.updateWC(getWC());
 		},
 		
+		/*
 		// For commands you can't call .apply on (like when an error object is involved)
 		ScopedConsoleCommand: function(command, value){
 			var i = 0, ptr, cmd, args = arguments,
@@ -2871,6 +4014,55 @@ function fireClick(el, bubbles, cancelable){
 				if(_undefined==typeof ptr||_undefined==typeof cmd)
 					continue;
 				try{
+				if(ptr === this.fb){
+					console.log('is fb');
+					if(!ptr._apply){
+						var _apply = function(command, arg){
+							if(this && this.log && this[command]){
+								try{
+									this[command].apply(this, arg);
+								}catch(ex){
+									console.log('fb _apply err', ex);
+								}
+							} else {
+								console.log("no this", this, command);
+							}
+						};
+						if(unsafeWindow !== window){
+							this.fb._apply = mExportFunction(_apply.bind(this.fb), unsafeWindow, {
+								//defineAs: "_apply",
+								allowCallbacks: true,
+								allowCrossOriginArguments: true
+							});
+						} else {
+							this.fb._apply = _apply.bind(this.fb);
+						}
+					}
+					var tmp, tmp2;
+					try{
+						tmp = Slice.call(arguments, 1);
+					}catch(te){
+						console.log('tmp error', te);
+						tmp = arguments;
+					}
+					try{
+						tmp2 = mCloneInto(tmp, unsafeWindow, {cloneFunctions: true, wrapReflectors: true}, true);
+					}catch(te){
+						console.log('tmp2 error', te);
+						tmp2 = tmp;
+					}
+					
+					try{
+						//return this.fb._apply.call(this.fb, command, mCloneInto(tmp, unsafeWindow, {cloneFunctions: true, wrapReflectors: true}));
+						console.log("_apply input", RealTypeOf(tmp2), tmp2);
+						return this.fb._apply.call(this.fb, command, tmp2);
+					}catch(te){
+						console.log('_apply error', te);
+					}
+				}
+				
+				
+					//cmd.apply(ptr, arguments);
 					switch(args.length){
 						case 1:  return cmd.call(ptr);
 						case 2:  return cmd.call(ptr, args[1]);
@@ -2893,11 +4085,13 @@ function fireClick(el, bubbles, cancelable){
 						default: return false;
 					}
 					return true;
-				}catch(e){}
+				}catch(e){
+					console.log('log error', e);
+				}
 			}
 			return false;
 		},
-		
+		*/
 		ConsoleCommand: function(command, value){
 			try{
 				var i = 0, key, order = ['WebConsole', 'Firebug'],
@@ -2910,12 +4104,12 @@ function fireClick(el, bubbles, cancelable){
 					wrapReflectors: true
 				});
 				//if(isFormatted || ['profile', 'profileEnd'].indexOf(command) != -1 || !jConfig.API.log.WebConsole)
-				if(['profile', 'profileEnd'].indexOf(command) != -1 || !jConfig.API.log.WebConsole)
+				if(['profile', 'profileEnd', 'error'].indexOf(command) != -1 || !jConfig.API.log.WebConsole)
 					order = ['Firebug', 'WebConsole'];
 				
 				for( ; i < order.length; i++){
 					key = order[i];
-					if(typeof objs[key] !== _undefined && objs[key][command] !== _undefined && jConfig.API.log[key]){
+					if(objs[key] != null && typeof objs[key][command] !== _undefined && jConfig.API.log[key]){
 						try {
 							return objs[key][command].apply(objs[key], args);
 						} catch(e){}
@@ -2951,53 +4145,26 @@ function fireClick(el, bubbles, cancelable){
 				this.ConsoleCommand.apply(this, [output_type.value].concat(Slice.call(arguments, 1)));
 		},
 		
-		fmt: {
-			//timePatt: '%.3fms',
-			time: 'font-weight:bold;font-size:120%;color:red;',
-			
-			stchange: 'font-weight:bold;font-size:130%;color:blue;',
-			
-			iconStyle: 'font-size:175%;background-image:url("http://myuserjs.org/img/favicon/favicon.png");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;',
-			
-			logDefaultStyle: '',
-			logHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
-			logTitleStyle: 'color:#000;font-size:125%;',
-			logTextStyle: 'font-weight:bold;font-size:120%;color:#000;',
-			
-			infoDefaultStyle: '',
-			infoHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
-			infoTitleStyle: 'color:#000;font-size:125%;',
-			infoTextStyle: 'font-weight:bold;font-size:120%;color:blue;',
-			
-			warningDefaultStyle: '',
-			warningHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
-			warningTitleStyle: 'color:#000;font-size:125%;',
-			warningTextStyle: 'font-weight:bold;font-size:120%;color:red;',
-			
-			errorDefaultStyle: ' ',
-			errorHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
-			errorTitleStyle: 'color:#000;font-size:125%;',
-			errorLineStyle: 'color:blue;'
-		}
+		fmt: LogFormatCSS
 	};
 	
 	for(i = 0; i < msgList.length; i++){
-		jMod.API.log[msgList[i][0]] = (function(oType){
-			return (function(){return this.outputMessage.apply(this, [OUTPUT_TYPES[oType]].concat(Slice.call(arguments)));}).bind(jMod.API.log);
+		API.log[msgList[i][0]] = (function(oType){
+			return (function(){return this.outputMessage.apply(this, [OUTPUT_TYPES[oType]].concat(Slice.call(arguments)));}).bind(API.log);
 		})(msgList[i][1]);
 	}
 	
 	for(i = 0; i < fnList.length; i++){
-		jMod.API.log[fnList[i]] = (function(fName){
-			return (function(){if(functionEnabled(fName))return this.ConsoleCommand.apply(this, [fName].concat(Slice.call(arguments)));}).bind(jMod.API.log);
+		API.log[fnList[i]] = (function(fName){
+			return (function(){if(functionEnabled(fName))return this.ConsoleCommand.apply(this, [fName].concat(Slice.call(arguments)));}).bind(API.log);
 		})(fnList[i]);
 	}
 	
 	for(i = 0; i < exportFunctions.length; i++)
-		jMod[exportFunctions[i]] = (jMod.log[exportFunctions[i]]).bind(jMod.API.log);
+		jMod[exportFunctions[i]] = (jMod.log[exportFunctions[i]]).bind(API.log);
 	
 	
-	jMod.API.logFormatBuilder = function(){
+	API.logFormatBuilder = function(){
 		this.args = [];
 		
 		var addLine = function(value, type, style){
@@ -3064,9 +4231,10 @@ function fireClick(el, bubbles, cancelable){
 		}
 		
 		this.add = function(){
-			if(arguments.length == 1 && RealTypeOf(arguments[0]) == "array"){
-				for(var i = 0; i < arguments[0].length; i++){
-					addLine.apply(this, arguments[0][i]);
+			var i = 0, var0 = arguments[0];
+			if(arguments.length == 1 && RealTypeOf(var0) == "array"){
+				for( ; i < var0.length; i++){
+					addLine.apply(this, var0[i]);
 				}
 			} else {
 				addLine.apply(this, Slice.call(arguments));
@@ -3100,154 +4268,83 @@ function fireClick(el, bubbles, cancelable){
 
 
 
-var jModError = function(){
+var jModLogError = function(){
 	var i = 3,
 		e = arguments[0],
 		title = arguments[1],
 		message;
 	try{
 		message = arguments[2]
-	}catch(e){};
+	}catch(x){};
 	
-	if(!(e && (e.message && e.lineNumber))){
+	//if(!(e && (e.message && e.lineNumber))){
+	if(!(e && e instanceof Error)){
 		message = title;
 		title = e;
 		e = undefined;
 		i = 2;
 	}
 	
-	var errorDefaultStyle = jMod.log.fmt.errorDefaultStyle;
+	var errorDefaultStyle = LogFormatCSS.errorDefaultStyle;
 	
-	var fmtBuild = new jMod.API.logFormatBuilder([
-		['  ', "%s", errorDefaultStyle + jMod.log.fmt.iconStyle],
-		['jMod', "string", errorDefaultStyle + jMod.log.fmt.errorHeaderStyle],
+	var fmtBuild = new API.logFormatBuilder([
+		['  ', "%s", errorDefaultStyle + LogFormatCSS.iconStyle],
+		['jMod', "string", errorDefaultStyle + LogFormatCSS.errorHeaderStyle],
 		
 		[' - ', "string", errorDefaultStyle],
-		[title || ' ', "%s", errorDefaultStyle + jMod.log.fmt.errorTitleStyle],
+		[title || ' ', "%s", errorDefaultStyle + LogFormatCSS.errorTitleStyle],
 		[" \n", "string"],
-		[message || '', "%s", errorDefaultStyle + ' ']
+		[message || '', "%s", errorDefaultStyle + 'color:red;']
 	]);
 	
 	for(; i < arguments.length; i++){
 		fmtBuild.add([
 			[" \n", "string"],
-			[arguments[i], typeof arguments[i] == "string" ? "string" : "object"]
+			[arguments[i], typeof arguments[i] == "string" ? "string" : "object", "color:red;"]
 		]);
 	}
 	
-	if(typeof e !== _undefined && e != null){
+	if(typeof e != _undefined && e != null){
 		fmtBuild.add([
 			[" \n", "string"],
-			[e.message + " ", "%s", errorDefaultStyle + ' '],
-			[e.lineNumber, "%s", errorDefaultStyle + jMod.log.fmt.errorLineStyle],
-			[e]
+			[e.message + " ", "%s", errorDefaultStyle + "color:red;"],
+			[e.lineNumber, "%s", errorDefaultStyle + LogFormatCSS.errorLineStyle + "color:red;"],
+			[" \n", "string", " "],
+			[e && e.err ? e.err : e, "%0", "color:red;"]
 		]);
 	}
 	
-	var arr = fmtBuild.build();
-	arr.unshift('error');
-	
-	jMod.log.ScopedConsoleCommand.apply(jMod.log, arr); // This works
-	//jMod.log.ConsoleCommand.apply(jMod.log, arr); // This will not work!
-	
+	//var arr = fmtBuild.build();
+	//arr.unshift('error');
+	try{
+		//jMod.log.ScopedConsoleCommand.apply(jMod.log, arr); // This works
+		//jMod.log.ConsoleCommand.apply(jMod.log, arr); // This will not work!
+		jMod.logError.apply(jMod.log, fmtBuild.build());
+	} catch(e){}
 }
-/*
-var jModError = function(e, title, message){
-	var errorDefaultStyle = ' ';
-	//var ErrorIconURL = 'http://www.shedworx.com/files/images/error.png';
-	//var ErrorIconURL = 'http://myuserjs.org/img/favicon/favicon.png';
-	//var errorIconStyle = 'font-size:175%;background-image:url("'+ErrorIconURL+'");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;';
-	
-	var errorHeaderStyle = 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;';
-	
-	var errorTitleStyle = 'color:#000;font-size:125%;';
-	
-	var errorLineStyle = 'color:blue;';
-	
-	// Have to get around scope/permission problems when dealing with "e"
-	// Cannot use .apply when using greasemonkey!!
-	if(typeof e !== _undefined && e !== null){
-		if(arguments.length <= 3){
-			jMod.log.ScopedConsoleCommand.call(jMod.log,
-				'error',
-				'%c%s%cjMod Error%c - %c%s \n%s \n%c%s - %c(line %d)',
-				errorDefaultStyle + jMod.log.fmt.iconStyle, // Icon Style
-				'  ', // Icon
-				errorDefaultStyle + errorHeaderStyle, // Header Style
-				' ', // Header
-				errorDefaultStyle + errorTitleStyle, // Title Style
-				(title || ' '), // Title
-				(message || ' '), // Message
-				errorDefaultStyle + ' ', // e.Message Style
-				e.message, // e.Message
-				errorDefaultStyle + errorLineStyle, // Line Number Style
-				e.lineNumber, // Line Number
-				e
-			);
-		} else {
-			jMod.log.ScopedConsoleCommand.call(jMod.log,
-				'error',
-				'%c%s%cjMod Error%c - %c%s \n%s \n%c%s - %c(line %d)',
-				errorDefaultStyle + jMod.log.fmt.iconStyle, // Icon Style
-				'  ', // Icon
-				errorDefaultStyle + errorHeaderStyle, // Header Style
-				' ', // Header
-				errorDefaultStyle + errorTitleStyle, // Title Style
-				(title || ' '), // Title
-				(message || ' '), // Message
-				errorDefaultStyle + ' ', // e.Message Style
-				e.message, // e.Message
-				errorDefaultStyle + errorLineStyle, // Line Number Style
-				e.lineNumber, // Line Number
-				e,
-				arguments.length >= 4 ? arguments[3] : undefined,
-				arguments.length >= 5 ? arguments[4] : undefined,
-				arguments.length >= 6 ? arguments[5] : undefined
-				//arguments[4] || undefined,
-				//arguments[5] || undefined,
-				//arguments[6] || undefined
-			);
-		}
-	} else {
-		jMod.log.ScopedConsoleCommand.apply(jMod.log,[
-				'error',
-				'%c%s%cjMod Error%c - %c%s \n%s',
-				errorDefaultStyle + jMod.log.fmt.iconStyle, // Icon Style
-				'  ', // Icon
-				errorDefaultStyle + errorHeaderStyle, // Header Style
-				' ', // Header
-				errorDefaultStyle + errorTitleStyle, // Title Style
-				(title || ' '), // Title
-				(message || ' ') // Message
-			].concat(Slice.call(arguments,3))
-		);
-
-	}
-};
-*/
 
 var jModLogWarning = function(title, text){
 	if(jMod.log.OUTPUT_TYPES.WARNING.level > jConfig('API.log.verbosity_level'))
 		return;
 		
 	var i = 2,
-		warningDefaultStyle = jMod.log.fmt.warningDefaultStyle,
-		fmtBuild = new jMod.API.logFormatBuilder([
-			['  ', "%s", warningDefaultStyle + jMod.log.fmt.iconStyle],
-			['jMod Warning', "string", warningDefaultStyle + jMod.log.fmt.warningHeaderStyle]
+		warningDefaultStyle = LogFormatCSS.warningDefaultStyle,
+		fmtBuild = new API.logFormatBuilder([
+			['  ', "%s", warningDefaultStyle + LogFormatCSS.iconStyle],
+			['jMod Warning', "string", warningDefaultStyle + LogFormatCSS.warningHeaderStyle]
 		]);
 		
 	if(_undefined!==typeof text){
 		fmtBuild.add([
 			[' - ', "string", warningDefaultStyle],
-			[title || ' ', "%s", warningDefaultStyle + jMod.log.fmt.warningTitleStyle],
+			[title || ' ', "%s", warningDefaultStyle + LogFormatCSS.warningTitleStyle],
 			[" \n", "string"],
-			[text || '', "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle]
+			[text || '', "%s", warningDefaultStyle + LogFormatCSS.warningTextStyle]
 		]);
 	} else {
 		fmtBuild.add([
 			[" \n", "string"],
-			[title || '', "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle]
+			[title || '', "%s", warningDefaultStyle + LogFormatCSS.warningTextStyle]
 		]);
 	}
 	
@@ -3266,23 +4363,23 @@ var jModLogInfo = function(title, text){
 		return;
 		
 	var i = 2,
-		infoDefaultStyle = jMod.log.fmt.infoDefaultStyle,
-		fmtBuild = new jMod.API.logFormatBuilder([
-			['  ', "%s", infoDefaultStyle + jMod.log.fmt.iconStyle],
-			['jMod', "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle]
+		infoDefaultStyle = LogFormatCSS.infoDefaultStyle,
+		fmtBuild = new API.logFormatBuilder([
+			['  ', "%s", infoDefaultStyle + LogFormatCSS.iconStyle],
+			['jMod', "string", infoDefaultStyle + LogFormatCSS.infoHeaderStyle]
 		]);
 		
 	if(_undefined!==typeof text){
 		fmtBuild.add([
 			[' - ', "string", infoDefaultStyle],
-			[title || ' ', "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle],
+			[title || ' ', "%s", infoDefaultStyle + LogFormatCSS.infoTitleStyle],
 			[" \n", "string"],
-			[text || '', "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle]
+			[text || '', "%s", infoDefaultStyle + LogFormatCSS.infoTextStyle]
 		]);
 	} else {
 		fmtBuild.add([
 			[" \n", "string"],
-			[title || '', "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle]
+			[title || '', "%s", infoDefaultStyle + LogFormatCSS.infoTextStyle]
 		]);
 	}
 	
@@ -3301,23 +4398,23 @@ var jModLog = function(title, text){
 		return;
 		
 	var i = 2,
-		logDefaultStyle = jMod.log.fmt.infoDefaultStyle,
-		fmtBuild = new jMod.API.logFormatBuilder([
-			['  ', "%s", logDefaultStyle + jMod.log.fmt.iconStyle],
-			['jMod', "string", logDefaultStyle + jMod.log.fmt.logHeaderStyle]
+		logDefaultStyle = LogFormatCSS.infoDefaultStyle,
+		fmtBuild = new API.logFormatBuilder([
+			['  ', "%s", logDefaultStyle + LogFormatCSS.iconStyle],
+			['jMod', "string", logDefaultStyle + LogFormatCSS.logHeaderStyle]
 		]);
 		
 	if(_undefined!==typeof text){
 		fmtBuild.add([
 			[' - ', "string", logDefaultStyle],
-			[title || ' ', "%s", logDefaultStyle + jMod.log.fmt.logTitleStyle],
+			[title || ' ', "%s", logDefaultStyle + LogFormatCSS.logTitleStyle],
 			[" \n", "string"],
-			[text || '', "%s", logDefaultStyle + jMod.log.fmt.logTextStyle]
+			[text || '', "%s", logDefaultStyle + LogFormatCSS.logTextStyle]
 		]);
 	} else {
 		fmtBuild.add([
 			[" \n", "string"],
-			[title || '', "%s", logDefaultStyle + jMod.log.fmt.logTextStyle]
+			[title || '', "%s", logDefaultStyle + LogFormatCSS.logTextStyle]
 		]);
 	}
 	
@@ -3336,15 +4433,15 @@ var jModLogTime = function(title, prefix, suffix){
 		return;
 	var text = (prefix || '') +  jMod.timeElapsed.toFixed(2) + 'ms' + (suffix || '');
 	
-	var infoDefaultStyle = jMod.log.fmt.infoDefaultStyle;
+	var infoDefaultStyle = LogFormatCSS.infoDefaultStyle;
 	
-	var fmtBuild = new jMod.API.logFormatBuilder([
-		['  ', "%s", infoDefaultStyle + jMod.log.fmt.iconStyle],
-		['jMod', "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle],
+	var fmtBuild = new API.logFormatBuilder([
+		['  ', "%s", infoDefaultStyle + LogFormatCSS.iconStyle],
+		['jMod', "string", infoDefaultStyle + LogFormatCSS.infoHeaderStyle],
 		[' - ', "string", infoDefaultStyle],
-		[title || ' ', "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle],
+		[title || ' ', "%s", infoDefaultStyle + LogFormatCSS.infoTitleStyle],
 		[' ', "string"],
-		[text, "%s", infoDefaultStyle + jMod.log.fmt.time]
+		[text, "%s", infoDefaultStyle + LogFormatCSS.time]
 	]);
 	
 	jMod.Info.apply(jMod.log,fmtBuild.build());
@@ -3509,6 +4606,17 @@ var EventsClass = function(_events){
 				this.add(group, this.events[evt], data[this.events[evt]])
 	};
 	
+	this.getAll = function(group, eventName){
+		if(eventName){
+			if(listeners[group] && listeners[group][eventName]){
+				return listeners[group][eventName];
+			}
+		} else {
+			//if(listeners[group])
+			return listeners[group]
+		}
+	};
+	
 	this.fire = function(eventName, group, _this, args){
 		var _args, i, evt, group = listeners[group || '0'];
 		_args = RealTypeOf(args) == "array" ? args : [args];
@@ -3520,12 +4628,12 @@ var EventsClass = function(_events){
 					if((evt[i].apply(_this || null, _args || [])) === false){
 						console.log('fire canceled');
 						return false;
-					}	
+					}
 				}
 			}
 		} catch(e){
 			//console.error('Error EventsClass.fire', e);
-			jModError(e, 'jMod.EventsClass.fire');
+			jModLogError(e, 'jMod.EventsClass.fire');
 		}
 	}
 };
@@ -3927,17 +5035,17 @@ var addStyle = jMod.API.addStyle = function(css){
 			return GM_addStyle(css) || true;
 			
 		var style,
-			win = (window || unsafeWindow),
-			heads = win.document.getElementsByTagName('head');
-		if(heads) {
-			style = win.document.createElement('style');
+			head = jMod.Element.head;
+			
+		if(head) {
+			style = jMod.Element.document.createElement('style');
 			try {
 				style.innerHTML = css;
 			} catch (x) {
 				style.innerText = css;
 			}
 			style.type = 'text/css';
-			return heads[0].appendChild(style);
+			return head.appendChild(style);
 		} else {
 			if(jMod.debug)
 				jModLogWarning('jMod.API.addStyle', 'Could not add css', css);
@@ -3947,14 +5055,14 @@ var addStyle = jMod.API.addStyle = function(css){
 
 jMod.API.addStylesheet = function(url){
 	var style,
-		win = (window || unsafeWindow),
-		heads = win.document.getElementsByTagName('head');
+		head = jMod.Element.head;
+		//win = (window || unsafeWindow);
 	
-	if(heads){
-		style = win.document.createElement('link');
+	if(head){
+		style = jMod.Element.document.createElement('link');
 		style.setAttribute('rel', 'stylesheet');
 		style.href = url;
-		return heads[0].appendChild(style);
+		return head.appendChild(style);
 	} else {
 		if(jMod.debug)
 			jModLogWarning('jMod.API.addStylesheet', 'Could not add stylesheet', url);
@@ -3982,7 +5090,9 @@ jMod.API.importStylesheet = function(url){
  * @returns {Object} node The newly created script node
  */
 jMod.API.addScript = function(js, src, id, type, async, defer){
-	var newScript, heads, data;
+	var newScript,
+		head = jMod.Element.head,
+		data;
 	if(typeof js === "object")
 		data = js;
 	else
@@ -3994,8 +5104,8 @@ jMod.API.addScript = function(js, src, id, type, async, defer){
 			async: async,
 			defer: defer
 		};
-	if(heads = document.getElementsByTagName('head')) {
-		newScript = document.createElement('script');
+	if(head) {
+		newScript = jMod.Element.document.createElement('script');
 
 		if(typeof data.id !== _undefined){
 			try{newScript.id = data.id;}catch(x){}
@@ -4031,14 +5141,16 @@ jMod.API.addScript = function(js, src, id, type, async, defer){
 			try{newScript.src = data.src;}catch(x){}
 		}
 		
-		try{return heads[0].appendChild(newScript);}catch(x){}
+		try{return head.appendChild(newScript);}catch(x){}
 	}
 	return null;
-}
+};
 
 	/***********************************
 	 ** Content Eval
 	 **********************************/
+//+(function(){
+
 jMod.API.contentEval = function(source) {
 	// Check for function input.
 	if ('function' == typeof source) {
@@ -4047,19 +5159,173 @@ jMod.API.contentEval = function(source) {
 		// second empty set calls the surrounded function.
 		source = '(' + source + ')();'
 	}
-
-	// Create a script node holding this  source code.
-	var script = document.createElement('script');
+	var doc = jMod.Element.document,
+		head = jMod.Element.head,
+		// Create a script node holding this source code.
+		script = doc.createElement('script');
 	script.setAttribute("type", "application/javascript");
 	script.textContent = source;
 
 	// Insert the script node into the page, so it will run, and immediately
 	// remove it to clean up.
-	unsafeWindow.document.body.appendChild(script);
-	unsafeWindow.document.body.removeChild(script);
-}
+	head.appendChild(script);
+	head.removeChild(script);
+};
 
-	 
+//})();
+	
+	/***********************************
+	 ** Cookie
+	 **********************************/
+// Based on:
+// https://github.com/carhartl/jquery-cookie
++(function(){
+
+	function parseCookieValue(s) {
+		if (s.indexOf('"') === 0) {
+			// This is a quoted cookie as according to RFC2068, unescape...
+			s = s.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+		}
+		try {
+			// Replace server-side written pluses with spaces.
+			// If we can't decode the cookie, ignore it, it's unusable.
+			// If we can't parse the cookie, ignore it, it's unusable.
+			s = decodeURIComponent(s.replace(/\+/g, ' '));
+			
+			return jMod.API.Cookie.defaults.JSON ? JSON.parse(s) : s;
+		} catch(e) {}
+	}
+	
+	function read(s, converter) {
+		var value = parseCookieValue(s);
+		return "function"==typeof converter ? converter(value) : value;
+	}
+
+	var isDate = function(date) {
+		return ( (new Date(date) !== "Invalid Date" && !isNaN(new Date(date)) ));
+	}
+	
+	jMod.API.Cookie = function(key, value, options){
+		var i, parts, name, cookie, cookies, tmp,
+			doc = jMod.Element.document,
+			result = key ? undefined : {},
+			defaults = jMod.API.Cookie.defaults;
+		
+		if(!doc){
+			jModLogWarning('jMod.API.Cookie', 'No document available');
+			return;
+		}
+		
+		if (arguments.length > 1 && "function"!=typeof value) {
+			options = jMod.extend({}, defaults, options);
+			//switch(typeof options.expires){
+			switch(jMod.RealTypeOf(options.expires)){
+				case "number":
+					tmp = options.expires;
+					i = options.expires = new Date();
+					i.setTime(+i + tmp * 864e+5);
+					break;
+				case "string":
+					//if(isDate(options.expires)){
+						try{
+							options.expires = Date.parse(options.expires);
+						} catch(e) {
+							jModLogError(e, 'jMod.API.Cookie', 'Invalid Exp Date');
+							return;
+						}
+					//} else {
+						//options.expires = defaults.expires;
+					//}
+					
+					break;
+				case "invaliddate":
+					jModLogError(e, 'jMod.API.Cookie', 'Invalid Exp Date');
+					return;
+				case "date":
+					// Do Nothing
+					break;
+				default:
+					options.expires = defaults.expires;
+					break;
+			}
+			
+			if(defaults.JSON){
+				try{
+					cookie = encodeURIComponent(JSON.stringify(value));
+				}catch(e){
+					cookie = undefined;
+				}
+			}
+			
+			if(_undefined==typeof cookie)
+				cookie = encodeURIComponent(String(value));
+			
+			return (doc.cookie = [
+				encodeURIComponent(key), '=', cookie,
+				options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by IE
+				options.path ? '; path=' + options.path : '',
+				options.domain ? '; domain=' + options.domain : '',
+				options.secure ? '; secure' : ''
+			].join(''));
+		}
+		
+		cookies = doc.cookie ? doc.cookie.split('; ') : [];
+		
+		for(i = 0, l = cookies.length; i < l; i++) {
+			parts = cookies[i].split('=');
+			name = decodeURIComponent(parts.shift());
+			cookie = parts.join('=');
+			if(key && key === name) {
+				// If second argument (value) is a function it's a converter...
+				result = read(cookie, value);
+				break;
+			}
+			// Prevent storing a cookie that we couldn't decode.
+			//if(!key && (cookie = read(cookie)) !== undefined) {
+			if(!key){
+				var tmp = read(cookie) || cookie;
+				if(tmp)
+					result[name] = tmp;
+			}
+		}
+		return result;
+	};
+	
+	
+	// move defaults to jMod's config file
+	jMod.API.Cookie.defaults = {
+		expires: Date.parse('Jan 1, 2020'),
+		JSON: true
+	};
+	
+	jMod.API.Cookie.remove = function (key, options) {
+		if (jMod.API.Cookie === undefined) {
+			return false;
+		}
+		// Must not alter options, thus extending a fresh object...
+		jMod.API.Cookie(key, '', jMod.extend({}, options || {}, { expires: -1 }));
+		return !jMod.API.Cookie(key);
+	};
+
+})();
+/*
+setTimeout(function(){
+	console.log('Cookie test');
+	var tmpCookies = jMod.API.Cookie();
+	console.log('Start Cookies', tmpCookies);
+	
+	jMod.API.Cookie('TestCookie1', 'Cookie Value 1');
+	
+	jMod.API.Cookie('TestCookie2', 'Cookie Value 2');
+	
+	jMod.API.Cookie('TestCookie3', {foo : 'bar', taco: 'bell'});
+	
+	tmpCookies = jMod.API.Cookie();
+	console.log('End Cookies', tmpCookies);
+	console.log('End Cookie test');
+}, 2000);
+*/
+	
 	/***********************************
 	 ** Storage
 	 **********************************/
@@ -4073,14 +5339,21 @@ jMod.API.contentEval = function(source) {
 
 jMod.API.GM_Storage = {
 	/**
+	 * @function available
+	 * @memberof jMod.API.GM_Storage
+	 */
+	available: function(){
+		return (typeof GM_getValue !== _undefined && typeof GM_setValue !== _undefined && typeof GM_deleteValue !== _undefined);
+	},
+	/**
 	 * @function getValue
 	 * @memberof jMod.API.GM_Storage
 	 * @param {string} key - name
 	 * @param {string|boolean|number} [def] - default value to return if key does not exist
 	 */
 	getValue: function(key, def){
-		if(typeof GM_getValue !== _undefined)
-			return GM_getValue(jConfig('API.Storage.prefix') + key, def);
+		return this.available() ? GM_getValue(jConfig('API.Storage.prefix') + key, def) : def;
+		
 	},
 	/**
 	 * @function setValue
@@ -4089,7 +5362,7 @@ jMod.API.GM_Storage = {
 	 * @param {string|boolean|number} [value] - value to be set
 	 */
 	setValue: function(key, value){
-		if(typeof GM_setValue !== _undefined)
+		if(this.available())
 			return GM_setValue(jConfig('API.Storage.prefix') + key, value);
 	},
 	/**
@@ -4103,7 +5376,7 @@ jMod.API.GM_Storage = {
 		try{
 			tmp = JSON.stringify(value);
 		}catch(e){
-			jModError(e, 'GM_Storage.setJSON', 'Cannot stringify value!');
+			jModLogError(e, 'GM_Storage.setJSON', 'Cannot stringify value!');
 		}
 		try{
 			return this.setValue(key, tmp || value);
@@ -4121,9 +5394,9 @@ jMod.API.GM_Storage = {
 			if(typeof tmp === "string")
 				return JSON.parse(tmp);
 		}catch(e){
-			jModError(e, 'GM_Storage.setJSON', 'Error parsing value!');
+			jModLogError(e, 'GM_Storage.setJSON', 'Error parsing value!');
 		}
-		return tmp;
+		return tmp || def;
 	},
 	/**
 	 * @function deleteValue
@@ -4131,7 +5404,7 @@ jMod.API.GM_Storage = {
 	 * @param {string} key - name to be deleted
 	 */
 	deleteValue: function(key){
-		if(typeof GM_deleteValue !== _undefined)
+		if(this.available())
 			return GM_deleteValue(jConfig('API.Storage.prefix') + key);
 	}
 }
@@ -4156,14 +5429,31 @@ Object.defineProperty(jMod, "stor", {
 
 jMod.API.localStorage = {
 	/**
+	 * @function available
+	 * @memberof jMod.API.localStorage
+	 */
+	available: function(){
+		try {
+			var s = this.stor;
+			if(_undefined!==typeof s && s != null && s.getItem && s.setItem)
+				return true;
+		} catch(e){}
+		
+		return false;
+	},
+	/**
 	 * @function getValue
 	 * @memberof jMod.API.localStorage
 	 * @param {string} key - name
 	 * @param {string|boolean|number} [def] - default value to return if key does not exist
 	 */
 	getValue: function(key, def){
-		var r = this.stor.getItem(jConfig('API.Storage.prefix') + key);
-		return (r !== null ? r: def);
+		if(!this.available()) return def;
+		try{
+			var r = this.stor.getItem(jConfig('API.Storage.prefix') + key);
+			return (r !== null ? r: def);
+		}catch(e){}
+		return def;
 	},
 	/**
 	 * @function setValue
@@ -4172,7 +5462,10 @@ jMod.API.localStorage = {
 	 * @param {string|boolean|number} [value] - value to be set
 	 */
 	setValue: function(key, value){
-		return this.stor.setItem(jConfig('API.Storage.prefix') + key, value);
+		if(!this.available()) return;
+		try{
+			return this.stor.setItem(jConfig('API.Storage.prefix') + key, value);
+		}catch(e){}
 	},
 	/**
 	 * @function setJSON
@@ -4181,11 +5474,12 @@ jMod.API.localStorage = {
 	 * @param {object} [value] - value to be set
 	 */
 	setJSON: function(key, value){
+		if(!this.available()) return;
 		var tmp;
 		try{
 			tmp = JSON.stringify(value);
 		}catch(e){
-			jModError(e, 'localStorage.setJSON', 'Cannot stringify value!');
+			jModLogError(e, 'localStorage.setJSON', 'Cannot stringify value!');
 		}
 		try{
 			return this.setValue(key, tmp || value);
@@ -4198,14 +5492,18 @@ jMod.API.localStorage = {
 	 * @param {object} [def] - default value to return if key does not exist
 	 */
 	getJSON: function(key, def){
-		var tmp = this.getValue(key, def);
+		if(!this.available()) return def;
+		var tmp;
+		try{
+			tmp = this.getValue(key, def);
+		}catch(e){}
 		try{
 			if(typeof tmp === "string")
 				return JSON.parse(tmp);
 		}catch(e){
-			jModError(e, 'localStorage.setJSON', 'Error parsing value!');
+			jModLogError(e, 'localStorage.setJSON', 'Error parsing value!');
 		}
-		return tmp;
+		return tmp || def;
 	},
 	/**
 	 * @function deleteValue
@@ -4213,7 +5511,10 @@ jMod.API.localStorage = {
 	 * @param {string} key - name to be deleted
 	 */
 	deleteValue: function(key){
-		return this.stor.removeItem(jConfig('API.Storage.prefix') + key);
+		if(!this.available()) return;
+		try{
+			return this.stor.removeItem(jConfig('API.Storage.prefix') + key);
+		}catch(e){}
 	}
 }
 
@@ -4224,7 +5525,26 @@ jMod.API.localStorage = {
  * @type {object}
  */
 Object.defineProperty(jMod.API.localStorage, "stor", {
-	get: function(){return (localStorage?localStorage:(unsafeWindow.localStorage?unsafeWindow.localStorage:window.localStorage));},
+	get: function(){
+		try{
+			/*
+			return (
+					_undefined!==typeof localStorage && localStorage!=null?localStorage:
+						(window.localStorage&&window.localStorage!=null?window.localStorage:
+							(unsafeWindow.localStorage&&unsafeWindow.localStorage!=null?unsafeWindow.localStorage:undefined)
+						)
+					);
+			*/
+			return (
+				window.localStorage&&window.localStorage!=null?window.localStorage:
+					(_undefined!==typeof localStorage && localStorage!=null?localStorage:
+						(unsafeWindow.localStorage&&unsafeWindow.localStorage!=null?unsafeWindow.localStorage:undefined)
+					)
+				);
+		}catch(e){
+			jModLogWarning("jMod.API.localStorage", "localStorage unavailable!", e.message);
+		}
+	},
 	enumerable: false
 });
 
@@ -4241,14 +5561,31 @@ Object.defineProperty(jMod.API.localStorage, "stor", {
 
 jMod.API.sessionStorage = {
 	/**
+	 * @function available
+	 * @memberof jMod.API.sessionStorage
+	 */
+	available: function(){
+		try {
+			var s = this.stor;
+			if(_undefined!==typeof s && s != null && s.getItem && s.setItem)
+				return true;
+		} catch(e){}
+		
+		return false;
+	},
+	/**
 	 * @function getValue
 	 * @memberof jMod.API.sessionStorage
 	 * @param {string} key - name
 	 * @param {string|boolean|number} [def] - default value to return if key does not exist
 	 */
 	getValue: function(key, def){
-		var r = this.stor.getItem(jConfig('API.Storage.prefix') + key);
-		return (r !== null ? r: def);
+		if(!this.available()) return def;
+		try{
+			var r = this.stor.getItem(jConfig('API.Storage.prefix') + key);
+			return (r !== null ? r: def);
+		}catch(e){}
+		return def;
 	},
 	/**
 	 * @function setValue
@@ -4257,7 +5594,10 @@ jMod.API.sessionStorage = {
 	 * @param {string|boolean|number} [value] - value to be set
 	 */
 	setValue: function(key, value){
-		return this.stor.setItem(jConfig('API.Storage.prefix') + key, value);
+		if(!this.available()) return;
+		try{
+			return this.stor.setItem(jConfig('API.Storage.prefix') + key, value);
+		}catch(e){}
 	},
 	/**
 	 * @function setJSON
@@ -4266,11 +5606,12 @@ jMod.API.sessionStorage = {
 	 * @param {object} [value] - value to be set
 	 */
 	setJSON: function(key, value){
+		if(!this.available()) return;
 		var tmp;
 		try{
 			tmp = JSON.stringify(value);
 		}catch(e){
-			jModError(e, 'sessionStorage.setJSON', 'Cannot stringify value!');
+			jModLogError(e, 'sessionStorage.setJSON', 'Cannot stringify value!');
 		}
 		try{
 			return this.setValue(key, tmp || value);
@@ -4283,14 +5624,18 @@ jMod.API.sessionStorage = {
 	 * @param {object} [def] - default value to return if key does not exist
 	 */
 	getJSON: function(key, def){
-		var tmp = this.getValue(key, def);
+		if(!this.available()) return def;
+		var tmp;
+		try{
+			tmp = this.getValue(key, def);
+		}catch(e){}
 		try{
 			if(typeof tmp === "string")
 				return JSON.parse(tmp);
 		}catch(e){
-			jModError(e, 'sessionStorage.setJSON', 'Error parsing value!');
+			jModLogError(e, 'sessionStorage.setJSON', 'Error parsing value!');
 		}
-		return tmp;
+		return tmp || def;
 	},
 	/**
 	 * @function deleteValue
@@ -4298,7 +5643,10 @@ jMod.API.sessionStorage = {
 	 * @param {string} key - name to be deleted
 	 */
 	deleteValue: function(key){
-		return this.stor.removeItem(jConfig('API.Storage.prefix') + key);
+		if(!this.available()) return;
+		try{
+			return this.stor.removeItem(jConfig('API.Storage.prefix') + key);
+		}catch(e){}
 	}
 }
 
@@ -4309,12 +5657,61 @@ jMod.API.sessionStorage = {
  * @type {object}
  */
 Object.defineProperty(jMod.API.sessionStorage, "stor", {
-	get: function(){return (sessionStorage?sessionStorage:(unsafeWindow.sessionStorage?unsafeWindow.sessionStorage:window.sessionStorage));},
+	get: function(){
+		try{
+			/*
+			return (
+					_undefined!==typeof sessionStorage && sessionStorage!=null?sessionStorage:
+						(window.sessionStorage&&window.sessionStorage!=null?window.sessionStorage:
+							(unsafeWindow.sessionStorage&&unsafeWindow.sessionStorage!=null?unsafeWindow.sessionStorage:undefined)
+						)
+					);
+			*/
+			return (
+				window.localStorage&&window.localStorage!=null?window.localStorage:
+					(_undefined!==typeof localStorage && localStorage!=null?localStorage:
+						(unsafeWindow.localStorage&&unsafeWindow.localStorage!=null?unsafeWindow.localStorage:undefined)
+					)
+				);
+		}catch(e){
+			jModLogWarning("jMod.API.sessionStorage", "sessionStorage unavailable!", e.message);
+		}
+	},
 	enumerable: false
 });
 
 
 
+
++(function(){
+
+var storageEngineOrder = function(){
+	var order = [],
+		engine = jConfig('API.Storage.engine'),
+		gm = 'GM_Storage',
+		ls = 'localStorage',
+		ss = 'sessionStorage';
+	
+	try{
+		
+		try{
+			if(API[engine] && API[engine].available())
+				order = [engine];
+		}catch(e){}
+		
+		if(order.indexOf(gm) == -1 && API[gm].available())
+			order.push(gm);
+			
+		if(order.indexOf(ls) == -1 && API[ls].available())
+			order.push(ls);
+		
+		if(order.indexOf(ss) == -1 && API[ss].available())
+			order.push(ss);
+		
+	}catch(e){}
+	
+	return order;
+}
 
 /**
  * Get a value from the default storage engine (see [Storage configuration]{@link jMod.Config})
@@ -4327,11 +5724,13 @@ Object.defineProperty(jMod.API.sessionStorage, "stor", {
  * @see jMod.API.GM_Storage
  */
 jMod.getValue = function(key, def){
-	if(jConfig('API.Storage.engine') == 'GM_Storage' && _undefined!=typeof GM_getValue)
-		return API.GM_Storage.getValue.apply(API.GM_Storage, arguments);
-	else if(jConfig('API.Storage.engine') == "sessionStorage")
-		return API.sessionStorage.getValue.apply(API.sessionStorage, arguments);
-	return API.localStorage.getValue.apply(API.localStorage, arguments);
+	var i = 0, storageEngines = storageEngineOrder();
+	for(; i < storageEngines.length; i++){
+		try{
+			return API[storageEngines[i]].getValue.apply(API[storageEngines[i]], arguments);
+		} catch(e){}
+	}
+	return def;
 }
 
 /**
@@ -4344,12 +5743,13 @@ jMod.getValue = function(key, def){
  * @see jMod.API.sessionStorage
  * @see jMod.API.GM_Storage
  */
-jMod.setValue = function(key, def){
-	if(jConfig('API.Storage.engine') == 'GM_Storage' && _undefined!=typeof GM_setValue)
-		return API.GM_Storage.setValue.apply(API.GM_Storage, arguments);
-	else if(jConfig('API.Storage.engine') == "sessionStorage")
-		return API.sessionStorage.setValue.apply(API.sessionStorage, arguments);
-	return API.localStorage.setValue.apply(API.localStorage, arguments);
+jMod.setValue = function(key){
+	var i = 0, storageEngines = storageEngineOrder();
+	for(; i < storageEngines.length; i++){
+		try{
+			return API[storageEngines[i]].setValue.apply(API[storageEngines[i]], arguments);
+		} catch(e){}
+	}
 }
 
 /**
@@ -4363,11 +5763,13 @@ jMod.setValue = function(key, def){
  * @see jMod.API.GM_Storage
  */
 jMod.getJSON = function(key, def){
-	if(jConfig('API.Storage.engine') == 'GM_Storage' && _undefined!=typeof GM_getValue)
-		return API.GM_Storage.getJSON.apply(API.GM_Storage, arguments);
-	else if(jConfig('API.Storage.engine') == "sessionStorage")
-		return API.sessionStorage.getJSON.apply(API.sessionStorage, arguments);
-	return API.localStorage.getJSON.apply(API.localStorage, arguments);
+	var i = 0, storageEngines = storageEngineOrder();
+	for(; i < storageEngines.length; i++){
+		try{
+			return API[storageEngines[i]].getJSON.apply(API[storageEngines[i]], arguments);
+		} catch(e){}
+	}
+	return def;
 }
 
 /**
@@ -4380,12 +5782,13 @@ jMod.getJSON = function(key, def){
  * @see jMod.API.sessionStorage
  * @see jMod.API.GM_Storage
  */
-jMod.setJSON = function(key, def){
-	if(jConfig('API.Storage.engine') == 'GM_Storage' && _undefined!=typeof GM_setValue)
-		return API.GM_Storage.setJSON.apply(API.GM_Storage, arguments);
-	else if(jConfig('API.Storage.engine') == "sessionStorage")
-		return API.sessionStorage.setJSON.apply(API.sessionStorage, arguments);
-	return API.localStorage.setJSON.apply(API.localStorage, arguments);
+jMod.setJSON = function(key){
+	var i = 0, storageEngines = storageEngineOrder();
+	for(; i < storageEngines.length; i++){
+		try{
+			return API[storageEngines[i]].setJSON.apply(API[storageEngines[i]], arguments);
+		} catch(e){}
+	}
 }
 
 /**
@@ -4398,12 +5801,15 @@ jMod.setJSON = function(key, def){
  * @see jMod.API.GM_Storage
  */
 jMod.deleteValue = function(key){
-	if(jConfig('API.Storage.engine') == 'GM_Storage' && _undefined!=typeof GM_deleteValue)
-		return API.GM_Storage.deleteValue.apply(API.GM_Storage, arguments);
-	else if(jConfig('API.Storage.engine') == "sessionStorage")
-		return API.sessionStorage.deleteValue.apply(API.sessionStorage, arguments);
-	return API.localStorage.deleteValue.apply(API.localStorage, arguments);
+	var i = 0; storageEngines = storageEngineOrder();
+	for(; i < storageEngines.length; i++){
+		try{
+			return API[storageEngines[i]].deleteValue.apply(API[storageEngines[i]], arguments);
+		} catch(e){}
+	}
 }
+
+})();
 
 	
 	/***********************************
@@ -5301,6 +6707,562 @@ jMod.jQueryExtensions.exportCrossOriginSupport = function(_jQueryObj, dataType){
 })()
 	
 	/***********************************
+	 ** Scrollbar
+	 **********************************/
+// Based on http://enscrollplugin.com/
++(function(){
+	
+	jMod.Scrollbar = function(el, data){
+		jMod.Scrollbar.addScrollBar(el, data);
+	}
+	
+	jMod.Scrollbar.addScrollBar = function(el, data){
+		if(!isElement(el))
+			return;
+			
+		var newScrollBar = {
+			type: 'div',
+			className: 'jModScrollBar',
+			style: {
+				position: 'absolute',
+				//zIndex: '1',
+				margin: '0px',
+				padding: '0px',
+				//opacity: '0',
+				display: 'block',
+				top: '0px'
+			},
+			innerHTML: {
+				type: 'div',
+				className: 'enscroll-track track3',
+				style: {
+					position: 'relative'
+				},
+				innerHTML: {
+					type: 'div',
+					className: 'handle3',
+					style: {
+						position: 'absolute'
+					},
+					innerHTML: [
+						{
+							type: 'div',
+							className: 'top',
+						},
+						{
+							type: 'div',
+							className: 'bottom',
+						}
+					],
+					attributes: {
+						href: ''
+					}
+				}
+			}
+		};
+		
+		var newScrollBarEl = createNewElement(newScrollBar);
+		
+		//jMod.Scrollbar.addResizeListener(el, function(){
+		jMod.Element.addResizeListener(el, function(){
+			console.log('Element Resized');
+			jMod.Scrollbar.resizeScrollBar(this);
+		});
+		
+		appendChild(el, newScrollBarEl);
+		jMod.Scrollbar.resizeScrollBar(el);
+		
+		var _onWheelFn = function(e){
+			//jMod.Scrollbar.handlers.target_onScroll(this);
+			//console.log('mousewheel', this, e);
+			jMod.Scrollbar.handlers.target_onScroll.call(this, e);
+			//jMod.Scrollbar.resizeScrollBar.call(this, this, e);
+		}
+		
+		//if (el.addEventListener) {
+			// Firefox
+		if ( 'onwheel' in el || 'WheelEvent' in window && navigator.userAgent.toLowerCase().indexOf( 'msie' ) >= 0 ) {
+			addEventListener(el, "wheel", _onWheelFn, false);
+		} else {
+			// IE9, Chrome, Safari, Opera
+			addEventListener(el, "mousewheel", _onWheelFn, false);
+		}
+			
+		//}
+		// IE 6/7/8
+		//else el.attachEvent("onmousewheel", _onWheelFn);
+		
+		var trackEl = jMod.$('.enscroll-track', newScrollBarEl);
+		var handleEl = jMod.$('.handle3', newScrollBarEl);
+		
+		var _mouseDownFn = function(e){
+			console.log('mousedown', this, e);
+			//jMod.Scrollbar.handlers.track_handle_onMouseDown.call(this, e);
+			//startVerticalDrag.call(this, e);
+			startDragging(e, this);
+		};
+		setDraggableListeners(handleEl);
+		handleEl.whenDragging(function(args){
+			console.log('whenDragging args', args, this);
+			//var trackEl = findParentWithClass(args.el, 'enscroll-track');
+			var scrollbarEl = findParentWithClass(args.el, 'jModScrollBar');
+			var target = scrollbarEl.parentElement;
+			
+			
+			
+		});
+		addEventListener(handleEl, "mousedown", _mouseDownFn, false);
+		
+		addEventListener(handleEl, "touchstart", function(e){
+			console.log('touchstart', e);
+		}, false);
+		
+		el.onscroll = function(e){
+			if(!hasClass(trackEl, 'dragging'))
+				jMod.Scrollbar.resizeScrollBar(this);
+		}
+	}
+	
+	var currentElement;
+	var fairlyHighZIndex = '10';
+	
+	function inPixels(value) {
+		return value + 'px';
+	}
+	
+	function addListener(element, type) {
+		return function(listener) {
+			element.draggableListeners[type].push(listener);
+		};
+	}
+	
+	function getInitialPosition(element) {
+		//var boundingClientRect = element.getBoundingClientRect();
+		return {
+			//top: boundingClientRect.top,
+			//left: boundingClientRect.left
+			top: parseInt(element.offsetTop),
+			left: parseInt(element.offsetLeft)
+		};
+	}
+	
+	function setDraggableListeners(element) {
+		element.draggableListeners = {
+			start: [],
+			drag: [],
+			stop: []
+		};
+		element.whenDragStarts = addListener(element, 'start');
+		element.whenDragging = addListener(element, 'drag');
+		element.whenDragStops = addListener(element, 'stop');
+	}
+
+	function startDragging(event, element) {
+		//currentElement && sendToBack(currentElement);
+		//currentElement = bringToFront(element);
+		currentElement = element;
+		
+		//addClass(currentElement, 'dragging');
+		var trackEl = findParentWithClass(currentElement, 'enscroll-track');
+		if(trackEl){
+			addClass(trackEl, 'dragging');
+		}
+
+		var initialPosition = getInitialPosition(currentElement);
+		//currentElement.style.left = inPixels(initialPosition.left);
+		currentElement.style.top = inPixels(initialPosition.top);
+		currentElement.lastXPosition = event.clientX;
+		currentElement.lastYPosition = event.clientY;
+
+		var okToGoOn = triggerEvent('start', { x: initialPosition.left, y: initialPosition.top, el: currentElement, mouseEvent: event });
+		if (!okToGoOn) return;
+
+		addDocumentListeners();
+	}
+	
+	function triggerEvent(type, args) {
+		var result = true;
+		var listeners = currentElement.draggableListeners[type];
+		for (var i = listeners.length - 1; i >= 0; i--) {
+		  if (listeners[i](args) === false) result = false;
+		};
+		return result;
+	}
+	
+	function addDocumentListeners() {
+		var doc = jMod.Element.document;
+		addEventListener(doc,'selectstart', cancelDocumentSelection);
+		addEventListener(doc,'mousemove', repositionElement);
+		addEventListener(doc,'mouseup', removeDocumentListeners);
+	}
+	
+	function removeDocumentListeners(event) {
+		var doc = jMod.Element.document;
+		removeEventListener(doc,'selectstart',cancelDocumentSelection);
+		removeEventListener(doc,'mousemove',repositionElement);
+		removeEventListener(doc,'mouseup',removeDocumentListeners);
+
+		var left = parseInt(currentElement.style.left, 10);
+		var top = parseInt(currentElement.style.top, 10);
+		var trackEl = findParentWithClass(currentElement, 'enscroll-track');
+		if(trackEl){
+			removeClass(trackEl, 'dragging');
+		}
+		triggerEvent('stop', { x: left, y: top, el: currentElement, mouseEvent: event });
+	}
+	
+	function cancelDocumentSelection(event) {
+		event.preventDefault && event.preventDefault();
+		event.stopPropagation && event.stopPropagation();
+		event.returnValue = false;
+		eventCancel(event);
+		return false;
+	}
+	
+	function repositionElement(event) {
+		event.preventDefault && event.preventDefault();
+		event.returnValue = false;
+		var style = currentElement.style;
+		var elementXPosition = parseInt(style.left, 10);
+		var elementYPosition = parseInt(style.top, 10);
+
+		var elementNewXPosition = elementXPosition + (event.clientX - currentElement.lastXPosition);
+		var elementNewYPosition = elementYPosition + (event.clientY - currentElement.lastYPosition);
+		
+		var scrollBarEl = findParentWithClass(currentElement, 'jModScrollBar');
+		
+		if(scrollBarEl){
+			var parentEl = scrollBarEl.parentElement;
+			var computedEl = window.getComputedStyle(parentEl),
+				height = parseFloat(computedEl.height),
+				width = parseFloat(computedEl.width);
+				
+			var computedCurrentEl = window.getComputedStyle(currentElement),
+				cheight = parseFloat(computedCurrentEl.height),
+				cwidth = parseFloat(computedCurrentEl.width);
+				
+			var scrollMax = parseFloat(parentEl.scrollHeight) - height;
+			
+			
+			if(parseInt(elementNewYPosition) + cheight > height){
+				elementNewYPosition = height - cheight;
+			} else if(parseInt(elementNewYPosition) < 0){
+				elementNewYPosition = 0;
+			}
+		}
+
+		//style.left = inPixels(elementNewXPosition);
+		style.top = inPixels(elementNewYPosition);
+
+		currentElement.lastXPosition = event.clientX;
+		currentElement.lastYPosition = event.clientY;
+		
+		try{
+			document.selection.empty();
+		}catch(e){}
+		
+		try{
+			window.getSelection().removeAllRanges();
+		}catch(e){}
+		
+
+
+		triggerEvent('drag', { x: elementNewXPosition, y: elementNewYPosition, el: currentElement, mouseEvent: event });
+	}
+	
+	jMod.Scrollbar.resizeScrollBar = function(el){
+		var scrollBar = jMod.$('.jModScrollBar');
+		if(scrollBar){
+			var track = jMod.$('.enscroll-track', scrollBar);
+			var handle = jMod.$('.handle3', scrollBar);
+			
+			var computedEl = (window || unsafeWindow).getComputedStyle(el, null),
+				height = parseFloat(computedEl.height),
+				width = parseFloat(computedEl.width),
+				scrollHeight = parseFloat(el.scrollHeight),
+				scrollWidth = parseFloat(el.scrollWidth),
+				scrollTop = parseFloat(el.scrollTop),
+				scrollLeft = parseFloat(el.scrollLeft),
+				handleHeight = 0.0, handleTop = 0.0;
+				
+			scrollBar.style.left = parseInt(width - 10) + 'px';
+			track.style.height = parseInt(height) + 'px';
+			
+			handleHeight = (height / scrollHeight) * height;
+			handleTop = ((height / scrollHeight) * scrollTop);// + (handleHeight / 2);
+			
+			if(handleTop < 0)
+				handleTop = 0;
+			
+			handleTop += scrollTop;
+			
+			handle.style.height = handleHeight + 'px';
+			handle.style.top = handleTop + 'px';
+			
+			//console.log('resize scrollbar complete');
+		}
+	}
+	
+	function preventDefault( event ) {
+		if ( event.preventDefault ) {
+			event.preventDefault();
+		} else {
+			event.returnValue = false;
+		}
+
+		if ( event.stopPropagation ) {
+			event.stopPropagation();
+		} else {
+			event.cancelBubble = true;
+		}
+	}
+	
+	var reqAnimFrame = window.requestAnimationFrame ? 'requestAnimationFrame' :
+			window.mozRequestAnimationFrame ? 'mozRequestAnimationFrame' :
+			window.webkitRequestAnimationFrame ? 'webkitRequestAnimationFrame' :
+			window.oRequestAnimationFrame ? 'oRequestAnimationFrame' : 
+			window.msRequestAnimationFrame ? 'msRequestAnimationFrame' :
+			function( f ) { setTimeout( f, 17 ); };
+			
+	var PI_OVER_2 = 0.5 * Math.PI,
+		TEN_LOG2 = 10 * Math.log( 2 );
+			
+	var easeOutSin = function( c, d, t ) {
+		var b = PI_OVER_2 / d,
+			a = c * b;
+
+		return Math.round( a * Math.cos( b * t ));
+	}
+
+	var easeOutExpo = function( c, d, t ) {
+		return Math.round( c * TEN_LOG2 * Math.pow( 2, -10 * t / d + 1 ) / d );
+	}
+
+	var timeFromPosition = function( b, c, d, x ) {
+		return 2 * d / Math.PI * Math.asin(( x - b ) / c );
+	}
+	
+	var scrollVertical = function( el, dy ) {
+		//var $pane = $( pane ),
+			//data = $pane.dataset( 'enscroll' ),
+			//var y0 = el.scrollTop;
+			el.scrollTop = parseInt(el.scrollTop) + parseInt(dy);
+		//if ( data && data.settings.verticalScrolling ) {
+			//$pane.scrollTop( y0 + dy );
+			//if ( data.settings.showOnHover ) {
+				//showScrollbars.call( pane );
+			//}
+		//}
+	}
+	
+	function scrollAnimate(el){
+		//console.log('scrollAnimate', el);
+		var dataset = el.dataset;
+		var duration = dataset._duration || parseInt( 300 / 16.66666, 10 );
+		if ( el.dataset._scrollingY === true || el.dataset._scrollingY === "true" ) {
+			//console.log('scrollAnimate animate Y');
+			var remaining = parseInt(dataset._endY) - parseInt(dataset._startY);
+			if(remaining === 0){
+				el.dataset._scrollingY = false;
+			} else {
+				var curPos = el.scrollTop;
+				var time = timeFromPosition( parseInt(dataset._startY), remaining, duration, curPos );
+				
+				if ( remaining > 0 ) {
+					if ( curPos >= parseInt(dataset._endY) || curPos < parseInt(dataset._startY) ) {
+						el.dataset._scrollingY = false;
+					} else {
+						scrollVertical( el, Math.max( 1, easeOutSin( remaining, duration, time )));
+							if(typeof reqAnimFrame === "function"){
+								reqAnimFrame(function() {
+									scrollAnimate( el );
+								});
+							} else {
+								window[reqAnimFrame](function() {
+									scrollAnimate( el );
+								});
+							}
+					}
+				} else {
+					if ( curPos <= parseInt(dataset._endY) || curPos > parseInt(dataset._startY) ) {
+						el.dataset._scrollingY = false;
+					} else {
+						scrollVertical( el, Math.min( -1, easeOutSin( remaining, duration, time )));
+						if(typeof reqAnimFrame === "function"){
+							reqAnimFrame(function() {
+								scrollAnimate( el );
+							});
+						} else {
+							window[reqAnimFrame](function() {
+								scrollAnimate( el );
+							});
+						}
+					}
+				}
+				
+				
+			}
+		}
+	}
+	
+	function animateVertical(el, delta){
+		var curPos = parseInt(el.scrollTop);
+		var computedEl = window.getComputedStyle(el),
+			height = parseFloat(computedEl.height),
+			width = parseFloat(computedEl.width);
+		var scrollMax = parseFloat(el.scrollHeight) - height;
+		//if(scrollMax < 0)
+			//scrollMax = 0;
+			
+		if(!el.dataset._scrollingY || el.dataset._scrollingY == "false"){
+			el.dataset._scrollingY = true;
+			el.dataset._startY = curPos;
+			el.dataset._endY = el.dataset._startY;
+			//if(reqAnimFrame){
+				if(typeof reqAnimFrame === "function"){
+					reqAnimFrame(function() {
+						scrollAnimate( el );
+					});
+				} else {
+					window[reqAnimFrame](function() {
+						scrollAnimate( el );
+					});
+				}
+			//}
+		}
+		
+		var remaining = parseInt(el.dataset._endY) - parseInt(el.dataset._startY);
+		
+		//if((remaining > 0 && delta > 0) || (remaining < 0 && delta < 0)){
+			//el.dataset._endY = delta > 0 ? Math.min( curPos + delta, scrollMax ) : Math.max( 0, curPos + delta );
+		if((remaining > 0 && delta < 0) || (remaining < 0 && delta > 0)){
+			el.dataset._startY = curPos;
+			el.dataset._endY = el.dataset._startY;
+			//el.dataset._endY = delta > 0 ? Math.min( curPos + delta, scrollMax ) : Math.max( 0, curPos + delta );
+		} else {
+			el.dataset._endY = delta > 0 ? Math.min( curPos + delta + parseInt(remaining * 2 / 3), scrollMax ) : Math.max( 0, curPos + delta + parseInt(remaining * 2 / 3) );
+		}
+		//el.dataset._endY = delta > 0 ? Math.min( curPos + delta, scrollMax ) : Math.max( 0, curPos + delta );
+
+		return delta < 0 && curPos > 0 || delta > 0 && curPos < scrollMax;
+	}
+	
+	
+	function startVerticalDrag(e){
+		if(event.which !== 1){
+			return;
+		}
+		var handleEl = this,
+			trackEl = findParentWithClass(this, 'enscroll-track');
+		if(trackEl){
+			addClass(trackEl, 'dragging');
+		}
+	}
+	
+	jMod.Scrollbar.handlers = {
+		target_onScroll: function(event){
+			//var $pane = $( this ),
+			//console.log('ComputedStyle this', this);
+			/*
+			var computedEl = window.getComputedStyle(this),
+				height = parseFloat(computedEl.height),
+				width = parseFloat(computedEl.width);
+			*/
+			var _this = this;
+				//data = $pane.data( 'enscroll' ),
+				//scrollIncrement = data.settings.scrollIncrement,
+				var scrollIncrement = 10;
+				
+				var deltaX = 'deltaX' in event ? -event.deltaX :
+					'wheelDeltaX' in event ? event.wheelDeltaX :
+					0,
+				deltaY = 'deltaY' in event ? -event.deltaY :
+					'wheelDeltaY' in event ? event.wheelDeltaY :
+					'wheelDelta' in event ? event.wheelDelta :
+					//'detail' in event ? event.detail :
+					0,
+				delta;
+
+
+				
+			if ( Math.abs( deltaX ) > Math.abs( deltaY )) {
+				delta = ( deltaX > 0 ? -scrollIncrement : scrollIncrement ) << 2;
+				//if ( scrollAnimateHorizontal( $pane, delta ) || !data.settings.propagateWheelEvent ) {
+					//preventDefault( event );
+				//}
+			} else {
+				//delta = ( deltaY > 0 ? -1 * scrollIncrement : scrollIncrement ) << 2;
+				delta = ( deltaY > 0 ? -1 * scrollIncrement : scrollIncrement ) << 2;
+				/*
+				var curPos = parseFloat(_this.scrollTop);
+				var scrollMax = parseFloat(_this.scrollHeight) - height;
+				if(scrollMax < 0)
+					scrollMax = 0;
+				*/
+				/*
+				_this.scrollTop = parseInt(Math.min(curPos + parseFloat(delta), scrollMax));
+				console.log('deltaY', deltaY);
+				console.log('curPos', curPos);
+				console.log('scrollMax', scrollMax);
+				console.log('_this.scrollTop', _this.scrollTop);
+				*/
+				if(animateVertical(this, delta)){
+					preventDefault( event );
+				}
+				//if ( scrollAnimateVertical( $pane, delta ) || !data.settings.propagateWheelEvent ) {
+					//preventDefault( event );
+				//}
+			}
+			
+			//console.log('delta', delta);
+		},
+		target_onResize: function(){
+		
+		},
+		
+		// Track
+		track_onMouseDown: function(){
+		
+		},
+		track_onMouseUp: function(){
+		
+		},
+		
+		// Track Handle
+		track_handle_onMouseDown: function(e){
+			var handleEl = this,
+				trackEl = findParentWithClass(this, 'enscroll-track');
+			if(trackEl){
+				addClass(trackEl, 'dragging');
+			}
+		},
+		track_handle_onMouseUp: function(e){
+			var handleEl = this,
+				trackEl = findParentWithClass(this, 'enscroll-track');
+			if(trackEl){
+				removeClass(trackEl, 'dragging');
+			}
+		},
+		/*
+		track_handle_onMouseMove: function(e){
+			var handleEl = this,
+				trackEl = findParentWithClass(this, 'enscroll-track');
+			if(trackEl && hasClass(trackEl, 'dragging')){
+				console.log('Mouse moved while dragging');
+			}
+		}
+		*/
+	};
+
+})();
+
+
+
+
+
+jMod.CSS = '.jmod-na .track3{width:10px;background:rgba(0,0,0,0);margin-right:0px;-webkit-transition:background 250ms linear;transition:background 250ms linear;}.jmod-na .track3:hover,.jmod-na .track3.dragging{background:#d9d9d9;background:rgba(0,0,0,0.15);}.jmod-na .handle3{width:7px;right:0;background:#999;background:rgba(0,0,0,0.4);-webkit-transition:width 250ms;transition:width 250ms;cursor:pointer;}.jmod-na .track3:hover .handle3,.jmod-na .track3.dragging .handle3{width:10px;}';
+	
+	/***********************************
 	 ** Tooltip
 	 **********************************/
 /**
@@ -5878,7 +7840,12 @@ Notification.Types = {
 						className: 'btnClose fa fa-times',
 						EventListeners: {
 							'click':function(e){
-								Notification.close(e.target);
+								if(!hasClass(this, 'fadeOut')){
+									Notification.close(e.target);
+									try{
+										this.removeEventListener('click', arguments.callee);
+									}catch(e){}
+								}
 							}
 						}
 					}
@@ -5981,7 +7948,7 @@ Notification.Types = {
 			if(totalCount > 0){
 				var tHeight = totalCount * 25;
 				var smallNotificationsContainer = Notification('getElement', 'notificationsSmallWrapper');
-				var smNotes = smallNotificationsContainer.querySelectorAll('div[data-jmod-small-notification]');
+				var smNotes = jMod.$$('div[data-jmod-small-notification]', smallNotificationsContainer);
 				for(var i = 0; i < smNotes.length; i++){
 					tHeight += parseInt(smNotes[i].offsetHeight);
 				}
@@ -6008,10 +7975,13 @@ Notification.Types = {
 							tParent = tParent.parentElement;
 							tCount++;
 						}
-						if(tParent != null){
+						if(tParent != null && !hasClass(tParent, 'fadeOut')){
 							var notificationNum = parseInt(tParent.getAttribute('data-jmod-notification'));
 							var smallNotificationNum = parseInt(tParent.getAttribute('data-jmod-small-notification'));
 							jMod.Notification.close(tParent);
+							try{
+								this.removeEventListener('click', arguments.callee);
+							}catch(e){}
 						}
 					}
 				}
@@ -6047,16 +8017,12 @@ Notification.Types = {
 			
 			var newNotificationContent = {
 				type: 'div',
-				className: '',
+				className: 'NotificationContent',
 				innerHTML: [],
 				style: {}
 			}
 			
-			if(typeof data.footer === _undefined)
-				newNotificationContent.className += ' NotificationContent';
-			else{
-				newNotificationContent.className += ' NotificationContent';
-				
+			if(typeof data.footer != _undefined){
 				var largeIcon = document.createElement("div");
 				largeIcon.className = 'largeIcon';
 				if(isElement(data.icon)){
@@ -6068,24 +8034,37 @@ Notification.Types = {
 				newNotification.innerHTML.push(largeIcon);
 			}
 			
-			if(typeof data.title !== _undefined){
+			
+			if(data.title){
 				newNotificationContent.innerHTML.push({
 					type: 'span',
 					innerHTML: data.title
 				});
 			}
 			
-			newNotificationContent.innerHTML.push({
-				type: 'p',
-				innerHTML: data.body
-			});
+			if(data.body){
+				newNotificationContent.innerHTML.push({
+					type: 'p',
+					innerHTML: data.body
+				});
+			}
 			
-			if(typeof data.icon !== _undefined){
+			if(data.footer){
+				newNotificationContent.innerHTML.push({
+					type: 'p',
+					style: {
+						textAlign: 'right'
+					},
+					innerHTML: data.footer
+				});
+			}
+			
+			if(data.icon && !data.footer){
 				newNotificationContent.innerHTML.push({
 					type: 'div',
 					className: 'smallIcon',
 					style: {
-						'backgroundColor': 'transparent',
+						'backgroundColor': 'transparent'
 					},
 					innerHTML: {
 						type: 'i',
@@ -6118,6 +8097,7 @@ Notification.Types = {
 			removeClass(el, 'fadeIn');
 			addClass(el, 'fast');
 			addClass(el, 'fadeOut');
+			el.style.zIndex = "9998";
 			
 			while(tSib.nextElementSibling != null && tSib.nextElementSibling.hasAttribute('data-jmod-small-notification')){
 				tSib = tSib.nextElementSibling;
@@ -6227,8 +8207,12 @@ Notification.Types = {
 						innerHTML: 'Close',
 						EventListeners: {
 							click: function(e){
-								if(this === e.target)
+								if(this === e.target){
 									jMod.Notification.close(e.target);
+									try{
+										this.removeEventListener('click', arguments.callee);
+									}catch(e){}
+								}
 							}
 						}
 					}
@@ -6250,9 +8234,12 @@ Notification.Types = {
 				},
 				EventListeners: {
 					click: function(e){
-						if(this === e.target){
+						if(this === e.target && !hasClass(this, 'fadeOut')){
 							jMod.Notification.close(this);
 							eventCancel(e);
+							try{
+								this.removeEventListener('click', arguments.callee);
+							}catch(e){}
 							return false;
 						}
 					}
@@ -6291,7 +8278,6 @@ Notification.Types = {
 				fillNotificationsContainer.id = FillWrapperId;
 				fillNotificationsContainer.className = 'jModFillNotifications';
 				fillNotificationsContainer.style.position = 'absolute';
-				//fillNotificationsContainer.style.display = 'none';
 				notificationsFullWrapper.appendChild(fillNotificationsContainer);
 			}
 		}
@@ -6301,7 +8287,7 @@ Notification.Types = {
 
 
 Notification.UpdateNotification = function(data){
-	var options = merge({
+	var options = jMod.extend(true, {
 		'version': 'N/A',
 		'script_name': null,
 		'time': 'N/A',
@@ -6365,12 +8351,29 @@ Notification.UpdateNotification = function(data){
 	btnClose.setAttribute('href', 'javascript:void(0);');
 	btnClose.className = 'btn btn-danger btn-sm';
 	btnClose.innerHTML = 'Close';
-	
+	/*
 	var footer = document.createElement("p");
 	footer.className = 'text-align-right';
 	footer.appendChild(btnInstall);
 	footer.appendChild(btnVisit);
 	footer.appendChild(btnClose);
+	*/
+	/*
+	var footer = {
+		type: 'p',
+		style: 'text-align: right;',
+		innerHTML: [
+			btnInstall,
+			btnVisit,
+			btnClose
+		]
+	};
+	*/
+	var footer =[
+		btnInstall,
+		btnVisit,
+		btnClose
+	];
 	
 	Notification({
 		'title': title,
@@ -6620,6 +8623,24 @@ Tabs.load = function(data){
 		el = data;
 	else if(typeof data === "object" && data.target) {
 		el = data.target;
+		el.onAfterResize = (function(modal){
+			return function(){
+				//console.log('Resize Tabs');
+				//var tabsNav = jMod.$('.nav-tabs', modal);
+				var tabsNav = this;
+				if(!hasClass(tabsNav, 'nav-tabs')){
+					tabsNav = jMod.$('.nav-tabs', tabsNav);
+					if(!tabsNav)
+						tabsNav = jMod.$('.nav-tabs', modal);
+				}
+				//console.log('tabsNav', tabsNav);
+				//Tabs.resize(tabsNav);
+				//console.log('onAfterResize: ', this, tabsNav, Slice.call(arguments));
+				if(tabsNav)
+					waitForComputeableWidth(tabsNav, resizeTabs);
+					//resizeTabs(tabsNav);
+			};
+		})(el);
 		EventListeners = data.EventListeners;
 	} else
 		return;
@@ -6703,23 +8724,33 @@ Tabs.show = function(tabGroup, tab){
 }
 
 function waitForComputeableWidth(el, callback, count){
-	var computedNav = (window || unsafeWindow).getComputedStyle(el, null);
-	if((count = count || 0) < 50 && isNaN(parseInt(computedNav.width))){
-		setTimeout(function(el, callback, count){
+	var computedNav = (window || unsafeWindow).getComputedStyle(el, null),
+		width = parseInt(computedNav.width);
+	count = count || 0;
+	if(count < 25 && (isNaN(width) || width > 300)){
+		jMod.Element.requestAnimationFrame(function(){
 			waitForComputeableWidth(el, callback, count + 1);
-		}, 100, el, callback, count);
+		});
 	} else {
-		callback(el, computedNav);
+		callback(el);
 	}
 }
 
-function resizeTabs(tabsNav, computedNav){
-	var tabsContent = tabsNav.parentElement.querySelector('.tab-content');
+function resizeTabs(tabsNav){
+	var width,
+		computedNav,
+		tabsContent = jMod.$('.tab-content', tabsNav.parentElement)
+		//tabsContent = tabsNav.parentElement.querySelector('.tab-content');
 	
-	if(tabsContent.offsetParent === null)
+	if(!tabsNav || !tabsContent || tabsContent.offsetParent === null)
 		return;
-	//var width = parseInt(computedNav.getPropertyValue('width'));
-	var width = parseInt(computedNav.width);
+	
+	computedNav = (window || unsafeWindow).getComputedStyle(tabsNav, null);
+	width = parseInt(computedNav.width);
+	
+
+	//width = parseInt(computedNav.getPropertyValue('width'));
+	
 	if(isNaN(width)){
 		if(jMod.debug)
 			jModLogWarning('Tabs.resize', 'Tab width is NaN!', tabsNav, tabsContent, computedNav);
@@ -6732,7 +8763,10 @@ function resizeTabs(tabsNav, computedNav){
 }
 
 Tabs.resize = function(tabsNav){
-	waitForComputeableWidth(tabsNav, resizeTabs);
+	//waitForComputeableWidth(tabsNav, resizeTabs);
+	jMod.Element.requestAnimationFrame(function(){
+		waitForComputeableWidth(tabsNav, resizeTabs);
+	});
 }
 
 	/***********************************
@@ -6867,7 +8901,7 @@ var Modal = jMod.Modal = function(data, data2){
 		}
 	}catch(e){
 		//console.log('error, jMod.Modal', e);
-		jModError(e, 'jMod.Modal');
+		jModLogError(e, 'jMod.Modal');
 	}
 }
 var _ModalContainer;
@@ -6915,7 +8949,7 @@ const fadeAnimationLength = 150;
  * @returns {Element} DOM Element
  */
 Modal.getModal = function(number){
-	var modal = document.querySelector('div[data-jmod-modal="'+number+'"]');
+	var modal = jMod.$('div[data-jmod-modal="'+number+'"]');
 	if(modal)
 		return modal;
 	if(typeof Modal.Modals[number] !== _undefined)
@@ -6938,10 +8972,233 @@ Modal.addJSFeatures = function(modal, features){
 	}
 }
 
+Modal.getVisibleModals = function(){
+	var i = 0, r = [], modals = jMod.$$('div.modal.in[data-jmod-modal]', Modal.Container);
+	for( ; i < modals.length; i++){
+		r.push([modals[i], modals[i].getAttribute('data-jmod-modal')]);
+	}
+	return r;
+}
+
+Modal.getModal2 = function(){
+	var i = 0,
+		length = arguments.length,
+		arg, modal, modalNum;
+	if(length > 0){
+		for( ; i < length; i++){
+			arg = arguments[i];
+			if(isElement(arg)){
+				return arg;
+			} else if(typeof arg == "string" || typeof arg == "number"){
+				modalNum = parseInt(modalNum);
+			}
+		}
+		
+		if(modalNum != null){
+			if((modal = jMod.$('div[data-jmod-modal="'+modalNum+'"]', Modal.Container)) && isElement(modal)){
+				return modal;
+			}
+			
+			if(typeof Modal.Modals[modalNum] != _undefined)
+				return Modal.Modals[modalNum].element;
+		}
+	}
+	return null;
+}
+
+var modalResizingAttrName = 'data-jmod-modal-resizing';
+
+Modal.resize = function(){
+	var	modalNum, evt, i, arg, viewportHeight,
+		_dialog, _content, _body, _footer, _header, _modal,
+		_dialogRect,
+		length = arguments.length;
+	
+	for(i = 0; i < length; i++){
+		arg = arguments[i];
+		if(typeof arg == "number" || typeof arg == "string"){
+			modalNum = parseInt(arg);
+		} else if(isElement(arg)){
+			_modal = arg;
+		} else if(isEvent(arg)){
+			evt = arg;
+		}
+	}
+	
+	if(_undefined==typeof _modal && _undefined==typeof modalNum){
+		var modals = Modal.getVisibleModals();
+		for(i = 0; i < modals.length; i++){
+			Modal.resize(modals[i][0], modals[i][1], evt);
+		}
+		return;
+	}
+	
+	if(!_modal)
+		_modal = Modal.getModal2(_modal, modalNum);
+	if(_modal && isElement(_modal)){
+		if(getAttribute(_modal, modalResizingAttrName, 'boolean')){
+			if(_modal.__resizeLast__ == null){
+				return;
+			}
+			jMod.Element.cancelAnimationFrame(_modal.__resizeLast__);
+			_modal.__resizeLast__ = null;
+		}
+		
+		// Prevent resizing without canceling timer first
+		_modal.setAttribute(modalResizingAttrName, 'true');
+		
+		viewportHeight = parseInt(jMod.Element.viewportSize.getHeight());
+		
+		_dialog = jMod.$('.modal-dialog', _modal);
+		_dialogRect = jMod.Element.getClientRect(_dialog);
+		
+		if(parseInt(_dialogRect.bottom) <= viewportHeight && !_modal.hasVerticalScrollBar()){
+			addClass(_modal, 'no-vertical-scroll');
+		}
+		
+		try{
+			if(Modal.Events.fire('onBeforeResize', modalNum, _modal, evt) === false){
+				_modal.setAttribute(modalResizingAttrName, 'false');
+				return;
+			}
+		}catch(e){
+			jModLogError(e, 'jMod.Modal.resize', 'Error firing event "onBeforeResize"');
+			return;
+		}
+		
+		//if(modalNum == null && hasAttribute(_modal, 'data-jmod-modal')){
+		if(modalNum == null){
+			modalNum = getAttribute(_modal, 'data-jmod-modal', 'integer');
+		}
+		
+		_modal.__resizeLast__ = jMod.Element.requestAnimationFrame(function(){
+			// Prevent cancel attempt while running
+			_modal.__resizeLast__ = null;
+			_modal.__resizeLastStartY__ = 0;
+			_modal.__resizeLastEndY__ = 0;
+			_modal.__resizeLastCurrentY__ = null;
+			_modal.__resizeLastCount__ = 0;
+			
+			// Only resize if modal is visible
+			if(_modal.style.display != "none"){
+				if(_modal.__restoreVerticalScroll__ != null){
+					clearTimeout(_modal.__restoreVerticalScroll__);
+					_modal.__restoreVerticalScroll__ = null;
+				}
+				
+				viewportHeight = parseInt(jMod.Element.viewportSize.getHeight());
+				
+				//_dialog = jMod.$('.modal-dialog', _modal);
+				_body   = jMod.$('.modal-body',   _dialog);
+				_footer = jMod.$('.modal-footer', _dialog);
+				_header = jMod.$('.modal-header', _dialog);
+				
+				
+				var resizeAnimFunction
+					_bodyCurrentHeight = parseInt(jMod.Element.getCompStyle(_body, 'height')),
+					_bodyCurrentMaxHeight = parseInt(jMod.Element.getCompStyle(_body, 'maxHeight')),
+					_bodyMinHeight = parseInt(jMod.Element.getCompStyle(_body, 'minHeight')),
+					computedDialog = jMod.Element.getCompStyleObj(_dialog),
+					marginTop = parseInt(computedDialog.getPropertyValue('margin-top')),
+					marginBottom = parseInt(computedDialog.getPropertyValue('margin-bottom')),
+					maxHeight = (viewportHeight - parseInt(_header.offsetHeight) - parseInt(_footer.offsetHeight) - marginTop - marginBottom) - 15;
+					
+				if(_bodyMinHeight > maxHeight){
+					maxHeight = _bodyMinHeight;
+				}
+				
+				if(_bodyCurrentMaxHeight != maxHeight){
+
+					
+					_modal.__resizeLastCurrentY__ = _bodyCurrentMaxHeight;
+					_modal.__resizeLastStartY__ = _bodyCurrentMaxHeight;
+					_modal.__resizeLastEndY__ = parseInt(maxHeight);
+					
+					
+					resizeAnimFunction = function(){
+						var tmpId = _modal.__resizeLast__;
+						_modal.__resizeLastCount__++;
+						
+						if(_modal.__resizeLastCount__ > 50){
+							_body.style.maxHeight = _modal.__resizeLastEndY__ + 'px';
+							return;
+						}
+						
+						var current = _modal.__resizeLastCurrentY__ != null && !isNaN(parseInt(_modal.__resizeLastCurrentY__)) ? _modal.__resizeLastCurrentY__ : parseInt(jMod.Element.getCompStyle(_body, 'maxHeight'));
+						var duration = parseInt( 300 / 16.66666, 10 ) / 4;
+						var remaining = _modal.__resizeLastEndY__ - current;
+						
+						var time = timeFromPosition( parseInt(_modal.__resizeLastStartY__), remaining, duration, current );
+						if(isNaN(time))
+							time = 0;
+						else if(time < 0)
+							time = time * -1;
+						if(remaining != 0){
+							var delta;
+							
+							if ( remaining > 0 ) {
+								delta = Math.max( 1, easeOutSin( remaining, duration, time ));
+							} else {
+								delta = Math.min( -1, easeOutSin( remaining, duration, time ));
+							}
+							
+							if(delta == 0 || isNaN(delta)){
+								_body.style.maxHeight = _modal.__resizeLastEndY__ + 'px';
+								return;
+							}
+							
+							_modal.__resizeLastCurrentY__ = current + delta;
+							
+							
+							_body.style.maxHeight = _modal.__resizeLastCurrentY__ + 'px';
+							
+							if(_modal.__resizeLast__ == null || _modal.__resizeLast__ == tmpId){
+								if(_modal.__resizeLastCurrentY__ != _modal.__resizeLastEndY__ && _modal.__resizeLastCurrentY__ != null){
+									_modal.__resizeLast__ = jMod.Element.requestAnimationFrame(resizeAnimFunction);
+								} else {
+									_modal.__resizeLast__ = null;
+								}
+								return;
+							}
+						}
+					};
+					//resizeAnimFunction();
+					_modal.__resizeLast__ = jMod.Element.requestAnimationFrame(resizeAnimFunction);
+					
+					//_body.style.maxHeight = maxHeight + 'px';
+				}
+				
+				_dialogRect = jMod.Element.getClientRect(_dialog);
+				
+				if(parseInt(_dialogRect.bottom) > viewportHeight && parseInt(_dialogRect.height) < (_bodyMinHeight + parseInt(_header.offsetHeight) + parseInt(_footer.offsetHeight) + 15)){
+					removeClass(_modal, 'no-vertical-scroll');
+				} else {
+					_modal.__restoreVerticalScroll__ = setTimeout(function(_modal, modalResizingAttrName){
+						_modal.__restoreVerticalScroll__ = null;
+						//if(!getAttribute(_modal, modalResizingAttrName, 'boolean') || _modal.__resizeLast__ == null){
+						if(!getAttribute(_modal, modalResizingAttrName, 'boolean')){
+							removeClass(_modal, 'no-vertical-scroll');
+						}
+					}, 100, _modal, modalResizingAttrName);
+				}
+			}
+			
+			try{
+				Modal.Events.fire('onAfterResize', modalNum, _modal, evt);
+			}catch(e){
+				jModLogError(e, 'jMod.Modal.resize', 'Error firing event "onAfterResize"');
+			}
+			
+			// Release lock on resize events
+			_modal.setAttribute(modalResizingAttrName, 'false');
+		});
+	}
+}
+
 Modal.show = function(modal, modalNum, e){
 	try{
 		//console.log('jMod.Modal.CurrentModal', jMod.Modal.CurrentModal);
-
+		//var doc = jMod.Element.document;
 		if(typeof modal === "number" && typeof modalNum !== "number"){
 			if(typeof e === _undefined && typeof modalNum !== _undefined)
 				e = modalNum;
@@ -6950,7 +9207,7 @@ Modal.show = function(modal, modalNum, e){
 		if((typeof modal === _undefined || modal == null) && typeof modalNum === _undefined)
 			return;
 		if((typeof modal === _undefined || modal == null || typeof modal === "number") && typeof modalNum === "number"){
-			modal = document.querySelector('div[data-jmod-modal="'+modalNum+'"]');
+			modal = jMod.$('div[data-jmod-modal="'+modalNum+'"]');
 		} else if(typeof modal !== _undefined && modal != null && typeof modalNum === _undefined){
 			modalNum = getAttribute(modal, 'data-jmod-modal');
 		}
@@ -6960,24 +9217,30 @@ Modal.show = function(modal, modalNum, e){
 		}
 		
 		if(modal){
-			var modalBackdrop = document.querySelector('div[data-jmod-modal-backdrop="'+modalNum+'"]');
+			//var modalBackdrop = doc.querySelector('div[data-jmod-modal-backdrop="'+modalNum+'"]');
+			var modalBackdrop = jMod.$('div[data-jmod-modal-backdrop="'+modalNum+'"]');
 			//console.log('jMod.Modal.show', modal, modalNum, e || null);
 			var r = Modal.Events.fire('onBeforeShow', modalNum, modal, [e || null]);
 			Modal.CurrentModal = modalNum;
-			addClass(document.body, 'jmod-modal-open');
+			addClass(jMod.Element.document.body, 'jmod-modal-open');
 			modalBackdrop.style.display = 'block';
 			modal.style.display = 'block';
 			setTimeout(function(modal, modalBackdrop){
 				addClass(modalBackdrop, 'in');
 				addClass(modal, 'in');
+				jMod.Element.requestAnimationFrame(function(){
+					Modal.resize(modal);
+				});
 			}, 1, modal, modalBackdrop);
 			setTimeout(function(modal, modalNum, e){
 				Modal.Events.fire('onAfterShow', modalNum, modal, [e || null]);
 			}, fadeAnimationLength, modal, modalNum, e || null);
+			
+
 		}
 	}catch(e){
 		//console.log('Error jMod.Modal.show', e);
-		jModError(e, 'jMod.Modal.show');
+		jModLogError(e, 'jMod.Modal.show');
 	}
 }
 
@@ -7004,11 +9267,13 @@ Modal.hide = function(modal, modalNum, e){
 		}
 		
 		if(modal){
-			var modalBackdrop = document.querySelector('div[data-jmod-modal-backdrop="'+modalNum+'"]');
+			//var modalBackdrop = jMod.Element.document.querySelector('div[data-jmod-modal-backdrop="'+modalNum+'"]');
+			var modalBackdrop = jMod.$('div[data-jmod-modal-backdrop="'+modalNum+'"]');
 			var r = Modal.Events.fire('onBeforeHide', modalNum, modal, [e || null]);
 			Modal.CurrentModal = -1;
-			removeClass(document.body, 'jmod-modal-open');
-			removeClass(modal, 'in');
+			removeClass(jMod.Element.document.body, 'jmod-modal-open');
+			removeClasses(modal, ['in', 'no-vertical-scroll']);
+			//no-vertical-scroll
 			removeClass(modalBackdrop, 'in');
 			setTimeout(function(modal, modalNum, e, modalBackdrop){
 				modal.style.display = 'none';
@@ -7018,11 +9283,11 @@ Modal.hide = function(modal, modalNum, e){
 		}
 	}catch(e){
 		//console.log('Error jMod.Modal.hide', e);
-		jModError(e, 'jMod.Modal.hide');
+		jModLogError(e, 'jMod.Modal.hide');
 	}
 }
-
-Modal.Events = new EventsClass(['onBeforeShow', 'onAfterShow', 'onBeforeHide', 'onAfterHide']);
+var modalEventNames = ['onBeforeShow', 'onAfterShow', 'onBeforeHide', 'onAfterHide', 'onBeforeResize', 'onAfterResize'];
+Modal.Events = new EventsClass(modalEventNames);
 
 Modal.createModal = function(data){
 	var newModalNum = Modal.ModalCount++;
@@ -7055,6 +9320,32 @@ Modal.createModal = function(data){
 		}
 	});
 	
+	for(var i = 0; i < modalEventNames.length; i++){
+		
+		Object.defineProperty(newModal, modalEventNames[i], {
+			get: (function(evtName, modalEl, modalNum){
+					return function(){
+						Modal.Events.getAll(modalNum, evtName);
+					}.bind(modalEl);
+				}).call(newModal, modalEventNames[i], newModal, newModalNum),
+			set: (function(evtName, modalEl, modalNum){
+					return function(newListener){
+						Modal.Events.add(modalNum, evtName, newListener);
+					}.bind(modalEl);
+				}).call(newModal, modalEventNames[i], newModal, newModalNum),
+			enumerable: true,
+			configurable: false
+		});
+	}
+	
+	newModal.hasVerticalScrollBar = function(){
+		var overflowY = jMod.Element.getCompStyle(this, "overflowY");
+		if(this.offsetParent === null || overflowY == "hidden" || overflowY == "visible")
+			return false;
+		
+		return (overflowY == "scroll" || this.scrollHeight > jMod.Element.viewportSize.getHeight());
+	}.bind(newModal);
+	
 	// Dialog Container
 	var newModalDialog = createNewElement({
 		type: 'div',
@@ -7085,8 +9376,15 @@ Modal.createModal = function(data){
 	// Body
 	var newModalBody = createNewElement({
 		type: 'div',
-		className: 'modal-body',
+		className: 'modal-body'
 	});
+	
+	/*
+	setTimeout(function(newModalBody){
+		jMod.Scrollbar(newModalBody);
+	}, 1000, newModalBody);
+	*/
+	
 	newModalContent.appendChild(newModalBody);
 	
 	// Footer
@@ -7165,7 +9463,7 @@ Modal.createModal = function(data){
 				}
 			} catch(e){
 				//console.log('error! footer buttons: ', e);
-				jModError(e, 'jMod.Modal.createModal', 'footer buttons');
+				jModLogError(e, 'jMod.Modal.createModal', 'footer buttons');
 			}
 		}
 	}
@@ -7203,25 +9501,19 @@ Modal.init = function(){
 	
 	var modalContainer = Modal.Container;
 	if(modalContainer == null){
-		modalContainer = document.createElement("div");
+		modalContainer = jMod.Element.document.createElement("div");
 		modalContainer.id = jConfig(Modal_ContainerElementId_Key);
-		modalContainer.className = 'jmod-na jmod-fa ' + jConfig(Modal_ContainerElementClass_Key);
-		document.body.appendChild(modalContainer);
+		modalContainer.className = 'jmod-na jmod-fa jmod-gi ' + jConfig(Modal_ContainerElementClass_Key);
+		jMod.Element.document.body.appendChild(modalContainer);
 	}
-
+	
+	(window || unsafeWindow).addEventListener('resize', function(e){
+		jMod.Modal.resize(e);
+	});
+	
 }
 
-
-/*
-jMod.Requirements.add({
-	type: 'imagepreload',
-	'value': '//s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif'
-});
-*/
-
-jMod.CSS = '';
-
-
+jMod.CSS = '.jmod-na .nav.nav-tabs{border-width:0px;border-right-width:1px !important;border-style:solid !important;-webkit-border-image:-webkit-gradient(linear,0 0,0 100%,from(rgba(221,221,221,1)),color-stop(65%,rgba(221,221,221,1)),to(rgba(0,0,0,0))) 1 100%;-webkit-border-image:-webkit-linear-gradient(rgba(221,221,221,1) 65%,rgba(221,221,221,1),rgba(0,0,0,0)) 1 100%;-moz-border-image:-moz-linear-gradient(rgba(221,221,221,1) 65%,rgba(221,221,221,1),rgba(0,0,0,0)) 1 100%;-o-border-image:-o-linear-gradient(rgba(221,221,221,1) 65%,rgba(221,221,221,1),rgba(0,0,0,0)) 1 100%;border-image:linear-gradient(to bottom,rgba(221,221,221,1) 65%,rgba(221,221,221,1),rgba(0,0,0,0)) 1 100%;}.jmod-na .no-vertical-scroll[data-jmod-modal]{overflow-y:hidden;}';
 
 
 	/***********************************
@@ -7294,8 +9586,29 @@ var Settings = jMod.Settings = function(data, data2){
 			jMod.Settings.settingsModalElement = jMod.Settings.MakeSettingsModal(data);
 			
 			Settings.PrefTypes.onChange();
+			/*
+			//var win = (window || unsafeWindow);
+			var runningResizeCB = false;
+			window.addEventListener('resize', function(e){
+				if(!runningResizeCB){
+					runningResizeCB = true;
+					//var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+					if (window.requestAnimationFrame) {
+						window.requestAnimationFrame(function(){
+							jMod.Settings.onResize();
+							runningResizeCB = false;
+						});
+					} else {
+						setTimeout(function(){
+							jMod.Settings.onResize();
+							runningResizeCB = false;
+						}, 66);
+					}
+				}
+			}, false );
 			
-			(window || unsafeWindow).addEventListener('resize', jMod.Settings.onResize, false );
+			*/
+			//window.addEventListener('resize', jMod.Settings.onResize, false);
 			
 			jMod.Settings.onResize();
 		}
@@ -7323,7 +9636,7 @@ Settings.get = function(prefName, noDefault){
 	var storedData = Settings._storedData;
 	if(_undefined===typeof prefName)
 		return storedData;
-	return (storedData && storedData[prefName] !== undefined ? storedData[prefName] : (noDefault == true ? undefined : Settings.getDefault(prefName)));
+	return (storedData && storedData[prefName] !== undefined ? storedData[prefName] : (noDefault ? undefined : Settings.getDefault(prefName)));
 }
 
 Settings.set = function(prefName, value){
@@ -7352,14 +9665,18 @@ Object.defineProperties(Settings, {
 		get: function(){
 			if(typeof Settings.__storedData !== _undefined)
 				return Settings.__storedData;
-			var str = jMod.getValue('Settings_' + jConfig('script.script_name'));
-			if(str)
-				return JSON.parse(str);
-			return undefined;
+			try{
+				var str = jMod.getValue('Settings_' + jConfig('script.script_name'));
+				if(str)
+					return JSON.parse(str);
+			}catch(e){}
+			//return undefined;
 		},
 		set: function(obj){
 			Settings.__storedData = obj;
-			jMod.setValue('Settings_' + jConfig('script.script_name'), JSON.stringify(obj));
+			try{
+				jMod.setValue('Settings_' + jConfig('script.script_name'), JSON.stringify(obj));
+			}catch(e){}
 		},
 		enumerable: false
 	},
@@ -7689,7 +10006,7 @@ Settings.PrefTypes.add('checkbox', {
 		var text = data.description || data.name;
 		var defaultValue = data['default'] || '';
 		var storedValue = Settings.get(data.name);
-		var currentValue = storedValue || defaultValue;
+		var currentValue = storedValue || storedValue === "" ? storedValue : defaultValue;
 		if(typeof currentValue !== "object")
 			currentValue = currentValue.split(',');
 		var options = [];
@@ -7848,7 +10165,7 @@ Settings.PrefTypes.add('radio', {
 		return opts;
 	},
 	getValue: function(prefEl, data){
-		return prefEl.querySelector('input:checked').value;
+		return jMod.$('input:checked', prefEl).value;
 	},
 	setValue: function(prefEl, data, value){
 		for(var i = 0; i < prefEl.options.length; i++){
@@ -7880,7 +10197,7 @@ Settings.PrefTypes.add('toggle', {
 		var text = data.description || data.name;
 		var defaultValue = data['default'] || '';
 		var storedValue = Settings.get(data.name);
-		var currentValue = storedValue || defaultValue;
+		var currentValue = storedValue || storedValue.trim() === "" ? storedValue : defaultValue;
 		var options = [];
 		
 		for(var optionName in data.options){
@@ -7981,7 +10298,7 @@ Settings.PrefTypes.add('input', {
 					innerHTML: '',
 					style: data.style,
 					attributes: {
-						value: storedValue || defaultValue,
+						value: storedValue || storedValue === "" ? storedValue : defaultValue,
 						'name': data.name,
 						'type': 'text',
 						'data-jmod-settings-pref': data.name,
@@ -8037,7 +10354,7 @@ Settings.PrefTypes.add('textarea', {
 				{
 					type: 'textarea',
 					className: 'form-control pref',
-					innerHTML: storedValue || defaultValue,
+					innerHTML: storedValue || storedValue === "" ? storedValue : defaultValue,
 					style: data.style,
 					attributes: {
 						'name': data.name,
@@ -8658,12 +10975,12 @@ Settings.onResize = function(){
 	var settingsFooter = jMod.$('.modal-footer', modal);
 	var settingsHeader = jMod.$('.modal-header', modal);
 	
-	var viewportHeight = unsafeWindow.viewportSize.getHeight();
+	var viewportHeight = jMod.Element.viewportSize.getHeight();
 	
-	var computedDialog = unsafeWindow.getComputedStyle(settingsDialog, null);
+	var computedDialog = (window || unsafeWindow).getComputedStyle(settingsDialog, null);
 	var marginTop = parseInt(computedDialog.getPropertyValue('margin-top'));
 	var marginBottom = parseInt(computedDialog.getPropertyValue('margin-bottom'));
-	var maxHeight = (parseInt(viewportHeight) - parseInt(settingsHeader.offsetHeight) - parseInt(settingsFooter.offsetHeight) - marginTop - marginBottom) - 1;
+	var maxHeight = (parseInt(viewportHeight) - parseInt(settingsHeader.offsetHeight) - parseInt(settingsFooter.offsetHeight) - marginTop - marginBottom) - 15;
 	settingsBody.style.maxHeight = maxHeight + 'px';
 	
 	var settingsTabs = jMod.$('.nav-tabs', settingsBody);
@@ -8742,7 +11059,7 @@ jMod.getDOMTiming = function(){
 		}
 	} catch(e) {
 		//console.error('Error! getDOMTiming: ', e);
-		jModError(e, 'jMod.getDOMTiming');
+		jModLogError(e, 'jMod.getDOMTiming');
 		return {};
 	}
 	return timingData;
@@ -9281,7 +11598,78 @@ SendMessage._globalResponseCallback = mExportFunction(SendMessage_responseCallba
 	/***********************************
 	 ** Error
 	 **********************************/
-	jMod['ERROR'] = new function(){
++(function(){
+	function UserError(){
+		var err,
+			data = {},
+			arg0 = _undefined!=typeof arguments[0] ? arguments[0] : undefined,
+			length = arguments.length;
+		
+		if(length > 0){
+			if(typeof arg0 === "string"){
+				data.message = arg0;
+				if(length > 1)
+					data.fileName = arguments[1];
+					
+				if(length > 2)
+					data.lineNumber = arguments[2];
+					
+				if(length > 3)
+					data.columnNumber = arguments[3];
+					
+				if(length > 4){
+					if(arguments[4] instanceof Error)
+						data.e = arguments[4];
+				}
+			} else {//if(typeof arg0 === "object")
+				if(arg0 instanceof Error){
+					data.e = arg0;
+				} else {
+					data = arg0;
+				}
+			}
+			
+			if(data.e){
+				try {
+					err = data.e;
+					
+					this.stack = err.stack;
+				} catch(e){}
+			}
+		
+		}
+		
+		if(!err){
+			err = new Error();
+			
+			if (err.stack) {
+				// remove one stack level:
+				if (typeof(Components) != 'undefined') {
+					// Firefox:
+					this.stack = err.stack.substring(err.stack.indexOf('\n')+1);
+				} else if (typeof(chrome) != 'undefined' || typeof(process) != 'undefined') {
+					// Google Chrome/Node.js:
+					this.stack = err.stack.replace(/\n[^\n]*/,'');
+				} else {
+					this.stack = err.stack;
+				}
+			}
+
+		}
+		
+		this.message = _undefined!==typeof data.message ? data.message : err.message;
+		this.fileName = _undefined!==typeof data.fileName ? data.fileName : err.fileName;
+		this.lineNumber = _undefined!==typeof data.lineNumber ? data.lineNumber : err.lineNumber;
+		this.columnNumber = _undefined!==typeof data.columnNumber ? data.columnNumber : err.columnNumber;
+		this.toString = function () { return this.name + ': ' + this.message }
+	}
+	
+	UserError.prototype = Object.create(Error.prototype);
+	UserError.prototype.constructor = UserError;
+	
+	jMod.UserError = UserError;
+})()
+	jMod['ERROR'] = new (function(){
 	
 		this.ERROR_CODES = {
 			ERROR_RESULT: {
@@ -9442,70 +11830,121 @@ SendMessage._globalResponseCallback = mExportFunction(SendMessage_responseCallba
 		}
 		
 
-	}
+	})();
 	
 	//console.log('EVALERROR', jMod['ERROR'].getCode('ERROR_NAME.EVALERROR'));
 	//console.log('REFERENCEERROR', jMod['ERROR'].getCode('ERROR_NAME.REFERENCEERROR'));
 	//console.log('URIERROR', jMod['ERROR'].getCode('ERROR_NAME.URIERROR'));
 	
-	function jModListenError(message, url, linenumber, colNumber, data) {
+	function _jModListenError(message, url, linenumber, colNumber, data) {
 		console.log('jModListenError', message, url, linenumber, colNumber);
-		//console.log('jModListenError data', data);
-		//setTimeout(function(message, url, linenumber, colNumber, data){
-			var tData = jMod.parseStack(data.stack);
-			if(tData.length > 0)
-				return jMod['ERROR']['catchError'](message, url, linenumber, colNumber, data, tData);
-		//}, 1, message, url, linenumber, colNumber, data);
+		var tData = jMod.parseStack(data.stack);
+		if(tData.length > 0)
+			return jMod['ERROR']['catchError'](message, url, linenumber, colNumber, data, tData);
 	}
 	
-	mExportFunction(jModListenError, unsafeWindow, {
+	mExportFunction(_jModListenError, unsafeWindow, {
 		defineAs: "jModListenError",
 		allowCallbacks: true,
 		allowCrossOriginArguments: true
 	});
 	
 	var onErrorFunction = function(){
-		window.oldHandle = window.onerror;
-		window.onerror = function(message, url, linenumber, colNumber, eObj){
-			//console.log('tErrHandle', message, url, linenumber);
-			try{
-				//var args = Slice.call(arguments, 0);
-				var tStack = '';
+		// Handle min renaming
+		//var win = typeof document !== "undefined" ? document.defaultView : typeof window !== "undefined" ? window : unsafeWindow;
+		var win = 
+				typeof this.document !== "undefined" ? this.document.defaultView :
+				typeof document !== "undefined" ? document.defaultView :
+				this.top != null ? this :
+				null;
+		//var console = this.console != null ? this.console : win.console;
+		var console = win.console != null ? win.console : this.console;
+		if(win._jModErrorHandlerStack)
+			return;
+		
+		win._origErrorHandler = win.onerror;
+		win._jModErrorHandlerStack = [];
+		
+		function jModGlobalErrorHandler(message, url, linenumber, colNumber, eObj){
+			var win = typeof document !== "undefined" ? document.defaultView : (this.top != null ? this : null);
+			var console = this.console != null ? this.console : win.console;
+			console.log("tErrHandle", message, url, linenumber, eObj);
+			try {
+				var data = {}, tStack = "";
+				if(eObj){
+					try{
+						//tStack = eObj.stack.toString();
+						tStack = String(eObj.stack);
+					}catch(e){
+						console.log('Error eObj.stack.toString', e);
+					};
+					data = {
+						message: eObj.message,
+						name: eObj.name,
+						fileName: eObj.fileName,
+						lineNumber: eObj.lineNumber,
+						columnNumber: eObj.columnNumber,
+						stack: tStack,
+						url: url
+					};
+				} else {
+					data = {
+						message: message,
+						name: null,
+						fileName: null,
+						lineNumber: linenumber,
+						columnNumber: colNumber,
+						stack: tStack,
+						url: url
+					};
+				}
+				var fn;
+				if(typeof jModListenError !== "undefined")
+					fn = jModListenError;
+				else if(win.jModListenError)
+					fn = win.jModListenError;
+				else
+					fn = document.defaultView.jModListenError;
+				fn(message, url, linenumber, colNumber, data);
+			} catch(e) {
+				console.log('error calling jModListenError', e, win);
+			}
+			
+			for(var i = win._jModErrorHandlerStack.length - 1; i >= 0; i--){
 				try{
-					tStack = eObj.stack.toString();
-				}catch(e){};
-				var data = {
-					message: eObj.message,
-					name: eObj.name,
-					fileName: eObj.fileName,
-					lineNumber: eObj.lineNumber,
-					columnNumber: eObj.columnNumber,
-					stack: tStack
-				};
-				//console.log('eobj.stack', eObj.stack);
-				jModListenError(message, url, linenumber, colNumber, data);
-				//if(jModListenError(message, url, linenumber, colNumber, data))
-					//return true;
+					if(win._jModErrorHandlerStack[i].apply(this, arguments) === true)
+						return true;
+				}catch(e){
+					console.log("Error processing error handler", win._jModErrorHandlerStack[i]);
+				}
+			}
+			try{
+				if(win._origErrorHandler)
+					return win._origErrorHandler.apply(this, arguments);
 			}catch(e){}
-			//finally {
-			if(window.oldHandle)
-				return window.oldHandle.apply(this, arguments);
+			
 			return false;
-			//}
 		}
-		/*
-		setTimeout(function(){
-			eval("eval('FAIL')");
-			var fofo = baba(tko);
-		}, 500);
-		*/
-	};
-	/*
-	setTimeout(function(){
-	jMod.API.contentEval(onErrorFunction);
-	}, 1000);
-	*/
-	//setTimeout(jMod.API.contentEval, 1000, onErrorFunction);
+		
+		// Overwrite any existing error handler
+		win.onerror = jModGlobalErrorHandler;
+		
+		try{
+			// Prevent new handler from being overwritten
+			// Cannot use defineProperty
+			// ONLY OVERWRITE SETTER!
+			//if(win.__lookupSetter__('onerror').name == "onerror"){
+				win.__defineSetter__("onerror", function(fn){
+					// Add to handler stack
+					win._jModErrorHandlerStack.push(fn);
+				});
+			//}
+		}catch(e){};
+		
+	}
+	//onErrorFunction(window, console);
+	//onErrorFunction(window || unsafeWindow, console);
+	//jMod.API.contentEval(onErrorFunction);
 
 	if(_undefined==typeof jMod.Config.script.script_info && _undefined!=typeof GM_info){
 		ScriptInfo.set();
@@ -9520,24 +11959,38 @@ const maxCallCount = 200;
 
 var pageLoadTime,
 	totalCallCount = 0,
-	doc = (document || window.document || unsafeWindow.document || window),
+	doc = jMod.Element.document,
 InitHandlers = {
+	addCSS: function(){
+		if(!Loading.CSSAdded){
+			Loading.CSSAdded = true;
+			jMod.AddCSS();
+		}
+	},
+	
+	
+	headAvailable: function(){
+		Loading.headAvailable = true;
+		InitHandlers.addCSS();
+		if(jMod.debug)
+			jMod.API.contentEval(onErrorFunction); // Debug only: Still working on error detection
+	},
+	
 	DOMLoaded: function(){
 		Loading.DOMLoaded = true;
 		if(jMod.debug) jModLogTime('DOM Loaded', null, ' - Begin Init');
-		Loading.CSSAdded = true;
-		jMod.AddCSS();
+		if(!Loading.headAvailable)
+			InitHandlers.headAvailable();
 		jMod.Events.fire('onDOMReady');
-		//jMod.API.contentEval(onErrorFunction);
 		jMod.Notification.init();
 		jMod.Modal.init();
 		jMod.Settings.init();
 		Loading.jModReady = true;
 		//unsafeWindow.postMessage('onReady', "*");
-		setTimeout(function(){
-			if(jMod.debug) jModLogTime('jModReady');
+		//setTimeout(function(){
+			if(jMod.debug) jModLogTime('jModReady' + (_undefined!=typeof window.mozPaintCount ? (' (Mozilla Paint Count: '+window.mozPaintCount+')') : ''));
 			jMod.Events.fire('onReady');
-		},0);
+		//},0);
 		if(performance.available)
 			jModReady = performance.now;
 	},
@@ -9545,7 +11998,7 @@ InitHandlers = {
 	documentComplete: function(){
 		Loading.documentComplete = true;
 		if(jMod.debug) {
-			jModLogTime('onPageReady');
+			jModLogTime('onPageReady' + (_undefined!=typeof window.mozPaintCount ? (' (Mozilla Paint Count: '+window.mozPaintCount+')') : ''));
 			console.groupEnd('jMod Start');
 		}
 		jMod.Events.fire('onPageReady');
@@ -9560,6 +12013,14 @@ InitHandlers = {
 
 
 function tryInit(e){
+	// Some versions of FF have a head at "document-start" (before DOM exists) and some do not
+	// speed up init for versions that do by adding css as soon as possible
+	if(!Loading.headAvailable){
+		if(jMod.Element.head){
+			InitHandlers.headAvailable();
+		}
+	}
+
 	if(!Loading.DOMLoaded){
 		if(['interactive', 'complete'].indexOf(doc.readyState.toLowerCase()) != -1){
 			InitHandlers.DOMLoaded();
@@ -9581,7 +12042,7 @@ function tryInit(e){
 		if(Loading.performanceReady && Loading.documentComplete){
 			Loading.Complete = true;
 			clearInterval(checkTimer);
-			if(jMod.debug) jModLogTime('jMod Finish Init');
+			if(jMod.debug) jModLogTime('jMod Finish Init' + (_undefined!=typeof window.mozPaintCount ? (' (Mozilla Paint Count: '+window.mozPaintCount+')') : ''));
 			return;
 		}
 	}
@@ -9599,7 +12060,9 @@ function tryInit(e){
 		if(!Loading.performanceReady)
 			InitHandlers.performanceReady();
 			
-		if(jMod.debug) jModLogTime('jMod Finish Init');
+		if(jMod.debug){
+			jModLogTime('jMod Finish Init (timeout)' + (_undefined!=typeof window.mozPaintCount ? (' (Mozilla Paint Count: '+window.mozPaintCount+')') : ''));
+		}
 		return;
 	}
 	if(jMod.debug) jMod.log.count('Try Init');
@@ -9663,14 +12126,22 @@ setInterval(checkTimer, 25);
 			jMod.InitializeEndTime = performance.now;
 		}, 0);
 	}
-	if(jMod.debug) jModLogTime('jMod Initialize Time Elapsed');
-	return jMod;
-}(
-	("undefined"!==typeof window.performance?window.performance.now():0.0),
-	"undefined"!==typeof jQuery?jQuery:undefined,
-	console,
-	window,
-	"undefined"!==typeof unsafeWindow?unsafeWindow:("undefined"!==typeof window?window:this),
-	"undefined"
-));
+	if(jMod.debug){
+		jModLogTime('jMod Initialize Time Elapsed');
+		console.log('unsafeWindow', unsafeWindow);
+		console.log('window', window);
+		console.log('global', Object.prototype.toString.call(this).replace(/^\[object |\]$/g,'').toLowerCase(), this);
+	}
+/*
+try{
+	var x = fofofo(a);
+	//throw new jModError('Er test');
+}catch(e){
+	//e.log('Er Title', 'Er body');
+	var foo = new jModError(e);
+	foo.log('Error Title', 'Error body');
+}
+*/
 
+	return jMod;
+});

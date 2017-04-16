@@ -142,6 +142,17 @@ var EventsClass = function(_events){
 				this.add(group, this.events[evt], data[this.events[evt]])
 	};
 	
+	this.getAll = function(group, eventName){
+		if(eventName){
+			if(listeners[group] && listeners[group][eventName]){
+				return listeners[group][eventName];
+			}
+		} else {
+			//if(listeners[group])
+			return listeners[group]
+		}
+	};
+	
 	this.fire = function(eventName, group, _this, args){
 		var _args, i, evt, group = listeners[group || '0'];
 		_args = RealTypeOf(args) == "array" ? args : [args];
@@ -153,12 +164,12 @@ var EventsClass = function(_events){
 					if((evt[i].apply(_this || null, _args || [])) === false){
 						console.log('fire canceled');
 						return false;
-					}	
+					}
 				}
 			}
 		} catch(e){
 			//console.error('Error EventsClass.fire', e);
-			jModError(e, 'jMod.EventsClass.fire');
+			jModLogError(e, 'jMod.EventsClass.fire');
 		}
 	}
 };

@@ -12,6 +12,7 @@
 // +@history (0.0.18) Minor improvements to "ScopedConsoleCommand"
 // +@history (0.0.18) Minor improvements to "logFormatBuilder"
 // +@history (0.0.18) Major update/fixes to "jModError"
+// +@history (0.0.20) Error cloning now works so "ScopedConsoleCommand" is obsolete.
 
 
 /**
@@ -26,6 +27,55 @@
  * @memberof jMod.API
  */
 
+var LogFormatCSS = new (function(){
+	var _this = this,
+		SansationFontFamily = 'font-family:"Sansation","Open Sans",Arial;',
+		jModHeaderFontStyle = 'font-size:175%;font-weight:300;' + SansationFontFamily,
+		stripedBackground = 'repeating-linear-gradient(-45deg, red, red 5px, transparent 5px, transparent 10px);background-size:auto 75% 100%, 0px 0px;'
+	
+	_this.time = 'font-weight:bold;font-size:120%;color:red;';
+	
+	_this.stchange = 'font-weight:bold;font-size:130%;color:blue;';
+	
+	//_this.iconStyle = 'font-size:175%;background-image:url("http://myuserjs.org/img/favicon/favicon.png");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;';
+	_this.iconStyle = ''
+		//+'font-size:175%;'
+		+'font-size:1.75em;'
+		+'background-color: transparent;'
+		+'background-image:url("http://myuserjs.org/img/favicon/favicon.png");'
+		//+'background-origin: border-box;'
+		+'background-clip: border-box;'
+		+'background-position:left center;'
+		+'background-size:auto 75%;'
+		//+'background-size:auto 0.75em;'
+		+'background-repeat: no-repeat;'
+		+'letter-spacing: 20px;'
+		+'white-space: pre;'
+		//+'background-size: contain;'
+		+'display: run-in;';
+		
+	
+	_this.logDefaultStyle = 'display: run-in;';
+	_this.logHeaderStyle = jModHeaderFontStyle;
+	_this.logTitleStyle = 'color:#000;font-size:125%;';
+	_this.logTextStyle = 'font-weight:bold;font-size:120%;color:#000;';
+	
+	_this.infoDefaultStyle = 'display: run-in;';
+	_this.infoHeaderStyle = jModHeaderFontStyle;
+	_this.infoTitleStyle = 'color:#000;font-size:125%;';
+	_this.infoTextStyle = 'font-weight:bold;font-size:120%;color:blue;';
+	
+	_this.warningDefaultStyle = 'display: run-in;';
+	_this.warningHeaderStyle = jModHeaderFontStyle;
+	_this.warningTitleStyle = 'color:#000;font-size:125%;';
+	_this.warningTextStyle = 'font-weight:bold;font-size:120%;color:red;';
+	
+	_this.errorDefaultStyle = 'display: run-in;';
+	_this.errorHeaderStyle = jModHeaderFontStyle + 'color:red;';
+	_this.errorTitleStyle = 'color:#000;font-size:125%;';
+	_this.errorLineStyle = 'color:blue;';
+})();
+ 
 +function(){
 	var i;
 	var OUTPUT_TYPES = {
@@ -91,11 +141,17 @@
 	}
 	
 	function checkConsole(fn){
+		if(fn(window.console)) return window.console;
 		if(fn(console)) return console;
 		if(fn(this.console)) return this.console;
-		if(fn(window.console)) return window.console;
 		if(fn(unsafeWindow.console)) return unsafeWindow.console;
 		if(fn(unsafeWindow.window.console)) return unsafeWindow.window.console;
+		
+		if(EXISTS(Console) && fn(Console)) return Console;
+		if(fn(this.Console)) return this.Console;
+		if(fn(window.Console)) return window.Console;
+		if(fn(unsafeWindow.Console)) return unsafeWindow.Console;
+		if(fn(unsafeWindow.window.Console)) return unsafeWindow.window.Console;
 		
 		return undefined;
 	}
@@ -120,7 +176,7 @@
 		return (['debug','log','info','warn','error','exception'].indexOf(command)!=-1&&"string"==typeof value&&/(?:\%s|\%c|\%o|\%d|\%f|\%\.\df|\%i)/.test(value)); // Don't use GM_log on formatted logs
 	}
 	
-	jMod.log = jMod.API.log = {
+	jMod.log = API.log = {
 		'OUTPUT_TYPES': OUTPUT_TYPES,
 		fb: undefined,
 		c2: undefined,
@@ -158,6 +214,7 @@
 			this.updateWC(getWC());
 		},
 		
+		/*
 		// For commands you can't call .apply on (like when an error object is involved)
 		ScopedConsoleCommand: function(command, value){
 			var i = 0, ptr, cmd, args = arguments,
@@ -173,6 +230,55 @@
 				if(NOTEXISTS(ptr)||NOTEXISTS(cmd))
 					continue;
 				try{
+				if(ptr === this.fb){
+					console.log('is fb');
+					if(!ptr._apply){
+						var _apply = function(command, arg){
+							if(this && this.log && this[command]){
+								try{
+									this[command].apply(this, arg);
+								}catch(ex){
+									console.log('fb _apply err', ex);
+								}
+							} else {
+								console.log("no this", this, command);
+							}
+						};
+						if(unsafeWindow !== window){
+							this.fb._apply = mExportFunction(_apply.bind(this.fb), unsafeWindow, {
+								//defineAs: "_apply",
+								allowCallbacks: true,
+								allowCrossOriginArguments: true
+							});
+						} else {
+							this.fb._apply = _apply.bind(this.fb);
+						}
+					}
+					var tmp, tmp2;
+					try{
+						tmp = Slice.call(arguments, 1);
+					}catch(te){
+						console.log('tmp error', te);
+						tmp = arguments;
+					}
+					try{
+						tmp2 = mCloneInto(tmp, unsafeWindow, {cloneFunctions: true, wrapReflectors: true}, true);
+					}catch(te){
+						console.log('tmp2 error', te);
+						tmp2 = tmp;
+					}
+					
+					try{
+						//return this.fb._apply.call(this.fb, command, mCloneInto(tmp, unsafeWindow, {cloneFunctions: true, wrapReflectors: true}));
+						console.log("_apply input", RealTypeOf(tmp2), tmp2);
+						return this.fb._apply.call(this.fb, command, tmp2);
+					}catch(te){
+						console.log('_apply error', te);
+					}
+				}
+				
+				
+					//cmd.apply(ptr, arguments);
 					switch(args.length){
 						case 1:  return cmd.call(ptr);
 						case 2:  return cmd.call(ptr, args[1]);
@@ -195,11 +301,13 @@
 						default: return false;
 					}
 					return true;
-				}catch(e){}
+				}catch(e){
+					console.log('log error', e);
+				}
 			}
 			return false;
 		},
-		
+		*/
 		ConsoleCommand: function(command, value){
 			try{
 				var i = 0, key, order = ['WebConsole', 'Firebug'],
@@ -212,12 +320,12 @@
 					wrapReflectors: true
 				});
 				//if(isFormatted || ['profile', 'profileEnd'].indexOf(command) != -1 || !jConfig.API.log.WebConsole)
-				if(['profile', 'profileEnd'].indexOf(command) != -1 || !jConfig.API.log.WebConsole)
+				if(['profile', 'profileEnd', 'error'].indexOf(command) != -1 || !jConfig.API.log.WebConsole)
 					order = ['Firebug', 'WebConsole'];
 				
 				for( ; i < order.length; i++){
 					key = order[i];
-					if(typeof objs[key] !== _undefined && objs[key][command] !== _undefined && jConfig.API.log[key]){
+					if(objs[key] != null && typeof objs[key][command] !== _undefined && jConfig.API.log[key]){
 						try {
 							return objs[key][command].apply(objs[key], args);
 						} catch(e){}
@@ -253,53 +361,26 @@
 				this.ConsoleCommand.apply(this, [output_type.value].concat(Slice.call(arguments, 1)));
 		},
 		
-		fmt: {
-			//timePatt: '%.3fms',
-			time: 'font-weight:bold;font-size:120%;color:red;',
-			
-			stchange: 'font-weight:bold;font-size:130%;color:blue;',
-			
-			iconStyle: 'font-size:175%;background-image:url("http://myuserjs.org/img/favicon/favicon.png");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;',
-			
-			logDefaultStyle: '',
-			logHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
-			logTitleStyle: 'color:#000;font-size:125%;',
-			logTextStyle: 'font-weight:bold;font-size:120%;color:#000;',
-			
-			infoDefaultStyle: '',
-			infoHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
-			infoTitleStyle: 'color:#000;font-size:125%;',
-			infoTextStyle: 'font-weight:bold;font-size:120%;color:blue;',
-			
-			warningDefaultStyle: '',
-			warningHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
-			warningTitleStyle: 'color:#000;font-size:125%;',
-			warningTextStyle: 'font-weight:bold;font-size:120%;color:red;',
-			
-			errorDefaultStyle: ' ',
-			errorHeaderStyle: 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;',
-			errorTitleStyle: 'color:#000;font-size:125%;',
-			errorLineStyle: 'color:blue;'
-		}
+		fmt: LogFormatCSS
 	};
 	
 	for(i = 0; i < msgList.length; i++){
-		jMod.API.log[msgList[i][0]] = (function(oType){
-			return (function(){return this.outputMessage.apply(this, [OUTPUT_TYPES[oType]].concat(Slice.call(arguments)));}).bind(jMod.API.log);
+		API.log[msgList[i][0]] = (function(oType){
+			return (function(){return this.outputMessage.apply(this, [OUTPUT_TYPES[oType]].concat(Slice.call(arguments)));}).bind(API.log);
 		})(msgList[i][1]);
 	}
 	
 	for(i = 0; i < fnList.length; i++){
-		jMod.API.log[fnList[i]] = (function(fName){
-			return (function(){if(functionEnabled(fName))return this.ConsoleCommand.apply(this, [fName].concat(Slice.call(arguments)));}).bind(jMod.API.log);
+		API.log[fnList[i]] = (function(fName){
+			return (function(){if(functionEnabled(fName))return this.ConsoleCommand.apply(this, [fName].concat(Slice.call(arguments)));}).bind(API.log);
 		})(fnList[i]);
 	}
 	
 	for(i = 0; i < exportFunctions.length; i++)
-		jMod[exportFunctions[i]] = (jMod.log[exportFunctions[i]]).bind(jMod.API.log);
+		jMod[exportFunctions[i]] = (jMod.log[exportFunctions[i]]).bind(API.log);
 	
 	
-	jMod.API.logFormatBuilder = function(){
+	API.logFormatBuilder = function(){
 		this.args = [];
 		
 		var addLine = function(value, type, style){
@@ -366,9 +447,10 @@
 		}
 		
 		this.add = function(){
-			if(arguments.length == 1 && RealTypeOf(arguments[0]) == "array"){
-				for(var i = 0; i < arguments[0].length; i++){
-					addLine.apply(this, arguments[0][i]);
+			var i = 0, var0 = arguments[0];
+			if(arguments.length == 1 && RealTypeOf(var0) == "array"){
+				for( ; i < var0.length; i++){
+					addLine.apply(this, var0[i]);
 				}
 			} else {
 				addLine.apply(this, Slice.call(arguments));
@@ -402,154 +484,83 @@
 
 
 
-var jModError = function(){
+var jModLogError = function(){
 	var i = 3,
 		e = arguments[0],
 		title = arguments[1],
 		message;
 	try{
 		message = arguments[2]
-	}catch(e){};
+	}catch(x){};
 	
-	if(!(e && (e.message && e.lineNumber))){
+	//if(!(e && (e.message && e.lineNumber))){
+	if(!(e && e instanceof Error)){
 		message = title;
 		title = e;
 		e = undefined;
 		i = 2;
 	}
 	
-	var errorDefaultStyle = jMod.log.fmt.errorDefaultStyle;
+	var errorDefaultStyle = LogFormatCSS.errorDefaultStyle;
 	
-	var fmtBuild = new jMod.API.logFormatBuilder([
-		['  ', "%s", errorDefaultStyle + jMod.log.fmt.iconStyle],
-		['jMod', "string", errorDefaultStyle + jMod.log.fmt.errorHeaderStyle],
+	var fmtBuild = new API.logFormatBuilder([
+		['  ', "%s", errorDefaultStyle + LogFormatCSS.iconStyle],
+		['jMod', "string", errorDefaultStyle + LogFormatCSS.errorHeaderStyle],
 		
 		[' - ', "string", errorDefaultStyle],
-		[title || ' ', "%s", errorDefaultStyle + jMod.log.fmt.errorTitleStyle],
+		[title || ' ', "%s", errorDefaultStyle + LogFormatCSS.errorTitleStyle],
 		[" \n", "string"],
-		[message || '', "%s", errorDefaultStyle + ' ']
+		[message || '', "%s", errorDefaultStyle + 'color:red;']
 	]);
 	
 	for(; i < arguments.length; i++){
 		fmtBuild.add([
 			[" \n", "string"],
-			[arguments[i], typeof arguments[i] == "string" ? "string" : "object"]
+			[arguments[i], typeof arguments[i] == "string" ? "string" : "object", "color:red;"]
 		]);
 	}
 	
-	if(typeof e !== _undefined && e != null){
+	if(typeof e != _undefined && e != null){
 		fmtBuild.add([
 			[" \n", "string"],
-			[e.message + " ", "%s", errorDefaultStyle + ' '],
-			[e.lineNumber, "%s", errorDefaultStyle + jMod.log.fmt.errorLineStyle],
-			[e]
+			[e.message + " ", "%s", errorDefaultStyle + "color:red;"],
+			[e.lineNumber, "%s", errorDefaultStyle + LogFormatCSS.errorLineStyle + "color:red;"],
+			[" \n", "string", " "],
+			[e && e.err ? e.err : e, "%0", "color:red;"]
 		]);
 	}
 	
-	var arr = fmtBuild.build();
-	arr.unshift('error');
-	
-	jMod.log.ScopedConsoleCommand.apply(jMod.log, arr); // This works
-	//jMod.log.ConsoleCommand.apply(jMod.log, arr); // This will not work!
-	
+	//var arr = fmtBuild.build();
+	//arr.unshift('error');
+	try{
+		//jMod.log.ScopedConsoleCommand.apply(jMod.log, arr); // This works
+		//jMod.log.ConsoleCommand.apply(jMod.log, arr); // This will not work!
+		jMod.logError.apply(jMod.log, fmtBuild.build());
+	} catch(e){}
 }
-/*
-var jModError = function(e, title, message){
-	var errorDefaultStyle = ' ';
-	//var ErrorIconURL = 'http://www.shedworx.com/files/images/error.png';
-	//var ErrorIconURL = 'http://myuserjs.org/img/favicon/favicon.png';
-	//var errorIconStyle = 'font-size:175%;background-image:url("'+ErrorIconURL+'");background-size:auto 75%;background-repeat: no-repeat;background-position:left center;';
-	
-	var errorHeaderStyle = 'font-size:175%;font-weight:300;font-family:"Sansation","Open Sans",Arial;';
-	
-	var errorTitleStyle = 'color:#000;font-size:125%;';
-	
-	var errorLineStyle = 'color:blue;';
-	
-	// Have to get around scope/permission problems when dealing with "e"
-	// Cannot use .apply when using greasemonkey!!
-	if(typeof e !== _undefined && e !== null){
-		if(arguments.length <= 3){
-			jMod.log.ScopedConsoleCommand.call(jMod.log,
-				'error',
-				'%c%s%cjMod Error%c - %c%s \n%s \n%c%s - %c(line %d)',
-				errorDefaultStyle + jMod.log.fmt.iconStyle, // Icon Style
-				'  ', // Icon
-				errorDefaultStyle + errorHeaderStyle, // Header Style
-				' ', // Header
-				errorDefaultStyle + errorTitleStyle, // Title Style
-				(title || ' '), // Title
-				(message || ' '), // Message
-				errorDefaultStyle + ' ', // e.Message Style
-				e.message, // e.Message
-				errorDefaultStyle + errorLineStyle, // Line Number Style
-				e.lineNumber, // Line Number
-				e
-			);
-		} else {
-			jMod.log.ScopedConsoleCommand.call(jMod.log,
-				'error',
-				'%c%s%cjMod Error%c - %c%s \n%s \n%c%s - %c(line %d)',
-				errorDefaultStyle + jMod.log.fmt.iconStyle, // Icon Style
-				'  ', // Icon
-				errorDefaultStyle + errorHeaderStyle, // Header Style
-				' ', // Header
-				errorDefaultStyle + errorTitleStyle, // Title Style
-				(title || ' '), // Title
-				(message || ' '), // Message
-				errorDefaultStyle + ' ', // e.Message Style
-				e.message, // e.Message
-				errorDefaultStyle + errorLineStyle, // Line Number Style
-				e.lineNumber, // Line Number
-				e,
-				arguments.length >= 4 ? arguments[3] : undefined,
-				arguments.length >= 5 ? arguments[4] : undefined,
-				arguments.length >= 6 ? arguments[5] : undefined
-				//arguments[4] || undefined,
-				//arguments[5] || undefined,
-				//arguments[6] || undefined
-			);
-		}
-	} else {
-		jMod.log.ScopedConsoleCommand.apply(jMod.log,[
-				'error',
-				'%c%s%cjMod Error%c - %c%s \n%s',
-				errorDefaultStyle + jMod.log.fmt.iconStyle, // Icon Style
-				'  ', // Icon
-				errorDefaultStyle + errorHeaderStyle, // Header Style
-				' ', // Header
-				errorDefaultStyle + errorTitleStyle, // Title Style
-				(title || ' '), // Title
-				(message || ' ') // Message
-			].concat(Slice.call(arguments,3))
-		);
-
-	}
-};
-*/
 
 var jModLogWarning = function(title, text){
 	if(jMod.log.OUTPUT_TYPES.WARNING.level > jConfig('API.log.verbosity_level'))
 		return;
 		
 	var i = 2,
-		warningDefaultStyle = jMod.log.fmt.warningDefaultStyle,
-		fmtBuild = new jMod.API.logFormatBuilder([
-			['  ', "%s", warningDefaultStyle + jMod.log.fmt.iconStyle],
-			['jMod Warning', "string", warningDefaultStyle + jMod.log.fmt.warningHeaderStyle]
+		warningDefaultStyle = LogFormatCSS.warningDefaultStyle,
+		fmtBuild = new API.logFormatBuilder([
+			['  ', "%s", warningDefaultStyle + LogFormatCSS.iconStyle],
+			['jMod Warning', "string", warningDefaultStyle + LogFormatCSS.warningHeaderStyle]
 		]);
 		
 	if(_undefined!==typeof text){
 		fmtBuild.add([
 			[' - ', "string", warningDefaultStyle],
-			[title || ' ', "%s", warningDefaultStyle + jMod.log.fmt.warningTitleStyle],
+			[title || ' ', "%s", warningDefaultStyle + LogFormatCSS.warningTitleStyle],
 			[" \n", "string"],
-			[text || '', "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle]
+			[text || '', "%s", warningDefaultStyle + LogFormatCSS.warningTextStyle]
 		]);
 	} else {
 		fmtBuild.add([
 			[" \n", "string"],
-			[title || '', "%s", warningDefaultStyle + jMod.log.fmt.warningTextStyle]
+			[title || '', "%s", warningDefaultStyle + LogFormatCSS.warningTextStyle]
 		]);
 	}
 	
@@ -568,23 +579,23 @@ var jModLogInfo = function(title, text){
 		return;
 		
 	var i = 2,
-		infoDefaultStyle = jMod.log.fmt.infoDefaultStyle,
-		fmtBuild = new jMod.API.logFormatBuilder([
-			['  ', "%s", infoDefaultStyle + jMod.log.fmt.iconStyle],
-			['jMod', "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle]
+		infoDefaultStyle = LogFormatCSS.infoDefaultStyle,
+		fmtBuild = new API.logFormatBuilder([
+			['  ', "%s", infoDefaultStyle + LogFormatCSS.iconStyle],
+			['jMod', "string", infoDefaultStyle + LogFormatCSS.infoHeaderStyle]
 		]);
 		
 	if(_undefined!==typeof text){
 		fmtBuild.add([
 			[' - ', "string", infoDefaultStyle],
-			[title || ' ', "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle],
+			[title || ' ', "%s", infoDefaultStyle + LogFormatCSS.infoTitleStyle],
 			[" \n", "string"],
-			[text || '', "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle]
+			[text || '', "%s", infoDefaultStyle + LogFormatCSS.infoTextStyle]
 		]);
 	} else {
 		fmtBuild.add([
 			[" \n", "string"],
-			[title || '', "%s", infoDefaultStyle + jMod.log.fmt.infoTextStyle]
+			[title || '', "%s", infoDefaultStyle + LogFormatCSS.infoTextStyle]
 		]);
 	}
 	
@@ -603,23 +614,23 @@ var jModLog = function(title, text){
 		return;
 		
 	var i = 2,
-		logDefaultStyle = jMod.log.fmt.infoDefaultStyle,
-		fmtBuild = new jMod.API.logFormatBuilder([
-			['  ', "%s", logDefaultStyle + jMod.log.fmt.iconStyle],
-			['jMod', "string", logDefaultStyle + jMod.log.fmt.logHeaderStyle]
+		logDefaultStyle = LogFormatCSS.infoDefaultStyle,
+		fmtBuild = new API.logFormatBuilder([
+			['  ', "%s", logDefaultStyle + LogFormatCSS.iconStyle],
+			['jMod', "string", logDefaultStyle + LogFormatCSS.logHeaderStyle]
 		]);
 		
 	if(_undefined!==typeof text){
 		fmtBuild.add([
 			[' - ', "string", logDefaultStyle],
-			[title || ' ', "%s", logDefaultStyle + jMod.log.fmt.logTitleStyle],
+			[title || ' ', "%s", logDefaultStyle + LogFormatCSS.logTitleStyle],
 			[" \n", "string"],
-			[text || '', "%s", logDefaultStyle + jMod.log.fmt.logTextStyle]
+			[text || '', "%s", logDefaultStyle + LogFormatCSS.logTextStyle]
 		]);
 	} else {
 		fmtBuild.add([
 			[" \n", "string"],
-			[title || '', "%s", logDefaultStyle + jMod.log.fmt.logTextStyle]
+			[title || '', "%s", logDefaultStyle + LogFormatCSS.logTextStyle]
 		]);
 	}
 	
@@ -638,15 +649,15 @@ var jModLogTime = function(title, prefix, suffix){
 		return;
 	var text = (prefix || '') +  jMod.timeElapsed.toFixed(2) + 'ms' + (suffix || '');
 	
-	var infoDefaultStyle = jMod.log.fmt.infoDefaultStyle;
+	var infoDefaultStyle = LogFormatCSS.infoDefaultStyle;
 	
-	var fmtBuild = new jMod.API.logFormatBuilder([
-		['  ', "%s", infoDefaultStyle + jMod.log.fmt.iconStyle],
-		['jMod', "string", infoDefaultStyle + jMod.log.fmt.infoHeaderStyle],
+	var fmtBuild = new API.logFormatBuilder([
+		['  ', "%s", infoDefaultStyle + LogFormatCSS.iconStyle],
+		['jMod', "string", infoDefaultStyle + LogFormatCSS.infoHeaderStyle],
 		[' - ', "string", infoDefaultStyle],
-		[title || ' ', "%s", infoDefaultStyle + jMod.log.fmt.infoTitleStyle],
+		[title || ' ', "%s", infoDefaultStyle + LogFormatCSS.infoTitleStyle],
 		[' ', "string"],
-		[text, "%s", infoDefaultStyle + jMod.log.fmt.time]
+		[text, "%s", infoDefaultStyle + LogFormatCSS.time]
 	]);
 	
 	jMod.Info.apply(jMod.log,fmtBuild.build());

@@ -306,14 +306,19 @@ var SettingsTest = function(){
 					'Notification Examples: ',
 					{
 						type: 'ul',
-						style: 'list-style-type: none;',
+						style: {
+							listStyleType: 'none',
+						},
 						innerHTML: [
 							{
 								type: 'li',
 								innerHTML: {
 									type: 'button',
 									className: 'btn btn-primary',
-									style: 'width: 140px; margin-bottom: 5px;',
+									style: {
+										'width': '140px',
+										'marginBottom': '5px',
+									},
 									innerHTML: 'Small Notification',
 									EventListeners: {
 										click: function(){
@@ -336,7 +341,10 @@ var SettingsTest = function(){
 								innerHTML: {
 									type: 'button',
 									className: 'btn btn-primary',
-									style: 'width: 140px; margin-bottom: 5px;',
+									style: {
+										'width': '140px',
+										'marginBottom': '5px',
+									},
 									innerHTML: 'Large Notification',
 									EventListeners: {
 										click: function(){
@@ -356,7 +364,10 @@ var SettingsTest = function(){
 								innerHTML: {
 									type: 'button',
 									className: 'btn btn-primary',
-									style: 'width: 140px; margin-bottom: 5px;',
+									style: {
+										'width': '140px',
+										'marginBottom': '5px',
+									},
 									innerHTML: 'Fill Notification',
 									EventListeners: {
 										click: function(){
@@ -378,7 +389,10 @@ var SettingsTest = function(){
 								innerHTML: {
 									type: 'button',
 									className: 'btn btn-primary',
-									style: 'width: 140px; margin-bottom: 5px;',
+									style: {
+										'width': '140px',
+										'marginBottom': '5px',
+									},
 									innerHTML: 'Update Notification',
 									EventListeners: {
 										click: function(){
@@ -400,7 +414,7 @@ var SettingsTest = function(){
 						]
 					}
 				]
-			},
+			}
 		],
 		tabs: [
 			// (optional) Additional Custom tab

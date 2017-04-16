@@ -2,6 +2,7 @@
 // +@history (0.0.14) History begins.
 // +@history (0.0.15) Speed improvements.
 // +@history (0.0.17) Logging improvements.
+// +@history (0.0.19) Major speed improvements for CSS injection
 
 +function(){
 
@@ -9,24 +10,38 @@ const maxCallCount = 200;
 
 var pageLoadTime,
 	totalCallCount = 0,
-	doc = (document || window.document || unsafeWindow.document || window),
+	doc = jMod.Element.document,
 InitHandlers = {
+	addCSS: function(){
+		if(!Loading.CSSAdded){
+			Loading.CSSAdded = true;
+			jMod.AddCSS();
+		}
+	},
+	
+	
+	headAvailable: function(){
+		Loading.headAvailable = true;
+		InitHandlers.addCSS();
+		if(jMod.debug)
+			jMod.API.contentEval(onErrorFunction); // Debug only: Still working on error detection
+	},
+	
 	DOMLoaded: function(){
 		Loading.DOMLoaded = true;
 		if(jMod.debug) jModLogTime('DOM Loaded', null, ' - Begin Init');
-		Loading.CSSAdded = true;
-		jMod.AddCSS();
+		if(!Loading.headAvailable)
+			InitHandlers.headAvailable();
 		jMod.Events.fire('onDOMReady');
-		//jMod.API.contentEval(onErrorFunction);
 		jMod.Notification.init();
 		jMod.Modal.init();
 		jMod.Settings.init();
 		Loading.jModReady = true;
 		//unsafeWindow.postMessage('onReady', "*");
-		setTimeout(function(){
-			if(jMod.debug) jModLogTime('jModReady');
+		//setTimeout(function(){
+			if(jMod.debug) jModLogTime('jModReady' + (_undefined!=typeof window.mozPaintCount ? (' (Mozilla Paint Count: '+window.mozPaintCount+')') : ''));
 			jMod.Events.fire('onReady');
-		},0);
+		//},0);
 		if(performance.available)
 			jModReady = performance.now;
 	},
@@ -34,7 +49,7 @@ InitHandlers = {
 	documentComplete: function(){
 		Loading.documentComplete = true;
 		if(jMod.debug) {
-			jModLogTime('onPageReady');
+			jModLogTime('onPageReady' + (_undefined!=typeof window.mozPaintCount ? (' (Mozilla Paint Count: '+window.mozPaintCount+')') : ''));
 			console.groupEnd('jMod Start');
 		}
 		jMod.Events.fire('onPageReady');
@@ -49,6 +64,14 @@ InitHandlers = {
 
 
 function tryInit(e){
+	// Some versions of FF have a head at "document-start" (before DOM exists) and some do not
+	// speed up init for versions that do by adding css as soon as possible
+	if(!Loading.headAvailable){
+		if(jMod.Element.head){
+			InitHandlers.headAvailable();
+		}
+	}
+
 	if(!Loading.DOMLoaded){
 		if(['interactive', 'complete'].indexOf(doc.readyState.toLowerCase()) != -1){
 			InitHandlers.DOMLoaded();
@@ -70,7 +93,7 @@ function tryInit(e){
 		if(Loading.performanceReady && Loading.documentComplete){
 			Loading.Complete = true;
 			clearInterval(checkTimer);
-			if(jMod.debug) jModLogTime('jMod Finish Init');
+			if(jMod.debug) jModLogTime('jMod Finish Init' + (_undefined!=typeof window.mozPaintCount ? (' (Mozilla Paint Count: '+window.mozPaintCount+')') : ''));
 			return;
 		}
 	}
@@ -88,7 +111,9 @@ function tryInit(e){
 		if(!Loading.performanceReady)
 			InitHandlers.performanceReady();
 			
-		if(jMod.debug) jModLogTime('jMod Finish Init');
+		if(jMod.debug){
+			jModLogTime('jMod Finish Init (timeout)' + (_undefined!=typeof window.mozPaintCount ? (' (Mozilla Paint Count: '+window.mozPaintCount+')') : ''));
+		}
 		return;
 	}
 	if(jMod.debug) jMod.log.count('Try Init');

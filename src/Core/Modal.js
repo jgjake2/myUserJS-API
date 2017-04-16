@@ -132,7 +132,7 @@ var Modal = jMod.Modal = function(data, data2){
 		}
 	}catch(e){
 		//console.log('error, jMod.Modal', e);
-		jModError(e, 'jMod.Modal');
+		jModLogError(e, 'jMod.Modal');
 	}
 }
 var _ModalContainer;
@@ -180,7 +180,7 @@ const fadeAnimationLength = 150;
  * @returns {Element} DOM Element
  */
 Modal.getModal = function(number){
-	var modal = document.querySelector('div[data-jmod-modal="'+number+'"]');
+	var modal = jMod.$('div[data-jmod-modal="'+number+'"]');
 	if(modal)
 		return modal;
 	if(typeof Modal.Modals[number] !== _undefined)
@@ -203,10 +203,233 @@ Modal.addJSFeatures = function(modal, features){
 	}
 }
 
+Modal.getVisibleModals = function(){
+	var i = 0, r = [], modals = jMod.$$('div.modal.in[data-jmod-modal]', Modal.Container);
+	for( ; i < modals.length; i++){
+		r.push([modals[i], modals[i].getAttribute('data-jmod-modal')]);
+	}
+	return r;
+}
+
+Modal.getModal2 = function(){
+	var i = 0,
+		length = arguments.length,
+		arg, modal, modalNum;
+	if(length > 0){
+		for( ; i < length; i++){
+			arg = arguments[i];
+			if(isElement(arg)){
+				return arg;
+			} else if(typeof arg == "string" || typeof arg == "number"){
+				modalNum = parseInt(modalNum);
+			}
+		}
+		
+		if(modalNum != null){
+			if((modal = jMod.$('div[data-jmod-modal="'+modalNum+'"]', Modal.Container)) && isElement(modal)){
+				return modal;
+			}
+			
+			if(typeof Modal.Modals[modalNum] != _undefined)
+				return Modal.Modals[modalNum].element;
+		}
+	}
+	return null;
+}
+
+var modalResizingAttrName = 'data-jmod-modal-resizing';
+
+Modal.resize = function(){
+	var	modalNum, evt, i, arg, viewportHeight,
+		_dialog, _content, _body, _footer, _header, _modal,
+		_dialogRect,
+		length = arguments.length;
+	
+	for(i = 0; i < length; i++){
+		arg = arguments[i];
+		if(typeof arg == "number" || typeof arg == "string"){
+			modalNum = parseInt(arg);
+		} else if(isElement(arg)){
+			_modal = arg;
+		} else if(isEvent(arg)){
+			evt = arg;
+		}
+	}
+	
+	if(_undefined==typeof _modal && _undefined==typeof modalNum){
+		var modals = Modal.getVisibleModals();
+		for(i = 0; i < modals.length; i++){
+			Modal.resize(modals[i][0], modals[i][1], evt);
+		}
+		return;
+	}
+	
+	if(!_modal)
+		_modal = Modal.getModal2(_modal, modalNum);
+	if(_modal && isElement(_modal)){
+		if(getAttribute(_modal, modalResizingAttrName, 'boolean')){
+			if(_modal.__resizeLast__ == null){
+				return;
+			}
+			jMod.Element.cancelAnimationFrame(_modal.__resizeLast__);
+			_modal.__resizeLast__ = null;
+		}
+		
+		// Prevent resizing without canceling timer first
+		_modal.setAttribute(modalResizingAttrName, 'true');
+		
+		viewportHeight = parseInt(jMod.Element.viewportSize.getHeight());
+		
+		_dialog = jMod.$('.modal-dialog', _modal);
+		_dialogRect = jMod.Element.getClientRect(_dialog);
+		
+		if(parseInt(_dialogRect.bottom) <= viewportHeight && !_modal.hasVerticalScrollBar()){
+			addClass(_modal, 'no-vertical-scroll');
+		}
+		
+		try{
+			if(Modal.Events.fire('onBeforeResize', modalNum, _modal, evt) === false){
+				_modal.setAttribute(modalResizingAttrName, 'false');
+				return;
+			}
+		}catch(e){
+			jModLogError(e, 'jMod.Modal.resize', 'Error firing event "onBeforeResize"');
+			return;
+		}
+		
+		//if(modalNum == null && hasAttribute(_modal, 'data-jmod-modal')){
+		if(modalNum == null){
+			modalNum = getAttribute(_modal, 'data-jmod-modal', 'integer');
+		}
+		
+		_modal.__resizeLast__ = jMod.Element.requestAnimationFrame(function(){
+			// Prevent cancel attempt while running
+			_modal.__resizeLast__ = null;
+			_modal.__resizeLastStartY__ = 0;
+			_modal.__resizeLastEndY__ = 0;
+			_modal.__resizeLastCurrentY__ = null;
+			_modal.__resizeLastCount__ = 0;
+			
+			// Only resize if modal is visible
+			if(_modal.style.display != "none"){
+				if(_modal.__restoreVerticalScroll__ != null){
+					clearTimeout(_modal.__restoreVerticalScroll__);
+					_modal.__restoreVerticalScroll__ = null;
+				}
+				
+				viewportHeight = parseInt(jMod.Element.viewportSize.getHeight());
+				
+				//_dialog = jMod.$('.modal-dialog', _modal);
+				_body   = jMod.$('.modal-body',   _dialog);
+				_footer = jMod.$('.modal-footer', _dialog);
+				_header = jMod.$('.modal-header', _dialog);
+				
+				
+				var resizeAnimFunction
+					_bodyCurrentHeight = parseInt(jMod.Element.getCompStyle(_body, 'height')),
+					_bodyCurrentMaxHeight = parseInt(jMod.Element.getCompStyle(_body, 'maxHeight')),
+					_bodyMinHeight = parseInt(jMod.Element.getCompStyle(_body, 'minHeight')),
+					computedDialog = jMod.Element.getCompStyleObj(_dialog),
+					marginTop = parseInt(computedDialog.getPropertyValue('margin-top')),
+					marginBottom = parseInt(computedDialog.getPropertyValue('margin-bottom')),
+					maxHeight = (viewportHeight - parseInt(_header.offsetHeight) - parseInt(_footer.offsetHeight) - marginTop - marginBottom) - 15;
+					
+				if(_bodyMinHeight > maxHeight){
+					maxHeight = _bodyMinHeight;
+				}
+				
+				if(_bodyCurrentMaxHeight != maxHeight){
+
+					
+					_modal.__resizeLastCurrentY__ = _bodyCurrentMaxHeight;
+					_modal.__resizeLastStartY__ = _bodyCurrentMaxHeight;
+					_modal.__resizeLastEndY__ = parseInt(maxHeight);
+					
+					
+					resizeAnimFunction = function(){
+						var tmpId = _modal.__resizeLast__;
+						_modal.__resizeLastCount__++;
+						
+						if(_modal.__resizeLastCount__ > 50){
+							_body.style.maxHeight = _modal.__resizeLastEndY__ + 'px';
+							return;
+						}
+						
+						var current = _modal.__resizeLastCurrentY__ != null && !isNaN(parseInt(_modal.__resizeLastCurrentY__)) ? _modal.__resizeLastCurrentY__ : parseInt(jMod.Element.getCompStyle(_body, 'maxHeight'));
+						var duration = parseInt( 300 / 16.66666, 10 ) / 4;
+						var remaining = _modal.__resizeLastEndY__ - current;
+						
+						var time = timeFromPosition( parseInt(_modal.__resizeLastStartY__), remaining, duration, current );
+						if(isNaN(time))
+							time = 0;
+						else if(time < 0)
+							time = time * -1;
+						if(remaining != 0){
+							var delta;
+							
+							if ( remaining > 0 ) {
+								delta = Math.max( 1, easeOutSin( remaining, duration, time ));
+							} else {
+								delta = Math.min( -1, easeOutSin( remaining, duration, time ));
+							}
+							
+							if(delta == 0 || isNaN(delta)){
+								_body.style.maxHeight = _modal.__resizeLastEndY__ + 'px';
+								return;
+							}
+							
+							_modal.__resizeLastCurrentY__ = current + delta;
+							
+							
+							_body.style.maxHeight = _modal.__resizeLastCurrentY__ + 'px';
+							
+							if(_modal.__resizeLast__ == null || _modal.__resizeLast__ == tmpId){
+								if(_modal.__resizeLastCurrentY__ != _modal.__resizeLastEndY__ && _modal.__resizeLastCurrentY__ != null){
+									_modal.__resizeLast__ = jMod.Element.requestAnimationFrame(resizeAnimFunction);
+								} else {
+									_modal.__resizeLast__ = null;
+								}
+								return;
+							}
+						}
+					};
+					//resizeAnimFunction();
+					_modal.__resizeLast__ = jMod.Element.requestAnimationFrame(resizeAnimFunction);
+					
+					//_body.style.maxHeight = maxHeight + 'px';
+				}
+				
+				_dialogRect = jMod.Element.getClientRect(_dialog);
+				
+				if(parseInt(_dialogRect.bottom) > viewportHeight && parseInt(_dialogRect.height) < (_bodyMinHeight + parseInt(_header.offsetHeight) + parseInt(_footer.offsetHeight) + 15)){
+					removeClass(_modal, 'no-vertical-scroll');
+				} else {
+					_modal.__restoreVerticalScroll__ = setTimeout(function(_modal, modalResizingAttrName){
+						_modal.__restoreVerticalScroll__ = null;
+						//if(!getAttribute(_modal, modalResizingAttrName, 'boolean') || _modal.__resizeLast__ == null){
+						if(!getAttribute(_modal, modalResizingAttrName, 'boolean')){
+							removeClass(_modal, 'no-vertical-scroll');
+						}
+					}, 100, _modal, modalResizingAttrName);
+				}
+			}
+			
+			try{
+				Modal.Events.fire('onAfterResize', modalNum, _modal, evt);
+			}catch(e){
+				jModLogError(e, 'jMod.Modal.resize', 'Error firing event "onAfterResize"');
+			}
+			
+			// Release lock on resize events
+			_modal.setAttribute(modalResizingAttrName, 'false');
+		});
+	}
+}
+
 Modal.show = function(modal, modalNum, e){
 	try{
 		//console.log('jMod.Modal.CurrentModal', jMod.Modal.CurrentModal);
-
+		//var doc = jMod.Element.document;
 		if(typeof modal === "number" && typeof modalNum !== "number"){
 			if(typeof e === _undefined && typeof modalNum !== _undefined)
 				e = modalNum;
@@ -215,7 +438,7 @@ Modal.show = function(modal, modalNum, e){
 		if((typeof modal === _undefined || modal == null) && typeof modalNum === _undefined)
 			return;
 		if((typeof modal === _undefined || modal == null || typeof modal === "number") && typeof modalNum === "number"){
-			modal = document.querySelector('div[data-jmod-modal="'+modalNum+'"]');
+			modal = jMod.$('div[data-jmod-modal="'+modalNum+'"]');
 		} else if(typeof modal !== _undefined && modal != null && typeof modalNum === _undefined){
 			modalNum = getAttribute(modal, 'data-jmod-modal');
 		}
@@ -225,24 +448,30 @@ Modal.show = function(modal, modalNum, e){
 		}
 		
 		if(modal){
-			var modalBackdrop = document.querySelector('div[data-jmod-modal-backdrop="'+modalNum+'"]');
+			//var modalBackdrop = doc.querySelector('div[data-jmod-modal-backdrop="'+modalNum+'"]');
+			var modalBackdrop = jMod.$('div[data-jmod-modal-backdrop="'+modalNum+'"]');
 			//console.log('jMod.Modal.show', modal, modalNum, e || null);
 			var r = Modal.Events.fire('onBeforeShow', modalNum, modal, [e || null]);
 			Modal.CurrentModal = modalNum;
-			addClass(document.body, 'jmod-modal-open');
+			addClass(jMod.Element.document.body, 'jmod-modal-open');
 			modalBackdrop.style.display = 'block';
 			modal.style.display = 'block';
 			setTimeout(function(modal, modalBackdrop){
 				addClass(modalBackdrop, 'in');
 				addClass(modal, 'in');
+				jMod.Element.requestAnimationFrame(function(){
+					Modal.resize(modal);
+				});
 			}, 1, modal, modalBackdrop);
 			setTimeout(function(modal, modalNum, e){
 				Modal.Events.fire('onAfterShow', modalNum, modal, [e || null]);
 			}, fadeAnimationLength, modal, modalNum, e || null);
+			
+
 		}
 	}catch(e){
 		//console.log('Error jMod.Modal.show', e);
-		jModError(e, 'jMod.Modal.show');
+		jModLogError(e, 'jMod.Modal.show');
 	}
 }
 
@@ -269,11 +498,13 @@ Modal.hide = function(modal, modalNum, e){
 		}
 		
 		if(modal){
-			var modalBackdrop = document.querySelector('div[data-jmod-modal-backdrop="'+modalNum+'"]');
+			//var modalBackdrop = jMod.Element.document.querySelector('div[data-jmod-modal-backdrop="'+modalNum+'"]');
+			var modalBackdrop = jMod.$('div[data-jmod-modal-backdrop="'+modalNum+'"]');
 			var r = Modal.Events.fire('onBeforeHide', modalNum, modal, [e || null]);
 			Modal.CurrentModal = -1;
-			removeClass(document.body, 'jmod-modal-open');
-			removeClass(modal, 'in');
+			removeClass(jMod.Element.document.body, 'jmod-modal-open');
+			removeClasses(modal, ['in', 'no-vertical-scroll']);
+			//no-vertical-scroll
 			removeClass(modalBackdrop, 'in');
 			setTimeout(function(modal, modalNum, e, modalBackdrop){
 				modal.style.display = 'none';
@@ -283,11 +514,11 @@ Modal.hide = function(modal, modalNum, e){
 		}
 	}catch(e){
 		//console.log('Error jMod.Modal.hide', e);
-		jModError(e, 'jMod.Modal.hide');
+		jModLogError(e, 'jMod.Modal.hide');
 	}
 }
-
-Modal.Events = new EventsClass(['onBeforeShow', 'onAfterShow', 'onBeforeHide', 'onAfterHide']);
+var modalEventNames = ['onBeforeShow', 'onAfterShow', 'onBeforeHide', 'onAfterHide', 'onBeforeResize', 'onAfterResize'];
+Modal.Events = new EventsClass(modalEventNames);
 
 Modal.createModal = function(data){
 	var newModalNum = Modal.ModalCount++;
@@ -320,6 +551,32 @@ Modal.createModal = function(data){
 		}
 	});
 	
+	for(var i = 0; i < modalEventNames.length; i++){
+		
+		Object.defineProperty(newModal, modalEventNames[i], {
+			get: (function(evtName, modalEl, modalNum){
+					return function(){
+						Modal.Events.getAll(modalNum, evtName);
+					}.bind(modalEl);
+				}).call(newModal, modalEventNames[i], newModal, newModalNum),
+			set: (function(evtName, modalEl, modalNum){
+					return function(newListener){
+						Modal.Events.add(modalNum, evtName, newListener);
+					}.bind(modalEl);
+				}).call(newModal, modalEventNames[i], newModal, newModalNum),
+			enumerable: true,
+			configurable: false
+		});
+	}
+	
+	newModal.hasVerticalScrollBar = function(){
+		var overflowY = jMod.Element.getCompStyle(this, "overflowY");
+		if(this.offsetParent === null || overflowY == "hidden" || overflowY == "visible")
+			return false;
+		
+		return (overflowY == "scroll" || this.scrollHeight > jMod.Element.viewportSize.getHeight());
+	}.bind(newModal);
+	
 	// Dialog Container
 	var newModalDialog = createNewElement({
 		type: 'div',
@@ -350,8 +607,15 @@ Modal.createModal = function(data){
 	// Body
 	var newModalBody = createNewElement({
 		type: 'div',
-		className: 'modal-body',
+		className: 'modal-body'
 	});
+	
+	/*
+	setTimeout(function(newModalBody){
+		jMod.Scrollbar(newModalBody);
+	}, 1000, newModalBody);
+	*/
+	
 	newModalContent.appendChild(newModalBody);
 	
 	// Footer
@@ -430,7 +694,7 @@ Modal.createModal = function(data){
 				}
 			} catch(e){
 				//console.log('error! footer buttons: ', e);
-				jModError(e, 'jMod.Modal.createModal', 'footer buttons');
+				jModLogError(e, 'jMod.Modal.createModal', 'footer buttons');
 			}
 		}
 	}
@@ -468,12 +732,16 @@ Modal.init = function(){
 	
 	var modalContainer = Modal.Container;
 	if(modalContainer == null){
-		modalContainer = document.createElement("div");
+		modalContainer = jMod.Element.document.createElement("div");
 		modalContainer.id = jConfig(Modal_ContainerElementId_Key);
 		modalContainer.className = 'jmod-na jmod-fa jmod-gi ' + jConfig(Modal_ContainerElementClass_Key);
-		document.body.appendChild(modalContainer);
+		jMod.Element.document.body.appendChild(modalContainer);
 	}
-
+	
+	(window || unsafeWindow).addEventListener('resize', function(e){
+		jMod.Modal.resize(e);
+	});
+	
 }
 
 jMod.CSS = <><![CDATACSS[
@@ -494,4 +762,27 @@ jMod.CSS = <><![CDATACSS[
       linear-gradient(to bottom, rgba(221, 221, 221, 1) 65%, rgba(221, 221, 221, 1), rgba(0, 0, 0, 0)) 1 100%;
 }
 
+/*
+.jmod-na .modal.no-vert-scroll[data-jmod-modal]{
+*/
+
+.jmod-na .no-vertical-scroll[data-jmod-modal]{
+	overflow-y: hidden;
+}
+
+/*
+body.jmod-modal-open::-webkit-scrollbar {
+    width: 2em;
+    height: 2em
+}
+body.jmod-modal-open::-webkit-scrollbar-button {
+    background: #ccc
+}
+body.jmod-modal-open::-webkit-scrollbar-track-piece {
+    background: #888
+}
+body.jmod-modal-open::-webkit-scrollbar-thumb {
+    background: #eee
+}
+*/
 ]]></>;

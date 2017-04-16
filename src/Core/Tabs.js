@@ -131,6 +131,24 @@ Tabs.load = function(data){
 		el = data;
 	else if(typeof data === "object" && data.target) {
 		el = data.target;
+		el.onAfterResize = (function(modal){
+			return function(){
+				//console.log('Resize Tabs');
+				//var tabsNav = jMod.$('.nav-tabs', modal);
+				var tabsNav = this;
+				if(!hasClass(tabsNav, 'nav-tabs')){
+					tabsNav = jMod.$('.nav-tabs', tabsNav);
+					if(!tabsNav)
+						tabsNav = jMod.$('.nav-tabs', modal);
+				}
+				//console.log('tabsNav', tabsNav);
+				//Tabs.resize(tabsNav);
+				//console.log('onAfterResize: ', this, tabsNav, Slice.call(arguments));
+				if(tabsNav)
+					waitForComputeableWidth(tabsNav, resizeTabs);
+					//resizeTabs(tabsNav);
+			};
+		})(el);
 		EventListeners = data.EventListeners;
 	} else
 		return;
@@ -214,23 +232,33 @@ Tabs.show = function(tabGroup, tab){
 }
 
 function waitForComputeableWidth(el, callback, count){
-	var computedNav = (window || unsafeWindow).getComputedStyle(el, null);
-	if((count = count || 0) < 50 && isNaN(parseInt(computedNav.width))){
-		setTimeout(function(el, callback, count){
+	var computedNav = (window || unsafeWindow).getComputedStyle(el, null),
+		width = parseInt(computedNav.width);
+	count = count || 0;
+	if(count < 25 && (isNaN(width) || width > 300)){
+		jMod.Element.requestAnimationFrame(function(){
 			waitForComputeableWidth(el, callback, count + 1);
-		}, 100, el, callback, count);
+		});
 	} else {
-		callback(el, computedNav);
+		callback(el);
 	}
 }
 
-function resizeTabs(tabsNav, computedNav){
-	var tabsContent = tabsNav.parentElement.querySelector('.tab-content');
+function resizeTabs(tabsNav){
+	var width,
+		computedNav,
+		tabsContent = jMod.$('.tab-content', tabsNav.parentElement)
+		//tabsContent = tabsNav.parentElement.querySelector('.tab-content');
 	
-	if(tabsContent.offsetParent === null)
+	if(!tabsNav || !tabsContent || tabsContent.offsetParent === null)
 		return;
-	//var width = parseInt(computedNav.getPropertyValue('width'));
-	var width = parseInt(computedNav.width);
+	
+	computedNav = (window || unsafeWindow).getComputedStyle(tabsNav, null);
+	width = parseInt(computedNav.width);
+	
+
+	//width = parseInt(computedNav.getPropertyValue('width'));
+	
 	if(isNaN(width)){
 		if(jMod.debug)
 			jModLogWarning('Tabs.resize', 'Tab width is NaN!', tabsNav, tabsContent, computedNav);
@@ -243,5 +271,8 @@ function resizeTabs(tabsNav, computedNav){
 }
 
 Tabs.resize = function(tabsNav){
-	waitForComputeableWidth(tabsNav, resizeTabs);
+	//waitForComputeableWidth(tabsNav, resizeTabs);
+	jMod.Element.requestAnimationFrame(function(){
+		waitForComputeableWidth(tabsNav, resizeTabs);
+	});
 }

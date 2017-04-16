@@ -74,8 +74,12 @@
 						innerHTML: 'Close',
 						EventListeners: {
 							click: function(e){
-								if(this === e.target)
+								if(this === e.target){
 									jMod.Notification.close(e.target);
+									try{
+										this.removeEventListener('click', arguments.callee);
+									}catch(e){}
+								}
 							}
 						}
 					}
@@ -97,9 +101,12 @@
 				},
 				EventListeners: {
 					click: function(e){
-						if(this === e.target){
+						if(this === e.target && !hasClass(this, 'fadeOut')){
 							jMod.Notification.close(this);
 							eventCancel(e);
+							try{
+								this.removeEventListener('click', arguments.callee);
+							}catch(e){}
 							return false;
 						}
 					}
@@ -138,7 +145,6 @@
 				fillNotificationsContainer.id = FillWrapperId;
 				fillNotificationsContainer.className = 'jModFillNotifications';
 				fillNotificationsContainer.style.position = 'absolute';
-				//fillNotificationsContainer.style.display = 'none';
 				notificationsFullWrapper.appendChild(fillNotificationsContainer);
 			}
 		}

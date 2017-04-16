@@ -22,6 +22,8 @@
 // @grant            GM_deleteValue
 // @unwrap
 // @run-at           document-start
+// +@history         (0.0.20) Improved logging system.
+// +@history         (0.0.20) Major mCloneInto improvements.
 // +@history         (0.0.19) Possible fix for Add-on incompatibility
 // +@history         (0.0.18) Added new jQuery Selector and Tokenizer Extensions.
 // +@history         (0.0.18) Looks for resource to load css from when available.
@@ -76,6 +78,8 @@
  * @author jgjake2
  * @version {{{API_VERSION}}}
  * @see {@link jMod}
+ * @todo Add cookie storage
+ * @todo Finish documentation
  */
 
 /***********************************
@@ -83,9 +87,6 @@
  **********************************/
 ImportScript('Core.MacroDoc');
 
-var isWindowInstance = function(win){
-	return Object.prototype.toString.call(win).replace(/^\[object |\]$/g,'').toLowerCase() === "window";
-};
 /**
  * @global
  * @namespace jMod
@@ -93,23 +94,158 @@ var isWindowInstance = function(win){
  * @version {{{API_VERSION}}}
  * @tutorial jMod-tutorial
  */
-+function(unsafeWindow, window, jMod){
-	this.jMod = jMod;
-	try{
-		unsafeWindow.jMod = jMod;
-	} catch(e) {
++function($, unsafeWindow, window, factory){
+	function exportArgs(name, cb, coa){
+		var length = arguments.length;
+		var t = {
+			"allowCallbacks": (length > 1 ? (cb == true) : true),
+			"allowCrossOriginArguments": (length > 2 ? (coa == true) : true)
+			};
+		if(length > 0 && name)
+			t.defineAs = name;
+		return t;
+	};
+	var validDeepExports = ["Element"];
+	
+	
+	function exportProxy(obj, args){
+		args = args || {};
+		var exportHandlers = cloneInto({}, unsafeWindow, {cloneFunctions: true, wrapReflectors: true});
+		exportFunction(args["get"] || function(oTarget, sKey){
+			if(typeof obj[sKey] !== "undefined" || sKey in obj){
+				try{
+					if(obj === jMod && validDeepExports.indexOf(sKey) > -1){
+						return exportProxy(obj[sKey]);
+					}
+				}catch(e){}
+				if(typeof obj[sKey] === "object" || typeof obj[sKey] === "function"){
+					try{
+						return cloneInto(obj[sKey], unsafeWindow, {cloneFunctions: true, wrapReflectors: true});
+					}catch(e){}
+				}
+				return obj[sKey];
+			} else {
+				return undefined;
+			}
+		}, exportHandlers, exportArgs("get"));
+		
+		exportFunction(args["set"] || function(oTarget, sKey, vValue){
+			try{
+				obj[sKey] = vValue;
+			}catch(e){return false;}
+			return true;
+		}, exportHandlers, exportArgs("set"));
+		
+		exportFunction(args["has"] || function(oTarget, sKey){
+			return (sKey in obj);
+		}, exportHandlers, exportArgs("has"));
+		
+		exportFunction(args["enumerate"] || function(oTarget, sKey){
+			try{
+				return (obj.keys())[Symbol.iterator]();
+			}catch(e){}
+			try{
+				// To Do:
+				// Check for .keys existence before use (ES5 support)
+				return obj.keys();
+			}catch(e){}
+		}, exportHandlers, exportArgs("enumerate"));
+		
+		exportFunction(args["ownKeys"] || function(oTarget, sKey){
+			return Object.getOwnPropertyNames(obj);
+		}, exportHandlers, exportArgs("ownKeys"));
+		
+		exportFunction(args["defineProperty"] || function(oTarget, sKey, oDesc){
+			if (oDesc && !(sKey in obj)){
+				Object.defineProperty(obj, sKey, oDesc);
+			}
+			return obj;
+		}, exportHandlers, exportArgs("defineProperty"));
+		
+		exportFunction(function(oTarget, sKey){
+			return Object.getOwnPropertyDescriptor(obj, sKey);
+		}, exportHandlers, exportArgs("getOwnPropertyDescriptor"));
+		
+		exportFunction(args["construct"] || function(oTarget, argumentsList){
+			return obj.apply(obj, argumentsList);
+		}, exportHandlers, exportArgs("construct"));
+		
+		exportFunction(function(oTarget, sKey){
+			return obj.prototype;
+		}, exportHandlers, exportArgs("getPrototypeOf"));
+		
+		exportFunction(function(oTarget, thisArg, argumentsList){
+			return obj.apply(obj, argumentsList);
+		}, exportHandlers, exportArgs("apply"));
+		
 		try{
-			window.jMod = jMod;
-		}catch(x){
-			console.log('cannot add jMod to global scope', x);
+			//unsafeWindow.jMod = new unsafeWindow.Proxy(unsafeWindow.__jMod, unsafeWindow.__jModExport);
+			
+			return new unsafeWindow.Proxy(exportFunction(function(){return obj.apply(obj, arguments);}, unsafeWindow, exportArgs()), exportHandlers);
+			
+			//unsafeWindow.jMod = new unsafeWindow.Proxy(exportFunction(jMod, unsafeWindow, exportArgs()), unsafeWindow.__jModExport);
+			//unsafeWindow.jMod = new unsafeWindow.Proxy(jMod, unsafeWindow.__jModExport);
+			//unsafeWindow.jMod = new unsafeWindow.Proxy(cloneInto({}, unsafeWindow, {cloneFunctions: false, wrapReflectors: false}), unsafeWindow.__jModExport);
+		}catch(e){
+			console.log('export error', e);
+			return undefined;
+		}
+	};
+	var jMod = factory.call(
+			this,
+			(window&&"undefined"!==typeof window.performance?window.performance.now():0.0),
+			$,
+			console,
+			window,
+			unsafeWindow,
+			"undefined",
+			undefined
+		);
+	var addToGlobalScope = jMod.Config.addToGlobalScope;
+	if(this.jMod) {
+		this._jMod = this.jMod;
+		if(addToGlobalScope && unsafeWindow && unsafeWindow.jMod && unsafeWindow !== this) {
+			unsafeWindow._jMod = unsafeWindow.jMod;
+		}
+	}
+	this.jMod = jMod;
+	if(addToGlobalScope) {
+		try{
+			if(jMod.isFirefox && jMod.isSandbox && typeof unsafeWindow.Proxy !== "undefined" && typeof cloneInto !== "undefined" && typeof exportFunction !== "undefined") {
+				console.log('Export jMod');
+				unsafeWindow.jMod = exportProxy(jMod);
+				if(window !== unsafeWindow) {
+					window.jMod = jMod;
+				}
+			} else {
+				if(unsafeWindow !== this){
+					unsafeWindow.jMod = jMod;
+				}
+			}
+		} catch(e) {
+			try{
+				if(window !== this) {
+					window.jMod = jMod;
+				}
+			}catch(x){
+				console.log('cannot add jMod to global scope', x);
+			}
 		}
 	}
 	if(jMod.debug){
 		jMod.log.groupEnd('jMod Initialize');
 	}
-}.call(this, "undefined"!==typeof unsafeWindow&&unsafeWindow.top&&isWindowInstance(unsafeWindow)?unsafeWindow:("undefined"!==typeof window&&window.top&&isWindowInstance(window)?window:this), window,
-
-function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
+}.call(
+ this,
+ "undefined"!==typeof jQuery?jQuery:undefined,
+ (
+	"undefined"!==typeof unsafeWindow && Object.prototype.toString.call(unsafeWindow).replace(/^\[object |\]$/g,'').toLowerCase() === "window" ? unsafeWindow :
+	"undefined"!==typeof this.unsafeWindow && Object.prototype.toString.call(this.unsafeWindow).replace(/^\[object |\]$/g,'').toLowerCase() === "window" ? this.unsafeWindow :
+	"undefined"!==typeof window && window.top && Object.prototype.toString.call(window).replace(/^\[object |\]$/g,'').toLowerCase() === "window" ? window : this
+ ),
+ this.window || window,
+ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
+	var _global = this;
 	/**
 	 * Calls jMod._call with the given arguments
 	 * @global
@@ -121,22 +257,21 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	 * // Get the current value of script.username
 	 * jMod('get', 'script.username')
 	 */
-	function jMod(){return jMod._call.apply(jMod, arguments);};
+	var jMod = function(){return jMod._call.apply(jMod, arguments);};
+	
 	jMod.InitializeStartTime = initStart;
 	jMod.InitializeEndTime = -1;
+	
+	// Const Values
+	const fontBaseURL = 'http://code.jmod.info/fonts';
+	
 	
 	var Slice = Array.prototype.slice,
 		_jQueryAvailable = EXISTS($)?true:false,
 		jModReady = -1,
-		//({{{DEBUG}}} ? "@import url(//test2.myuserjs.org/css/smartadmin-production-all-namespaced.css);\n" : "@import url(//myuserjs.org/css/smartadmin-production-all-namespaced.css);\n")
 		_css = "@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n"
-		+"@font-face {font-family: 'Sansation';font-style: normal;font-weight: 400;src: local('Sansation Regular'), local('Sansation-Regular'), url(http://myuserjs.org/fonts/Sansation-Regular.ttf) format('ttf');}\n"
-		+"@font-face {font-family: 'Sansation';font-style: normal;font-weight: 300;src: local('Sansation Light'), local('Sansation-Light'), url(http://myuserjs.org/fonts/Sansation-Light.ttf) format('ttf');}\n"
-		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 300;src: local('Sansation Light Italic'), local('Sansation-LightItalic'), url(http://myuserjs.org/fonts/Sansation-LightItalic.ttf) format('ttf');}\n"
-		+"@font-face {font-family: 'Sansation';font-style: normal;font-weight: 700;src: local('Sansation Bold'), local('Sansation-Bold'), url(http://myuserjs.org/fonts/Sansation-Bold.ttf) format('ttf');}\n"
-		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 400;src: local('Sansation Italic'), local('Sansation-Italic'), url(http://myuserjs.org/fonts/Sansation-Italic.ttf) format('ttf');}\n"
-		+"@font-face {font-family: 'Sansation';font-style: italic;font-weight: 700;src: local('Sansation Bold Italic'), local('Sansation-BoldItalic'), url(http://myuserjs.org/fonts/Sansation-BoldItalic.ttf) format('ttf');}\n",
-		defaultjModCSSURL = {{{DEBUG}}} ? "@import url(//test2.myuserjs.org/API/{{{API_VERSION}}}/jMod.css);\n" : "@import url(//myuserjs.org/API/{{{API_VERSION}}}/jMod.css);\n",
+		+"@import url(http://code.jmod.info/fonts/sansation.css);\n",
+		defaultjModCSSURL = {{{DEBUG}}} ? "@import url(//test2.myuserjs.org/API/{{{API_VERSION}}}/jMod.css);\n" : "@import url(http://code.jmod.info/{{{API_VERSION}}}/jMod.css);\n",
 		CurrentRunningScript = {
 			id: 'jMod',
 			config: {},
@@ -149,14 +284,15 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 		API = jMod.API = {
 			addGlyphicons: function(){
 				// Import must happen at beginning of css files
-				_css = "@import url(//myuserjs.org/API/assets/glyphicons.css);\n" + _css;
+				_css = "@import url(http://code.jmod.info/css/glyphicons.css);\n" + _css;
 				// Use jMod.CSS to add css if DOM is available
 				jMod.CSS = "";
+				// Namespace: .jmod-gi
 			}
 		};
 		try{CurrentRunningScript.el = unsafeWindow.document&&unsafeWindow.document.currentScript?unsafeWindow.document.currentScript:undefined;}catch(e){}
 		
-	var DefineLockedProp = function(name, value, target, en){
+	function DefineLockedProp(name, value, target, en){
 		var opts = {
 			configurable: false,
 			enumerable: en===false?en:true
@@ -169,7 +305,9 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 		}
 		Object.defineProperty(target || jMod, name, opts);
 	}
-
+	
+	DefineLockedProp('displayName', 'jMod', null, false); // Fix minify rename'
+	DefineLockedProp('typeOfName', 'jMod', null, false); // Fix minify rename'
 	
 	DefineLockedProp('ScriptElement', function(){return (CurrentRunningScript.el ? CurrentRunningScript : undefined);});
 	
@@ -244,6 +382,27 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	
 	DefineLockedProp('jQuery', function(){return (jMod.jQueryAvailable ? $ : undefined);});
 	
+	Object.defineProperties(jMod, {
+		'isSandbox': {
+			value: (function(){return Object.prototype.toString.call(this).replace(/^\[object |\]$/g,'').toLowerCase() === "sandbox";})(),
+			enumerable: true,
+			writable: false,
+			configurable: false
+		},
+		'isFirefox': {
+			get: function(){
+				return (typeof navigator != _undefined ? navigator : (window.navigator || unsafeWindow.navigator)).userAgent.toLowerCase().indexOf('firefox') > -1;
+			},
+			enumerable: false
+		},
+		'isChrome': {
+			get: function(){
+				return (typeof navigator != _undefined ? navigator : (window.navigator || unsafeWindow.navigator)).userAgent.toLowerCase().indexOf('chrome') > -1;
+			},
+			enumerable: false
+		}
+	});
+	
 	/***********************************
 	 ** Performance
 	 **********************************/
@@ -267,6 +426,7 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	 * @property {boolean} Complete
 	 */
 	var Loading = jMod.Loading = {
+		headAvailable: false,
 		DOMLoaded: false,
 		CSSAdded: false,
 		performanceReady: false,
@@ -290,7 +450,7 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	jMod.AddCSS = function(input){
 		addStyle(_css + (input || ''));
 		_css = '';
-	}
+	};
 	
 
 	/***********************************
@@ -402,7 +562,12 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	 ** Content Eval
 	 **********************************/
 	ImportScript('API.contentEval');
-	 
+	
+	/***********************************
+	 ** Cookie
+	 **********************************/
+	ImportScript('API.Cookie');
+	
 	/***********************************
 	 ** Storage
 	 **********************************/
@@ -432,6 +597,11 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	 ** jQuery Tokenizer Extension
 	 **********************************/
 	ImportScript('jQuery.Tokenizer');
+	
+	/***********************************
+	 ** Scrollbar
+	 **********************************/
+	ImportScript('Core.Scrollbar');
 	
 	/***********************************
 	 ** Tooltip
@@ -492,14 +662,22 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 			jMod.InitializeEndTime = performance.now;
 		}, 0);
 	}
-	if(jMod.debug) jModLogTime('jMod Initialize Time Elapsed');
-	return jMod;
-}(
-	(window&&"undefined"!==typeof window.performance?window.performance.now():0.0),
-	"undefined"!==typeof jQuery?jQuery:undefined,
-	console,
-	window,
-	"undefined"!==typeof unsafeWindow&&unsafeWindow.top&&isWindowInstance(unsafeWindow)?unsafeWindow:("undefined"!==typeof window&&window.top&&isWindowInstance(window)?window:this),
-	"undefined"
-));
+	if(jMod.debug){
+		jModLogTime('jMod Initialize Time Elapsed');
+		console.log('unsafeWindow', unsafeWindow);
+		console.log('window', window);
+		console.log('global', Object.prototype.toString.call(this).replace(/^\[object |\]$/g,'').toLowerCase(), this);
+	}
+/*
+try{
+	var x = fofofo(a);
+	//throw new jModError('Er test');
+}catch(e){
+	//e.log('Er Title', 'Er body');
+	var foo = new jModError(e);
+	foo.log('Error Title', 'Error body');
+}
+*/
 
+	return jMod;
+});

@@ -104,14 +104,14 @@ jMod.log.group('Test jMod-Only Functions');
 	jModLog("Log Test Title", "Log Test Message", jModLogTestObj);
 	jModLogInfo("Info Test Title", "Info Test Message", jModLogTestObj);
 	jModLogWarning("Warning Test Title", "Warning Test Message", jModLogTestObj);
-	jModError('Error Test Title - No Error Object', 'Error Test Message', jModLogTestObj, 'foo', 'bar');
+	jModLogError('Error Test Title - No Error Object', 'Error Test Message', jModLogTestObj, 'foo', 'bar');
 	
 	
 	function testError2(){
 		try{
 			foo(bar);
 		}catch(e){
-			jModError(e, 'Error Test Title', 'Error Test Message', jModLogTestObj, 'foo', 'bar', 'taco', 'salad');
+			jModLogError(e, 'Error Test Title', 'Error Test Message', jModLogTestObj, 'foo', 'bar', 'taco', 'salad');
 		}
 	}
 	testError2();

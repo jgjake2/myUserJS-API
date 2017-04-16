@@ -1,6 +1,8 @@
 // +@display_name  Content Eval
 // +@history (0.0.13) History begins.
 
+//+(function(){
+
 jMod.API.contentEval = function(source) {
 	// Check for function input.
 	if ('function' == typeof source) {
@@ -9,14 +11,17 @@ jMod.API.contentEval = function(source) {
 		// second empty set calls the surrounded function.
 		source = '(' + source + ')();'
 	}
-
-	// Create a script node holding this  source code.
-	var script = document.createElement('script');
+	var doc = jMod.Element.document,
+		head = jMod.Element.head,
+		// Create a script node holding this source code.
+		script = doc.createElement('script');
 	script.setAttribute("type", "application/javascript");
 	script.textContent = source;
 
 	// Insert the script node into the page, so it will run, and immediately
 	// remove it to clean up.
-	unsafeWindow.document.body.appendChild(script);
-	unsafeWindow.document.body.removeChild(script);
-}
+	head.appendChild(script);
+	head.removeChild(script);
+};
+
+//})();

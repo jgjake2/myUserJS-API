@@ -52,7 +52,7 @@
         return CurrentRunningScript.el ? CurrentRunningScript : undefined;
     });
     DefineLockedProp("version", "0.0.18");
-    DefineLockedProp("build_time", "1422486289000");
+    DefineLockedProp("build_time", "1422488256000");
     DefineLockedProp("build_type", "release");
     DefineLockedProp("_debug", false);
     Object.defineProperty(jMod, "debug", {

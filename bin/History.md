@@ -1,6 +1,21 @@
 jMod History
 ============
 
+## Version 0.0.20
+* **Core**
+    * Improved logging system.
+    * Major mCloneInto improvements.
+* **ExportFunction**
+    * Can now clone error objects cleanly.
+* **Log**
+    * Error cloning now works so "ScopedConsoleCommand" is obsolete.
+
+## Version 0.0.19
+* **Core**
+    * Possible fix for Add-on incompatibility
+* **Initialize**
+    * Major speed improvements for CSS injection
+
 ## Version 0.0.18
 * **Core**
     * Added new jQuery Selector and Tokenizer Extensions.
@@ -28,9 +43,9 @@ jMod History
     * Added Observer class.
     * Added Language framework.
 * **ExportFunction**
-    * Better support when "exportFunction" is unavailable.
     * Added condition for arrays when normal copying fails.
     * Added some documentation.
+    * Better support when "exportFunction" is unavailable.
 * **Get Remote Image**
     * History begins.
 * **Get Resource**

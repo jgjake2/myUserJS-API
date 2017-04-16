@@ -5,6 +5,9 @@
 // +@history (0.0.14) Updated URLBuilder so instanceof can be used.
 // +@history (0.0.15) Added jMod.Extend.
 	
+	// jMod Error Class
+	RequireScript('Core.Error.jModError');
+	
 	// URL Builder Class
 	RequireScript('Core.URLBuilder');
 	
@@ -26,17 +29,44 @@
 	// Object Prototypes
 	RequireScript('Core.prototypes.Object');
 	
+	// Object Prototypes
+	RequireScript('Core.prototypes.Watcher');
+	
+	if (!String.prototype.trim) {
+		(function() {
+			Object.defineProperty(String.prototype, 'trim', {
+				value: function() {return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');},
+				enumerable: false
+			});
+		})();
+	}
+	
 	function eventCancel(e){
-		if(!e)
-		if(window.event)
-			e = window.event;
-		else
-			return;
+		var win = window || unsafeWindow;
+		if(!e){
+			if(win.event)
+				e = win.event;
+			else
+				return;
+		}
 		if(e.cancelBubble != null) e.cancelBubble = true;
 		if(e.stopPropagation) e.stopPropagation();
 		if(e.preventDefault) e.preventDefault();
-		if(window.event) e.returnValue = false;
+		if(win.event) e.returnValue = false;
 		if(e.cancel != null) e.cancel = true;
+	}
+	
+	function isEvent(a){
+		var patt = /^\[object |\]$/g;
+		try{
+			if(Object.prototype.toString.call(a).replace(patt,'').toLowerCase() == "event") return true;
+		}catch(e){}
+		
+		try{
+			if(a.constructor.toString().replace(patt,'').toLowerCase() == "event") return true;
+		}catch(e){}
+		
+		return false;
 	}
 	
 	/***********************************
@@ -58,61 +88,6 @@
 	 ** Browser
 	 **********************************/
 	ImportScript('Core.prototypes.Browser');
-	
-	
-	/*! https://github.com/tysonmatanich/viewportSize */
-	/*! viewportSize | Author: Tyson Matanich, 2013 | License: MIT */
-	unsafeWindow.viewportSize = {};
-
-	unsafeWindow.viewportSize.getHeight = function () {
-		return getSize("Height");
-	};
-
-	unsafeWindow.viewportSize.getWidth = function () {
-		return getSize("Width");
-	};
-
-	var getSize = function (Name) {
-		var size;
-		var name = Name.toLowerCase();
-		var document = unsafeWindow.document;
-		var documentElement = document.documentElement;
-		if (unsafeWindow["inner" + Name] === undefined) {
-			// IE6 & IE7 don't have window.innerWidth or innerHeight
-			size = documentElement["client" + Name];
-		}
-		else if (unsafeWindow["inner" + Name] != documentElement["client" + Name]) {
-			// WebKit doesn't include scrollbars while calculating viewport size so we have to get fancy
-
-			// Insert markup to test if a media query will match document.doumentElement["client" + Name]
-			var bodyElement = document.createElement("body");
-			bodyElement.id = "vpw-test-b";
-			bodyElement.style.cssText = "overflow:scroll";
-			var divElement = document.createElement("div");
-			divElement.id = "vpw-test-d";
-			divElement.style.cssText = "position:absolute;top:-1000px";
-			// Getting specific on the CSS selector so it won't get overridden easily
-			divElement.innerHTML = "<style>@media(" + name + ":" + documentElement["client" + Name] + "px){body#vpw-test-b div#vpw-test-d{" + name + ":7px!important}}</style>";
-			bodyElement.appendChild(divElement);
-			documentElement.insertBefore(bodyElement, document.head);
-
-			if (divElement["offset" + Name] == 7) {
-				// Media query matches document.documentElement["client" + Name]
-				size = documentElement["client" + Name];
-			}
-			else {
-				// Media query didn't match, use window["inner" + Name]
-				size = unsafeWindow["inner" + Name];
-			}
-			// Cleanup
-			documentElement.removeChild(bodyElement);
-		}
-		else {
-			// Default to use window["inner" + Name]
-			size = unsafeWindow["inner" + Name];
-		}
-		return size;
-	};
 	
 	/***********************************
 	 ** Hex To RGB
@@ -144,6 +119,19 @@
 	var parseColorString = function(str){
 		var r = parseRGB(str);
 		return r ? r : hexToRgb(str);
+	}
+	
+	var PI_OVER_2 = 0.5 * Math.PI,
+		TEN_LOG2 = 10 * Math.log( 2 );
+		
+	var timeFromPosition = function( b, c, d, x ) {
+		return 2 * d / Math.PI * Math.asin(( x - b ) / c );
+	}
+	
+	var easeOutSin = function( c, d, t ) {
+		var b = PI_OVER_2 / d,
+			a = c * b;
+		return Math.round( a * Math.cos( b * t ));
 	}
 
 	/***********************************

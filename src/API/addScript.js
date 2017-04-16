@@ -15,7 +15,9 @@
  * @returns {Object} node The newly created script node
  */
 jMod.API.addScript = function(js, src, id, type, async, defer){
-	var newScript, heads, data;
+	var newScript,
+		head = jMod.Element.head,
+		data;
 	if(typeof js === "object")
 		data = js;
 	else
@@ -27,8 +29,8 @@ jMod.API.addScript = function(js, src, id, type, async, defer){
 			async: async,
 			defer: defer
 		};
-	if(heads = document.getElementsByTagName('head')) {
-		newScript = document.createElement('script');
+	if(head) {
+		newScript = jMod.Element.document.createElement('script');
 
 		if(typeof data.id !== _undefined){
 			try{newScript.id = data.id;}catch(x){}
@@ -64,7 +66,7 @@ jMod.API.addScript = function(js, src, id, type, async, defer){
 			try{newScript.src = data.src;}catch(x){}
 		}
 		
-		try{return heads[0].appendChild(newScript);}catch(x){}
+		try{return head.appendChild(newScript);}catch(x){}
 	}
 	return null;
-}
+};

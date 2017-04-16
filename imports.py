@@ -161,7 +161,8 @@ class SourceFile:
         
     def getImports(self):
         return self.imports
-        
+
+validSourceFileExts = [".js", ".json"]
 class SourceFiles:
     def __init__(self, sourceDirectories):
         self.sourceFiles = {}
@@ -174,13 +175,19 @@ class SourceFiles:
             for fileName in onlyfilesanddirs:
                 
                 if(isfile(join(dirName,fileName))):
-                    tmpName = os.path.basename(os.path.normpath(dirName)) + '.' + os.path.splitext(fileName)[0]
-                    if(base != ''):
-                        tmpName = base + '.' + tmpName
-                    
-                    tmpFile = SourceFile(tmpName, fileName, dirName)
-                    
-                    self.sourceFiles[tmpName] = tmpFile
+                    tmpFileExt = ""
+                    try:
+                        tmpFileExt = os.path.splitext(fileName)[1].lower()
+                    except:
+                        tmpFileExt = ""
+                    if any(tmpFileExt in s for s in validSourceFileExts):
+                        tmpName = os.path.basename(os.path.normpath(dirName)) + '.' + os.path.splitext(fileName)[0]
+                        if(base != ''):
+                            tmpName = base + '.' + tmpName
+                        
+                        tmpFile = SourceFile(tmpName, fileName, dirName)
+                        
+                        self.sourceFiles[tmpName] = tmpFile
                 elif(isdir(join(dirName,fileName))):
                     self.processDirectories([join(dirName,fileName)], os.path.basename(os.path.normpath(dirName)))
     

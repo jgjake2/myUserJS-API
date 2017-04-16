@@ -84,6 +84,7 @@
 		'secure': false,
 		'browser': jMod.Browser.getBrowser(),
 		'getScriptFileInfo': true,
+		'addToGlobalScope': true,
 		'script': {
 			username: undefined,
 			script_name: undefined
@@ -243,9 +244,9 @@
 		if(CurrentRunningScript.el.id && CurrentRunningScript.el.id.trim() != ''){
 			CurrentRunningScript.id = CurrentRunningScript.el.id;
 		} else {
-			if(unsafeWindow.document.getElementById(CurrentRunningScript.id)){
+			if((window || unsafeWindow).document.getElementById(CurrentRunningScript.id)){
 				var i = 0;
-				while(unsafeWindow.document.getElementById(CurrentRunningScript.id + '-' + i))
+				while((window || unsafeWindow).document.getElementById(CurrentRunningScript.id + '-' + i))
 					i++;
 				CurrentRunningScript.id = CurrentRunningScript.id + '-' + i;
 			}

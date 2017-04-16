@@ -15,7 +15,7 @@ Settings.PrefTypes.add('input', {
 					innerHTML: '',
 					style: data.style,
 					attributes: {
-						value: storedValue || defaultValue,
+						value: storedValue || storedValue === "" ? storedValue : defaultValue,
 						'name': data.name,
 						'type': 'text',
 						'data-jmod-settings-pref': data.name,

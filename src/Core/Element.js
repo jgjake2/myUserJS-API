@@ -55,7 +55,7 @@ jMod.Element = function(data, data2){
 		}
 	}catch(e){
 		//console.log('error, jMod.Element', e);
-		jModError(e, 'jMod.Element');
+		jModLogError(e, 'jMod.Element');
 	}
 };
 
@@ -63,6 +63,26 @@ jMod.Element._call = function(command){
 	if(typeof jMod.Element[command] === "function")
 		return jMod.Element[command].apply(jMod.Element, Slice.call(arguments, 1));
 }
+
+Object.defineProperty(jMod.Element, 'document', {
+	get: function(){
+		try {
+			return (EXISTS(document) ? document : (window.document || unsafeWindow.document));
+		} catch(e) {}
+		return null;
+	}
+});
+
+Object.defineProperty(jMod.Element, 'head', {
+	get: function(){
+		try {
+			var doc = jMod.Element.document;
+			return doc.head || doc.getElementsByTagName('head')[0];
+		} catch(e) {}
+		return null;
+	}
+});
+
 
 
 jMod.Element.isElement = isElement;
@@ -178,10 +198,145 @@ var hasAttributes = function(el, attrs) {
 	return r;
 }
 
-var getAttribute = function(el, attr) {
-	return el.getAttribute(attr);
+var getAttribute = function(el, attr, type) {
+	var t, r = el.getAttribute(attr);
+	if(!type)
+		return r;
+	
+	switch(type){
+		case "int":
+		case "integer":
+			return parseInt(r);
+			break;
+		case "bool":
+		case "boolean":
+			t = r != null && r != "" ? r.trim().toLowerCase() : 'false';
+			return (t.indexOf("true") !== -1 || t == "t" ? true : false);
+			break;
+	}
+	return r;
 }
 
+
+
+var changeElementType = function(el, type, removeChildren){
+	var i = 0,
+		doc = el.ownerDocument || jMod.Element.document,
+		newElement = doc.createElement(type),
+		attrs = el.attributes,
+		nodes = el.childNodes,
+		ElementPropertiesToCopy = ["scrollLeft", "scrollTop"];
+	//getEventListeners
+	for( ; i < attrs.length; i++){
+		//newElement.setAttribute(attrs[i].nodeName, attrs[i].nodeValue);
+		newElement.setAttributeNode(attrs[i]);
+	}
+	for(i = 0; i < nodes.length; i++){
+		if(removeChildren)
+			newElement.appendChild(newElement.removeChild(nodes[i]));
+		else
+			newElement.appendChild(nodes[i]);
+	}
+	
+	for(i = 0; i < ElementPropertiesToCopy.length; i++){
+		newElement[ElementPropertiesToCopy[i]] = el[ElementPropertiesToCopy[i]];
+	}
+	
+	return newElement;
+}
+
+// Add/Remove Event Listeners
+ImportScript('Core.Element.EventListener');
+
+// ViewportSize
+ImportScript('Core.Element.viewportSize');
+
+function ElementBuilderClass(data){
+	this.data = data || {};
+}
+
+ElementBuilderClass.prototype = {
+	appendChild: function(data){
+		var i,
+			thisData = this.data,
+			thisType = RealTypeOf(thisData),
+			dataType = RealTypeOf(data);
+		
+		if(dataType == "array"){
+			for(i = 0; i < data.length; i++)
+				this.appendChild(data[i]);
+			return this;
+		}
+		
+		if(isElement(thisData)){
+			if(isElement(data)){
+				return thisData.appendChild(data), this;
+			}
+			if(dataType == "ElementBuilderClass"){
+				return thisData.appendChild(data.toElement()), this;
+			}
+		}
+		
+		if(thisType == "ElementBuilderClass"){
+			return thisData.appendChild(data), this;
+		}
+		
+		if(typeof thisData == "object"){
+			i = (thisData.innerHTML === undefined && thisData.text !== undefined ? 'text' : 'innerHTML');
+			if(RealTypeOf(thisData[i]) == "array")
+				thisData[i].push(data);
+			else if(typeof thisData[i] == _undefined || thisData[i] == null)
+				thisData[i] = [data];
+			else
+				thisData[i] = [thisData[i], data];
+			return this;
+		}
+		
+		return this;
+	},
+	toElement: function(){
+		if(isElement(this.data))
+			return this.data;
+		return (this.data = createNewElement(this.data));
+	}
+};
+
+Object.defineProperties(ElementBuilderClass.prototype, {
+	type: {
+		get: function(){
+			if(isElement(this.data)){
+				return this.data.nodeName.toLowerCase();
+			} else {
+				return this.data.type.toLowerCase();
+			}
+		},
+		set: function(newType){
+			if(isElement(this.data)){
+				//this.data.nodeName;
+				var parentElement = this.data.parentElement;
+					tmp = changeElementType(this.data, newType, true);
+				parentElement.replaceChild(tmp, this.data);
+				this.data = tmp;
+			} else {
+				this.data.type = newType;
+			}
+		},
+		configurable: false,
+		enumerable: true
+	},
+	children: {
+		get: function(){
+			if(isElement(this.data)){
+				return this.data.children;
+			} else {
+				var i = (this.data.innerHTML === undefined && this.data.text !== undefined ? 'text' : 'innerHTML');
+				return (this.data[i] || null);
+			}
+		},
+		configurable: false,
+		enumerable: true
+	}
+});
 /**
  * Append a child to a DOM Element. The input can be an a simple element or string. It can be an object containing Element information {@link createNewElement}. Additionally, it can be an array of any of the preciously mentioned types.
  * @function appendChild
@@ -194,7 +349,8 @@ var getAttribute = function(el, attr) {
 var appendChild = jMod.Element.appendChild = function(el, data) {
 	var nodes, dummy, i;
 	try{
-		if(!isElement(el) && typeof el === "object" && el.type !== undefined){
+		// If appending object instead of Element
+		if(!isElement(el) && typeof el === "object" && el.type != null){
 			i = (el.innerHTML === undefined && el.text !== undefined ? 'text' : 'innerHTML');
 			if(RealTypeOf(el[i]) == "array")
 				el[i].push(data);
@@ -224,7 +380,7 @@ var appendChild = jMod.Element.appendChild = function(el, data) {
 					//case "symbol":
 					//case "boolean":
 					default:
-						nodes, dummy = document.createElement('div');
+						nodes, dummy = (el.ownerDocument || jMod.Element.document).createElement('div');
 						dummy.innerHTML = data;
 						nodes = dummy.childNodes;
 						for(i = 0; i < nodes.length; i++)
@@ -234,10 +390,11 @@ var appendChild = jMod.Element.appendChild = function(el, data) {
 			}
 		}
 	} catch(e) {
-		jModError(e, 'jMod.Element.appendChild');
+		jModLogError(e, 'jMod.Element.appendChild');
 	} finally {
 		return el;
 	}
+	return el; // just in case...
 }
 
 /**
@@ -281,12 +438,31 @@ var validElementProps = ['id', 'className', 'checked', 'defaultValue', 'title', 
  * @returns {Element} The newly created element
  */
 var createNewElement = jMod.Element.createNewElement = function(data) {
-	var i, eventName, capture, callback,
+	var i, x, eventName, capture, callback, event,
 		eventListeners = data.EventListeners || data.eventListeners,
-		newElement = document.createElement(data.type || 'div');
+		// Get Document
+		doc = jMod.Element.document,
+		// Create Element
+		newElement = doc.createElement(data.type || "div"),
+		addListener = function(eventName, obj){
+			if(typeof obj === "function")
+				return addEventListener(newElement, eventName, obj);
+			capture = obj.useCapture || obj.Capture || obj.capture || false;
+			callback = obj.callback || obj['function'];
+			if(callback){
+				if(RealTypeOf(callback) == "array")
+					for(i in callback){
+						if(typeof callback[i] !== "function")
+							capture = callback[i].useCapture || callback[i].Capture || callback[i].capture || capture;
+						addEventListener(newElement, eventName, callback[i], capture);
+					}
+				else
+					addEventListener(newElement, eventName, callback, capture);
+			}
+		}
 	
 	if(typeof data.style === "string")
-		newElement.style = data.style;
+		newElement.setAttribute("style", data.style);
 	else if(typeof data.style === "object"){
 		for(i in data.style)
 			newElement.style[i] = data.style[i];
@@ -299,7 +475,6 @@ var createNewElement = jMod.Element.createNewElement = function(data) {
 	
 	if(data.attributes !== undefined){
 		for(i in data.attributes){
-			//if(typeof data.attributes[i] !== _undefined && data.attributes[i] !== null)
 			if(data.attributes[i] != null)
 				newElement.setAttribute(i, data.attributes[i]);
 		}
@@ -307,24 +482,16 @@ var createNewElement = jMod.Element.createNewElement = function(data) {
 	
 	if(eventListeners){
 		for(eventName in eventListeners){
-			if(typeof eventListeners[eventName] === "function"){
-				newElement.addEventListener(eventName, eventListeners[eventName]);
-			} else if(typeof eventListeners[eventName] === "object"){
-				capture = eventListeners[eventName].useCapture || eventListeners[eventName].Capture || eventListeners[eventName].capture || false;
-				callback = eventListeners[eventName].callback || eventListeners[eventName]['function'];
-				if(callback){
-					if(RealTypeOf(callback) == "array")
-						for(i in callback)
-							newElement.addEventListener(eventName, callback[i], capture);
-					else
-						newElement.addEventListener(eventName, callback, capture);
-				}
-				
-			}
+			event = eventListeners[eventName];
+			if(RealTypeOf(event) == "array"){
+				for(x = 0; x < event.length; x++)
+					addListener(eventName, event[x]);
+			} else
+				addListener(eventName, event);
 		}
 	}
 	
-	appendChild(newElement, data.innerHTML || data.text);
+	appendChild(newElement, data.innerHTML || data.text || null);
 	
 	return newElement;
 }
@@ -371,18 +538,90 @@ var findParentWithAttribute = jMod.Element.findParentWithAttribute = function(el
 		if(parent.hasAttribute(attributeName) && (NOTEXISTS(attributeValue) || parent.getAttribute(attributeName) == attributeValue))
 			return parent;
 	}
-}
+};
 
 function fireClick(el, bubbles, cancelable){
+	var doc = jMod.Element.document;
 	if(jMod.jQueryAvailable){
 		$(el).click();
-	} else if(document.createEvent) {
-		var evt = document.createEvent('MouseEvents');
+	} else if(doc.createEvent) {
+		var evt = doc.createEvent('MouseEvents');
 		evt.initEvent('click', bubbles || true, cancelable || true);
 		el.dispatchEvent(evt);	
-	} else if(document.createEventObject) {
+	} else if(doc.createEventObject) {
 		el.fireEvent('onclick');	
 	} else if(typeof el.onclick == "function") {
 		el.onclick();	
 	}
-}
+};
+
+jMod.Element.getCompStyleObj = function(el, pseudoEl){
+	var doc = el.ownerDocument || jMod.Element.document;
+	if (el.currentStyle) //IE
+		return el.currentStyle;
+	else if (doc.defaultView && doc.defaultView.getComputedStyle) //Firefox
+		return doc.defaultView.getComputedStyle(el, pseudoEl || null);
+};
+
+
+//jMod.Element.getCompStyle = function(el, cssprop, pseudoEl, comp){
+jMod.Element.getCompStyle = function(){
+	var i = 0, arg, el, cssprop, pseudoEl, comp, doc;
+	for( ; i < arguments.length; i++){
+		arg = arguments[i];
+		if(isElement(arg)){
+			el = arg;
+		} else if(typeof arg == "string"){
+			if(!cssprop)
+				cssprop = arg;
+			else
+				pseudoEl = arg;
+		} else {
+			comp = arg;
+		}
+	}
+	
+	if (comp) {
+		if (comp[cssprop])
+			return comp[cssprop];
+	} else {
+		if (el.currentStyle) {
+			return el.currentStyle[cssprop];
+		}
+		doc = el.ownerDocument || jMod.Element.document;
+		if (doc.defaultView && doc.defaultView.getComputedStyle){
+			comp = doc.defaultView.getComputedStyle(el, pseudoEl || null);//[cssprop];
+			if(comp){
+				return comp[cssprop] ? comp[cssprop] : comp.getPropertyValue(cssprop);
+			}
+		}
+	}
+	
+	return el ? el.style[cssprop] : null;
+};
+
+jMod.Element.getClientRect = function(el){
+	try{
+		var comp, r = jMod.extend({}, el.getBoundingClientRect());
+		
+		if (r.height == null || r.width == null) {
+			comp = jMod.Element.getCompStyleObj(el);
+			//r.height = parseFloat(jMod.Element.getCompStyle(el, 'height'));
+			/*
+			r.height = parseFloat(comp['height']);
+			r.width = parseFloat(comp['width']);
+			*/
+			
+			r.height = parseFloat(jMod.Element.getCompStyle(el, 'height', comp));
+			r.width = parseFloat(jMod.Element.getCompStyle(el, 'width', comp));
+		}
+		
+		return r;
+	}catch(e){}
+};
+
+// Animation Frame
+ImportScript('Core.Element.AnimationFrame');
+
+// Resize Listener
+ImportScript('Core.Element.ResizeListener');

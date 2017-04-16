@@ -15,14 +15,31 @@ Object.defineProperty(jMod, "stor", {
 
 jMod.API.localStorage = {
 	/**
+	 * @function available
+	 * @memberof jMod.API.localStorage
+	 */
+	available: function(){
+		try {
+			var s = this.stor;
+			if(_undefined!==typeof s && s != null && s.getItem && s.setItem)
+				return true;
+		} catch(e){}
+		
+		return false;
+	},
+	/**
 	 * @function getValue
 	 * @memberof jMod.API.localStorage
 	 * @param {string} key - name
 	 * @param {string|boolean|number} [def] - default value to return if key does not exist
 	 */
 	getValue: function(key, def){
-		var r = this.stor.getItem(jConfig('API.Storage.prefix') + key);
-		return (r !== null ? r: def);
+		if(!this.available()) return def;
+		try{
+			var r = this.stor.getItem(jConfig('API.Storage.prefix') + key);
+			return (r !== null ? r: def);
+		}catch(e){}
+		return def;
 	},
 	/**
 	 * @function setValue
@@ -31,7 +48,10 @@ jMod.API.localStorage = {
 	 * @param {string|boolean|number} [value] - value to be set
 	 */
 	setValue: function(key, value){
-		return this.stor.setItem(jConfig('API.Storage.prefix') + key, value);
+		if(!this.available()) return;
+		try{
+			return this.stor.setItem(jConfig('API.Storage.prefix') + key, value);
+		}catch(e){}
 	},
 	/**
 	 * @function setJSON
@@ -40,11 +60,12 @@ jMod.API.localStorage = {
 	 * @param {object} [value] - value to be set
 	 */
 	setJSON: function(key, value){
+		if(!this.available()) return;
 		var tmp;
 		try{
 			tmp = JSON.stringify(value);
 		}catch(e){
-			jModError(e, 'localStorage.setJSON', 'Cannot stringify value!');
+			jModLogError(e, 'localStorage.setJSON', 'Cannot stringify value!');
 		}
 		try{
 			return this.setValue(key, tmp || value);
@@ -57,14 +78,18 @@ jMod.API.localStorage = {
 	 * @param {object} [def] - default value to return if key does not exist
 	 */
 	getJSON: function(key, def){
-		var tmp = this.getValue(key, def);
+		if(!this.available()) return def;
+		var tmp;
+		try{
+			tmp = this.getValue(key, def);
+		}catch(e){}
 		try{
 			if(typeof tmp === "string")
 				return JSON.parse(tmp);
 		}catch(e){
-			jModError(e, 'localStorage.setJSON', 'Error parsing value!');
+			jModLogError(e, 'localStorage.setJSON', 'Error parsing value!');
 		}
-		return tmp;
+		return tmp || def;
 	},
 	/**
 	 * @function deleteValue
@@ -72,7 +97,10 @@ jMod.API.localStorage = {
 	 * @param {string} key - name to be deleted
 	 */
 	deleteValue: function(key){
-		return this.stor.removeItem(jConfig('API.Storage.prefix') + key);
+		if(!this.available()) return;
+		try{
+			return this.stor.removeItem(jConfig('API.Storage.prefix') + key);
+		}catch(e){}
 	}
 }
 
@@ -83,7 +111,26 @@ jMod.API.localStorage = {
  * @type {object}
  */
 Object.defineProperty(jMod.API.localStorage, "stor", {
-	get: function(){return (localStorage?localStorage:(window.localStorage?window.localStorage:unsafeWindow.localStorage));},
+	get: function(){
+		try{
+			/*
+			return (
+					_undefined!==typeof localStorage && localStorage!=null?localStorage:
+						(window.localStorage&&window.localStorage!=null?window.localStorage:
+							(unsafeWindow.localStorage&&unsafeWindow.localStorage!=null?unsafeWindow.localStorage:undefined)
+						)
+					);
+			*/
+			return (
+				window.localStorage&&window.localStorage!=null?window.localStorage:
+					(_undefined!==typeof localStorage && localStorage!=null?localStorage:
+						(unsafeWindow.localStorage&&unsafeWindow.localStorage!=null?unsafeWindow.localStorage:undefined)
+					)
+				);
+		}catch(e){
+			jModLogWarning("jMod.API.localStorage", "localStorage unavailable!", e.message);
+		}
+	},
 	enumerable: false
 });
 

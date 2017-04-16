@@ -6,7 +6,7 @@ Settings.PrefTypes.add('checkbox', {
 		var text = data.description || data.name;
 		var defaultValue = data['default'] || '';
 		var storedValue = Settings.get(data.name);
-		var currentValue = storedValue || defaultValue;
+		var currentValue = storedValue || storedValue === "" ? storedValue : defaultValue;
 		if(typeof currentValue !== "object")
 			currentValue = currentValue.split(',');
 		var options = [];

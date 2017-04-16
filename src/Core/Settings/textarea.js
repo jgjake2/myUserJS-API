@@ -12,7 +12,7 @@ Settings.PrefTypes.add('textarea', {
 				{
 					type: 'textarea',
 					className: 'form-control pref',
-					innerHTML: storedValue || defaultValue,
+					innerHTML: storedValue || storedValue === "" ? storedValue : defaultValue,
 					style: data.style,
 					attributes: {
 						'name': data.name,

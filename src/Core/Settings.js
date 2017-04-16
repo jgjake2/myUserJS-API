@@ -70,8 +70,29 @@ var Settings = jMod.Settings = function(data, data2){
 			jMod.Settings.settingsModalElement = jMod.Settings.MakeSettingsModal(data);
 			
 			Settings.PrefTypes.onChange();
+			/*
+			//var win = (window || unsafeWindow);
+			var runningResizeCB = false;
+			window.addEventListener('resize', function(e){
+				if(!runningResizeCB){
+					runningResizeCB = true;
+					//var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+					if (window.requestAnimationFrame) {
+						window.requestAnimationFrame(function(){
+							jMod.Settings.onResize();
+							runningResizeCB = false;
+						});
+					} else {
+						setTimeout(function(){
+							jMod.Settings.onResize();
+							runningResizeCB = false;
+						}, 66);
+					}
+				}
+			}, false );
 			
-			(window || unsafeWindow).addEventListener('resize', jMod.Settings.onResize, false );
+			*/
+			//window.addEventListener('resize', jMod.Settings.onResize, false);
 			
 			jMod.Settings.onResize();
 		}
@@ -99,7 +120,7 @@ Settings.get = function(prefName, noDefault){
 	var storedData = Settings._storedData;
 	if(_undefined===typeof prefName)
 		return storedData;
-	return (storedData && storedData[prefName] !== undefined ? storedData[prefName] : (noDefault == true ? undefined : Settings.getDefault(prefName)));
+	return (storedData && storedData[prefName] !== undefined ? storedData[prefName] : (noDefault ? undefined : Settings.getDefault(prefName)));
 }
 
 Settings.set = function(prefName, value){
@@ -128,14 +149,18 @@ Object.defineProperties(Settings, {
 		get: function(){
 			if(typeof Settings.__storedData !== _undefined)
 				return Settings.__storedData;
-			var str = jMod.getValue('Settings_' + jConfig('script.script_name'));
-			if(str)
-				return JSON.parse(str);
-			return undefined;
+			try{
+				var str = jMod.getValue('Settings_' + jConfig('script.script_name'));
+				if(str)
+					return JSON.parse(str);
+			}catch(e){}
+			//return undefined;
 		},
 		set: function(obj){
 			Settings.__storedData = obj;
-			jMod.setValue('Settings_' + jConfig('script.script_name'), JSON.stringify(obj));
+			try{
+				jMod.setValue('Settings_' + jConfig('script.script_name'), JSON.stringify(obj));
+			}catch(e){}
 		},
 		enumerable: false
 	},
@@ -770,12 +795,12 @@ Settings.onResize = function(){
 	var settingsFooter = jMod.$('.modal-footer', modal);
 	var settingsHeader = jMod.$('.modal-header', modal);
 	
-	var viewportHeight = unsafeWindow.viewportSize.getHeight();
+	var viewportHeight = jMod.Element.viewportSize.getHeight();
 	
-	var computedDialog = unsafeWindow.getComputedStyle(settingsDialog, null);
+	var computedDialog = (window || unsafeWindow).getComputedStyle(settingsDialog, null);
 	var marginTop = parseInt(computedDialog.getPropertyValue('margin-top'));
 	var marginBottom = parseInt(computedDialog.getPropertyValue('margin-bottom'));
-	var maxHeight = (parseInt(viewportHeight) - parseInt(settingsHeader.offsetHeight) - parseInt(settingsFooter.offsetHeight) - marginTop - marginBottom) - 1;
+	var maxHeight = (parseInt(viewportHeight) - parseInt(settingsHeader.offsetHeight) - parseInt(settingsFooter.offsetHeight) - marginTop - marginBottom) - 15;
 	settingsBody.style.maxHeight = maxHeight + 'px';
 	
 	var settingsTabs = jMod.$('.nav-tabs', settingsBody);
@@ -826,6 +851,26 @@ jMod.CSS = <><![CDATACSS[
 /***********************************
  ** Transition to global css
  **********************************/
+ 
+ /*
+ .jmod-na .modal-body {
+	-webkit-transition-property: max-height;
+	-moz-transition-property: max-height;
+	transition-property: max-height;
+	
+	-webkit-transition-duration: 50ms;
+	-moz-transition-duration: 50ms;
+	transition-duration: 50ms;
+	
+	-webkit-transition-timing-function: cubic-bezier(0,1,.25,1);
+	-moz-transition-timing-function: cubic-bezier(0,1,.25,1);
+	transition-timing-function: cubic-bezier(0,1,.25,1);
+	
+	-webkit-transition-delay: 0s;
+	-moz-transition-delay: 0s;
+	transition-delay: 0s;
+}
+*/
 
 ]]></>;
 

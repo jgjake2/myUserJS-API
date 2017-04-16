@@ -8,14 +8,21 @@
 
 jMod.API.GM_Storage = {
 	/**
+	 * @function available
+	 * @memberof jMod.API.GM_Storage
+	 */
+	available: function(){
+		return (typeof GM_getValue !== _undefined && typeof GM_setValue !== _undefined && typeof GM_deleteValue !== _undefined);
+	},
+	/**
 	 * @function getValue
 	 * @memberof jMod.API.GM_Storage
 	 * @param {string} key - name
 	 * @param {string|boolean|number} [def] - default value to return if key does not exist
 	 */
 	getValue: function(key, def){
-		if(typeof GM_getValue !== _undefined)
-			return GM_getValue(jConfig('API.Storage.prefix') + key, def);
+		return this.available() ? GM_getValue(jConfig('API.Storage.prefix') + key, def) : def;
+		
 	},
 	/**
 	 * @function setValue
@@ -24,7 +31,7 @@ jMod.API.GM_Storage = {
 	 * @param {string|boolean|number} [value] - value to be set
 	 */
 	setValue: function(key, value){
-		if(typeof GM_setValue !== _undefined)
+		if(this.available())
 			return GM_setValue(jConfig('API.Storage.prefix') + key, value);
 	},
 	/**
@@ -38,7 +45,7 @@ jMod.API.GM_Storage = {
 		try{
 			tmp = JSON.stringify(value);
 		}catch(e){
-			jModError(e, 'GM_Storage.setJSON', 'Cannot stringify value!');
+			jModLogError(e, 'GM_Storage.setJSON', 'Cannot stringify value!');
 		}
 		try{
 			return this.setValue(key, tmp || value);
@@ -56,9 +63,9 @@ jMod.API.GM_Storage = {
 			if(typeof tmp === "string")
 				return JSON.parse(tmp);
 		}catch(e){
-			jModError(e, 'GM_Storage.setJSON', 'Error parsing value!');
+			jModLogError(e, 'GM_Storage.setJSON', 'Error parsing value!');
 		}
-		return tmp;
+		return tmp || def;
 	},
 	/**
 	 * @function deleteValue
@@ -66,7 +73,7 @@ jMod.API.GM_Storage = {
 	 * @param {string} key - name to be deleted
 	 */
 	deleteValue: function(key){
-		if(typeof GM_deleteValue !== _undefined)
+		if(this.available())
 			return GM_deleteValue(jConfig('API.Storage.prefix') + key);
 	}
 }

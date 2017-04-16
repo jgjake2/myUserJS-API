@@ -186,7 +186,7 @@
 							jMod.extend(true, jMod.Config, tmp);
 					} catch(e) {
 						//console.error('Error parsing options in MetaBlock', e);
-						jModError(e, 'ScriptInfo.set', 'Error parsing options in MetaBlock');
+						jModLogError(e, 'ScriptInfo.set', 'Error parsing options in MetaBlock');
 					}
 				}
 				
@@ -195,7 +195,7 @@
 			
 		} catch(e) {
 			console.error('Error ScriptInfo.set', e);
-			//jModError(e, 'ScriptInfo.set');
+			//jModLogError(e, 'ScriptInfo.set');
 		}
 		
 		Object.defineProperty(jMod.Config.script, 'script_info', {

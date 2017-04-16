@@ -275,7 +275,7 @@ function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
 	 * @memberOf! jMod
 	 * @type {string}
 	 */
-	DefineLockedProp('build_time', '1422486289000');
+	DefineLockedProp('build_time', '1422488256000');
 	
 	/**
 	 * Current build type (beta|release)

@@ -25,7 +25,7 @@
 			if(totalCount > 0){
 				var tHeight = totalCount * 25;
 				var smallNotificationsContainer = Notification('getElement', 'notificationsSmallWrapper');
-				var smNotes = smallNotificationsContainer.querySelectorAll('div[data-jmod-small-notification]');
+				var smNotes = jMod.$$('div[data-jmod-small-notification]', smallNotificationsContainer);
 				for(var i = 0; i < smNotes.length; i++){
 					tHeight += parseInt(smNotes[i].offsetHeight);
 				}
@@ -52,10 +52,13 @@
 							tParent = tParent.parentElement;
 							tCount++;
 						}
-						if(tParent != null){
+						if(tParent != null && !hasClass(tParent, 'fadeOut')){
 							var notificationNum = parseInt(tParent.getAttribute('data-jmod-notification'));
 							var smallNotificationNum = parseInt(tParent.getAttribute('data-jmod-small-notification'));
 							jMod.Notification.close(tParent);
+							try{
+								this.removeEventListener('click', arguments.callee);
+							}catch(e){}
 						}
 					}
 				}
@@ -126,7 +129,9 @@
 			if(data.footer){
 				newNotificationContent.innerHTML.push({
 					type: 'p',
-					style: 'text-align: right;',
+					style: {
+						textAlign: 'right'
+					},
 					innerHTML: data.footer
 				});
 			}
@@ -136,7 +141,7 @@
 					type: 'div',
 					className: 'smallIcon',
 					style: {
-						'backgroundColor': 'transparent',
+						'backgroundColor': 'transparent'
 					},
 					innerHTML: {
 						type: 'i',

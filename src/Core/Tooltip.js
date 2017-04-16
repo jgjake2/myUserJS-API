@@ -405,6 +405,5 @@ Tooltip.init = function(){
 
 jMod.CSS = '.jmod-na .fade.slow {transition: opacity '+((fadeTime / 1000).toFixed(2)).toString()+'s linear 0s;}' + <><![CDATACSS[
 
-
 ]]></>;
 

@@ -1,7 +1,11 @@
 // +@display_name  Error
 // +@history (0.0.9) History begins.
-
-	jMod['ERROR'] = new function(){
+	
+	RequireScript('Core.Error.UserError');
+	
+	RequireScript('Core.Error.jModError');
+	
+	jMod['ERROR'] = new (function(){
 	
 		this.ERROR_CODES = {
 			ERROR_RESULT: {
@@ -162,67 +166,118 @@
 		}
 		
 
-	}
+	})();
 	
 	//console.log('EVALERROR', jMod['ERROR'].getCode('ERROR_NAME.EVALERROR'));
 	//console.log('REFERENCEERROR', jMod['ERROR'].getCode('ERROR_NAME.REFERENCEERROR'));
 	//console.log('URIERROR', jMod['ERROR'].getCode('ERROR_NAME.URIERROR'));
 	
-	function jModListenError(message, url, linenumber, colNumber, data) {
+	function _jModListenError(message, url, linenumber, colNumber, data) {
 		console.log('jModListenError', message, url, linenumber, colNumber);
-		//console.log('jModListenError data', data);
-		//setTimeout(function(message, url, linenumber, colNumber, data){
-			var tData = jMod.parseStack(data.stack);
-			if(tData.length > 0)
-				return jMod['ERROR']['catchError'](message, url, linenumber, colNumber, data, tData);
-		//}, 1, message, url, linenumber, colNumber, data);
+		var tData = jMod.parseStack(data.stack);
+		if(tData.length > 0)
+			return jMod['ERROR']['catchError'](message, url, linenumber, colNumber, data, tData);
 	}
 	
-	mExportFunction(jModListenError, unsafeWindow, {
+	mExportFunction(_jModListenError, unsafeWindow, {
 		defineAs: "jModListenError",
 		allowCallbacks: true,
 		allowCrossOriginArguments: true
 	});
 	
 	var onErrorFunction = function(){
-		window.oldHandle = window.onerror;
-		window.onerror = function(message, url, linenumber, colNumber, eObj){
-			//console.log('tErrHandle', message, url, linenumber);
-			try{
-				//var args = Slice.call(arguments, 0);
-				var tStack = '';
+		// Handle min renaming
+		//var win = typeof document !== "undefined" ? document.defaultView : typeof window !== "undefined" ? window : unsafeWindow;
+		var win = 
+				typeof this.document !== "undefined" ? this.document.defaultView :
+				typeof document !== "undefined" ? document.defaultView :
+				this.top != null ? this :
+				null;
+		//var console = this.console != null ? this.console : win.console;
+		var console = win.console != null ? win.console : this.console;
+		if(win._jModErrorHandlerStack)
+			return;
+		
+		win._origErrorHandler = win.onerror;
+		win._jModErrorHandlerStack = [];
+		
+		function jModGlobalErrorHandler(message, url, linenumber, colNumber, eObj){
+			var win = typeof document !== "undefined" ? document.defaultView : (this.top != null ? this : null);
+			var console = this.console != null ? this.console : win.console;
+			console.log("tErrHandle", message, url, linenumber, eObj);
+			try {
+				var data = {}, tStack = "";
+				if(eObj){
+					try{
+						//tStack = eObj.stack.toString();
+						tStack = String(eObj.stack);
+					}catch(e){
+						console.log('Error eObj.stack.toString', e);
+					};
+					data = {
+						message: eObj.message,
+						name: eObj.name,
+						fileName: eObj.fileName,
+						lineNumber: eObj.lineNumber,
+						columnNumber: eObj.columnNumber,
+						stack: tStack,
+						url: url
+					};
+				} else {
+					data = {
+						message: message,
+						name: null,
+						fileName: null,
+						lineNumber: linenumber,
+						columnNumber: colNumber,
+						stack: tStack,
+						url: url
+					};
+				}
+				var fn;
+				if(typeof jModListenError !== "undefined")
+					fn = jModListenError;
+				else if(win.jModListenError)
+					fn = win.jModListenError;
+				else
+					fn = document.defaultView.jModListenError;
+				fn(message, url, linenumber, colNumber, data);
+			} catch(e) {
+				console.log('error calling jModListenError', e, win);
+			}
+			
+			for(var i = win._jModErrorHandlerStack.length - 1; i >= 0; i--){
 				try{
-					tStack = eObj.stack.toString();
-				}catch(e){};
-				var data = {
-					message: eObj.message,
-					name: eObj.name,
-					fileName: eObj.fileName,
-					lineNumber: eObj.lineNumber,
-					columnNumber: eObj.columnNumber,
-					stack: tStack
-				};
-				//console.log('eobj.stack', eObj.stack);
-				jModListenError(message, url, linenumber, colNumber, data);
-				//if(jModListenError(message, url, linenumber, colNumber, data))
-					//return true;
+					if(win._jModErrorHandlerStack[i].apply(this, arguments) === true)
+						return true;
+				}catch(e){
+					console.log("Error processing error handler", win._jModErrorHandlerStack[i]);
+				}
+			}
+			try{
+				if(win._origErrorHandler)
+					return win._origErrorHandler.apply(this, arguments);
 			}catch(e){}
-			//finally {
-			if(window.oldHandle)
-				return window.oldHandle.apply(this, arguments);
+			
 			return false;
-			//}
 		}
-		/*
-		setTimeout(function(){
-			eval("eval('FAIL')");
-			var fofo = baba(tko);
-		}, 500);
-		*/
-	};
-	/*
-	setTimeout(function(){
-	jMod.API.contentEval(onErrorFunction);
-	}, 1000);
-	*/
-	//setTimeout(jMod.API.contentEval, 1000, onErrorFunction);
+		
+		// Overwrite any existing error handler
+		win.onerror = jModGlobalErrorHandler;
+		
+		try{
+			// Prevent new handler from being overwritten
+			// Cannot use defineProperty
+			// ONLY OVERWRITE SETTER!
+			//if(win.__lookupSetter__('onerror').name == "onerror"){
+				win.__defineSetter__("onerror", function(fn){
+					// Add to handler stack
+					win._jModErrorHandlerStack.push(fn);
+				});
+			//}
+		}catch(e){};
+		
+	}
+	//onErrorFunction(window, console);
+	//onErrorFunction(window || unsafeWindow, console);
+	//jMod.API.contentEval(onErrorFunction);

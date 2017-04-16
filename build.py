@@ -162,7 +162,7 @@ with open ('./bin/jMod.full.js', "w") as myfile:
     myfile.write(output)
     myfile.close()
 
-
+reserveWords = '$,Watcher'
     
 print('Beautify')
 beautyCArgs = [
@@ -182,28 +182,98 @@ beautyCArgs = [
     'conditionals=false',
     'side_effects=false',
     'sequences=false',
-    'negate_iife=false'
+    'negate_iife=false',
+    'keep_fargs=true'
     ]
 #beautyStr = compile([r'./bin/jMod.full.js'], ['-b', '--comments', r"/[\s=\/][@U]/", '-c ' + ','.join(beautyCArgs), '-m', '--screw-ie', '-o','bin/jMod.js']).decode("utf-8")
 beautyStr = metaBlock + compile([r'./bin/jMod.full.js'], ['-b', '-c', ','.join(beautyCArgs), '--screw-ie']).decode("utf-8")
-# Write uncompressed jMod output (without comments) to "./bin/jMod.full.js"
+# Write uncompressed jMod output (without comments) to "./bin/jMod.js"
 with open ('./bin/jMod.js', "w") as myfile:
     myfile.write(beautyStr)
 
 minCArgs = [
+    'properties=true',
+    'evaluate=true',
+    'join_vars=true',
+    'if_return=true',
+    'comparisons=true',
+    'booleans=true',
+    'loops=true',
+    'hoist_funs=true',
+    'cascade=true',
+    'unused=true',
+    'warnings=false',
+    'dead_code=true',
+    'unsafe=false',
+    'drop_debugger=true',
+    'drop_console=false',
+    'conditionals=true',
+    #'side_effects=false',
+    'sequences=true',
+    'negate_iife=true',
+    'keep_fargs=true'
+    ]
+"""
+minCArgs = [
     'unused=false',
     'warnings=false',
     'dead_code=false',
-    'unsafe=true'
+    'unsafe=true',
+    'keep_fargs=true'
     ]
+"""
+minArgs = ['-c ' + ','.join(minCArgs), '-m', 'sort', '-r', reserveWords, '--screw-ie']
+
 # Minify to "./bin/jMod.min.js" if "-m" argument is present
 if(args.m == True):
     print('Minify')
-    minStr = metaBlock + compile([r'./bin/jMod.js'], ['-c ' + ','.join(minCArgs), '-m', 'sort', '-r', '$', '--screw-ie']).decode("utf-8")
+    minArgs.append('--source-map')
+    minArgs.append('./bin/jMod.min.js.map')
+    
+    if(args.d == True):
+        # Use test2
+        mapHost = "http://test2.myuserjs.org/API"
+        if(args.r == True):
+            minArgs.append('--source-map-root')
+            minArgs.append(mapHost + '/jMod/current')
+            minArgs.append('--source-map-url')
+            minArgs.append(mapHost + '/jMod/current/jMod.min.js.map')
+        elif(args.b == True):
+            minArgs.append('--source-map-root')
+            minArgs.append(mapHost + '/jMod/' + args.v)
+            minArgs.append('--source-map-url')
+            minArgs.append(mapHost + '/jMod/' + args.v + '/jMod.min.js.map')
+        else:
+            minArgs.append('--source-map-root')
+            minArgs.append(mapHost + '/bin')
+            minArgs.append('--source-map-url')
+            minArgs.append(mapHost + '/bin/jMod.min.js.map')
+    else:
+        mapHost = "http://code.jmod.info"
+        if(args.r == True):
+            minArgs.append('--source-map-root')
+            minArgs.append(mapHost + '/')
+            minArgs.append('--source-map-url')
+            minArgs.append(mapHost + '/jMod.min.js.map')
+        elif(args.b == True):
+            minArgs.append('--source-map-root')
+            minArgs.append(mapHost + '/' + args.v)
+            minArgs.append('--source-map-url')
+            minArgs.append(mapHost + '/' + args.v + '/jMod.min.js.map')
+        else:
+            minArgs.append('--source-map-root')
+            minArgs.append(mapHost + '')
+            minArgs.append('--source-map-url')
+            minArgs.append(mapHost + '/jMod.min.js.map')
+
+        
+    minArgs.append('-p 2')
+        
+    minStr = metaBlock + compile([r'./bin/jMod.js'], minArgs).decode("utf-8")
     with open ('./bin/jMod.min.js', "w") as myfile:
         myfile.write(minStr)
-        
-    minExpandedStr = metaBlock + compile([r'./bin/jMod.js'], ['-b beautify=true', '-c ' + ','.join(minCArgs), '-m', 'sort', '-r', '$', '--screw-ie']).decode("utf-8")
+    
+    minExpandedStr = metaBlock + compile([r'./bin/jMod.js'], ['-b beautify=true', '-c ' + ','.join(minCArgs), '-m', 'sort', '-r', reserveWords, '--screw-ie']).decode("utf-8")
     # Write expanded version to "./bin/jMod.min.expanded.js"
     with open ('./bin/jMod.min.expanded.js', "w") as myfile:
         myfile.write(minExpandedStr)
@@ -265,6 +335,7 @@ if(args.b == True or args.r == True):
     
     if(args.m == True):
         shutil.copyfile('./bin/jMod.min.js', './jMod/' + args.v + '/jMod.min.js')
+        shutil.copyfile('./bin/jMod.min.js.map', './jMod/' + args.v + '/jMod.min.js.map')
         shutil.copyfile('./bin/jMod.min.expanded.js', './jMod/' + args.v + '/jMod.min.expanded.js')
 
 # Copy to current folder if "-r" argument is present
@@ -276,12 +347,13 @@ if(args.r == True):
 
     if(args.m == True):
         shutil.copyfile('./bin/jMod.min.js', './jMod/current/jMod.min.js')
+        shutil.copyfile('./bin/jMod.min.js.map', './jMod/current/jMod.min.js.map')
         shutil.copyfile('./bin/jMod.min.expanded.js', './jMod/current/jMod.min.expanded.js')
 
 # Copy output to "-cp" destination if "-cp" argument is present
 if(args.cp != ''):
     if(args.m == True):
-        shutil.copyfile('./bin/jMod.min.js', args.cp)
+        shutil.copyfile('./bin/jMod.min.expanded.js', args.cp)
     else:
         shutil.copyfile('./bin/jMod.full.js', args.cp)
 

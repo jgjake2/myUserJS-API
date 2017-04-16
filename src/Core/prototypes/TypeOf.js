@@ -37,6 +37,12 @@ var RealTypeOf = jMod.RealTypeOf = function(_obj){
 			return Object.prototype.toString.call(obj).replace(/^\[object |\]$/g,'').toLowerCase();
 		}
 	}catch(e){}
+	try{
+		if(typeof(obj) === "function"){
+			if(obj.typeOfName && typeof obj.typeOfName === "string") return obj.typeOfName;
+			if(obj.displayName && typeof obj.displayName === "string") return obj.displayName;
+		}
+	}catch(e){}
 	return typeof(obj);
 }
 

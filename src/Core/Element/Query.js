@@ -1,8 +1,7 @@
 // +@display_name  Element Query
 
 jMod.$ = function(selector, target, nojQuery){
-	if(!target)
-		target = (_undefined!==typeof document?document:unsafeWindow.document);
+	target = target || jMod.Element.document;
 
 	try{
 		if(nojQuery !== true && jMod.jQueryAvailable){
@@ -23,8 +22,7 @@ jMod.$ = function(selector, target, nojQuery){
 }
 
 jMod.$$ = function(selector, target, nojQuery){
-	if(!target)
-		target = (_undefined!==typeof document?document:unsafeWindow.document);
+	target = target || jMod.Element.document;
 	try{
 		if(nojQuery !== true && jMod.jQueryAvailable){
 			try{

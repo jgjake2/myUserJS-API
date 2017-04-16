@@ -6,7 +6,7 @@ Settings.PrefTypes.add('toggle', {
 		var text = data.description || data.name;
 		var defaultValue = data['default'] || '';
 		var storedValue = Settings.get(data.name);
-		var currentValue = storedValue || defaultValue;
+		var currentValue = storedValue || storedValue.trim() === "" ? storedValue : defaultValue;
 		var options = [];
 		
 		for(var optionName in data.options){

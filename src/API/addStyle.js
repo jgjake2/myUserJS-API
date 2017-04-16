@@ -15,17 +15,17 @@ var addStyle = jMod.API.addStyle = function(css){
 			return GM_addStyle(css) || true;
 			
 		var style,
-			win = (window || unsafeWindow),
-			heads = win.document.getElementsByTagName('head');
-		if(heads) {
-			style = win.document.createElement('style');
+			head = jMod.Element.head;
+			
+		if(head) {
+			style = jMod.Element.document.createElement('style');
 			try {
 				style.innerHTML = css;
 			} catch (x) {
 				style.innerText = css;
 			}
 			style.type = 'text/css';
-			return heads[0].appendChild(style);
+			return head.appendChild(style);
 		} else {
 			if(jMod.debug)
 				jModLogWarning('jMod.API.addStyle', 'Could not add css', css);
@@ -35,14 +35,14 @@ var addStyle = jMod.API.addStyle = function(css){
 
 jMod.API.addStylesheet = function(url){
 	var style,
-		win = (window || unsafeWindow),
-		heads = win.document.getElementsByTagName('head');
+		head = jMod.Element.head;
+		//win = (window || unsafeWindow);
 	
-	if(heads){
-		style = win.document.createElement('link');
+	if(head){
+		style = jMod.Element.document.createElement('link');
 		style.setAttribute('rel', 'stylesheet');
 		style.href = url;
-		return heads[0].appendChild(style);
+		return head.appendChild(style);
 	} else {
 		if(jMod.debug)
 			jModLogWarning('jMod.API.addStylesheet', 'Could not add stylesheet', url);

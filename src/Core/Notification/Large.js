@@ -55,7 +55,12 @@
 						className: 'btnClose fa fa-times',
 						EventListeners: {
 							'click':function(e){
-								Notification.close(e.target);
+								if(!hasClass(this, 'fadeOut')){
+									Notification.close(e.target);
+									try{
+										this.removeEventListener('click', arguments.callee);
+									}catch(e){}
+								}
 							}
 						}
 					}

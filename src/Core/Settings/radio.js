@@ -65,7 +65,7 @@ Settings.PrefTypes.add('radio', {
 		return opts;
 	},
 	getValue: function(prefEl, data){
-		return prefEl.querySelector('input:checked').value;
+		return jMod.$('input:checked', prefEl).value;
 	},
 	setValue: function(prefEl, data, value){
 		for(var i = 0; i < prefEl.options.length; i++){

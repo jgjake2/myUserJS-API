@@ -228,7 +228,7 @@
     };
     D("ScriptElement", function() {
         return M.el ? M : r;
-    }), D("version", "0.0.18"), D("build_time", "1422486289000"), D("build_type", "release"), 
+    }), D("version", "0.0.18"), D("build_time", "1422488256000"), D("build_type", "release"), 
     D("_debug", !1), Object.defineProperty(e, "debug", {
         get: function() {
             try {

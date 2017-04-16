@@ -36,7 +36,7 @@ jMod.getDOMTiming = function(){
 		}
 	} catch(e) {
 		//console.error('Error! getDOMTiming: ', e);
-		jModError(e, 'jMod.getDOMTiming');
+		jModLogError(e, 'jMod.getDOMTiming');
 		return {};
 	}
 	return timingData;
