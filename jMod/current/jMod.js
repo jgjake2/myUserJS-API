@@ -52,7 +52,7 @@
                     });
                 } catch (e) {}
                 return obj[sKey];
-            } else return void 0;
+            } else return;
         }, exportHandlers, exportArgs("get"));
         exportFunction(args["set"] || function(oTarget, sKey, vValue) {
             try {
@@ -98,7 +98,7 @@
             }, unsafeWindow, exportArgs()), exportHandlers);
         } catch (e) {
             console.log("export error", e);
-            return void 0;
+            return;
         }
     }
     var jMod = factory.call(this, window && "undefined" !== typeof window.performance ? window.performance.now() : 0, $, console, window, unsafeWindow, "undefined", void 0);
@@ -130,7 +130,7 @@
     jMod.InitializeStartTime = initStart;
     jMod.InitializeEndTime = -1;
     const fontBaseURL = "http://code.jmod.info/fonts";
-    var Slice = Array.prototype.slice, _jQueryAvailable = _undefined != typeof $ ? true : false, jModReady = -1, _css = "@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n" + "@import url(http://code.jmod.info/fonts/sansation.css);\n", defaultjModCSSURL = true ? "@import url(//test2.myuserjs.org/API/0.0.20/jMod.css);\n" : "@import url(http://code.jmod.info/0.0.20/jMod.css);\n", CurrentRunningScript = {
+    var Slice = Array.prototype.slice, _jQueryAvailable = _undefined != typeof $ ? true : false, jModReady = -1, _css = "@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n" + "@import url(http://code.jmod.info/fonts/sansation.css);\n", defaultjModCSSURL = false ? "@import url(//test2.myuserjs.org/API/0.0.20/jMod.css);\n" : "@import url(http://code.jmod.info/0.0.20/jMod.css);\n", CurrentRunningScript = {
         id: "jMod",
         config: {},
         el: undefined
@@ -160,9 +160,9 @@
         return CurrentRunningScript.el ? CurrentRunningScript : undefined;
     });
     DefineLockedProp("version", "0.0.20");
-    DefineLockedProp("build_time", "1424632041000");
+    DefineLockedProp("build_time", "1494089011000");
     DefineLockedProp("build_type", "release");
-    DefineLockedProp("_debug", true);
+    DefineLockedProp("_debug", false);
     Object.defineProperty(jMod, "debug", {
         get: function() {
             try {
@@ -1055,7 +1055,7 @@
         jQueryExtensions: {
             CrossOrigin: true
         },
-        debug: true
+        debug: false
     });
     if ("object" === typeof unsafeWindow["jMOD_CONFIGURATION"]) jMod.Config = jMod.extend(true, jMod.Config, unsafeWindow["jMOD_CONFIGURATION"]);
     Object.defineProperties(jMod.Config, props);

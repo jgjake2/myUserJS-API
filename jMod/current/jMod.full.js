@@ -374,7 +374,7 @@
 		jModReady = -1,
 		_css = "@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n"
 		+"@import url(http://code.jmod.info/fonts/sansation.css);\n",
-		defaultjModCSSURL = true ? "@import url(//test2.myuserjs.org/API/0.0.20/jMod.css);\n" : "@import url(http://code.jmod.info/0.0.20/jMod.css);\n",
+		defaultjModCSSURL = false ? "@import url(//test2.myuserjs.org/API/0.0.20/jMod.css);\n" : "@import url(http://code.jmod.info/0.0.20/jMod.css);\n",
 		CurrentRunningScript = {
 			id: 'jMod',
 			config: {},
@@ -428,7 +428,7 @@
 	 * @memberOf! jMod
 	 * @type {string}
 	 */
-	DefineLockedProp('build_time', '1424632041000');
+	DefineLockedProp('build_time', '1494089011000');
 	
 	/**
 	 * Current build type (beta|release)
@@ -444,7 +444,7 @@
 	 * @memberOf! jMod
 	 * @type {boolean}
 	 */
-	DefineLockedProp('_debug', true);
+	DefineLockedProp('_debug', false);
 	
 	Object.defineProperty(jMod, 'debug', {
 		get: function(){
@@ -2328,10 +2328,10 @@ test_assign();
 		'jQueryExtensions': {
 			'CrossOrigin': true
 		},
-		'debug': true
+		'debug': false
 	});
 	/*
-	if(true){
+	if(false){
 		try{
 			if(['firefox', 'waterfox'].indexOf(jMod.Config.browser.name.toLowerCase()) == -1){
 				jMod.Config.API.log.GM_log = false;

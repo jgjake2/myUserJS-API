@@ -5,7 +5,7 @@
 // @homepage         http://myuserjs.org/
 // @license          GNU GPL version 3; http://www.gnu.org/licenses/gpl-3.0.txt
 // @exclude          *
-// @version          0.0.20
+// @version          0.0.19
 // @grant            unsafeWindow
 // @grant            GM_info
 // @grant            GM_log
@@ -26,7 +26,7 @@
 /*
  * @overview [API for interacting with myUserJS.org]{@link jMod}
  * @author jgjake2
- * @version 0.0.20
+ * @version 0.0.19
  * @see {@link jMod}
  * @todo Add cookie storage
  * @todo Finish documentation
@@ -194,106 +194,10 @@
  * @global
  * @namespace jMod
  * @author jgjake2
- * @version 0.0.20
+ * @version 0.0.19
  * @tutorial jMod-tutorial
  */
 +function($, unsafeWindow, window, factory){
-	function exportArgs(name, cb, coa){
-		var length = arguments.length;
-		var t = {
-			"allowCallbacks": (length > 1 ? (cb == true) : true),
-			"allowCrossOriginArguments": (length > 2 ? (coa == true) : true)
-			};
-		if(length > 0 && name)
-			t.defineAs = name;
-		return t;
-	};
-	var validDeepExports = ["Element"];
-	
-	
-	function exportProxy(obj, args){
-		args = args || {};
-		var exportHandlers = cloneInto({}, unsafeWindow, {cloneFunctions: true, wrapReflectors: true});
-		exportFunction(args["get"] || function(oTarget, sKey){
-			if(typeof obj[sKey] !== "undefined" || sKey in obj){
-				try{
-					if(obj === jMod && validDeepExports.indexOf(sKey) > -1){
-						return exportProxy(obj[sKey]);
-					}
-				}catch(e){}
-				if(typeof obj[sKey] === "object" || typeof obj[sKey] === "function"){
-					try{
-						return cloneInto(obj[sKey], unsafeWindow, {cloneFunctions: true, wrapReflectors: true});
-					}catch(e){}
-				}
-				return obj[sKey];
-			} else {
-				return undefined;
-			}
-		}, exportHandlers, exportArgs("get"));
-		
-		exportFunction(args["set"] || function(oTarget, sKey, vValue){
-			try{
-				obj[sKey] = vValue;
-			}catch(e){return false;}
-			return true;
-		}, exportHandlers, exportArgs("set"));
-		
-		exportFunction(args["has"] || function(oTarget, sKey){
-			return (sKey in obj);
-		}, exportHandlers, exportArgs("has"));
-		
-		exportFunction(args["enumerate"] || function(oTarget, sKey){
-			try{
-				return (obj.keys())[Symbol.iterator]();
-			}catch(e){}
-			try{
-				// To Do:
-				// Check for .keys existence before use (ES5 support)
-				return obj.keys();
-			}catch(e){}
-		}, exportHandlers, exportArgs("enumerate"));
-		
-		exportFunction(args["ownKeys"] || function(oTarget, sKey){
-			return Object.getOwnPropertyNames(obj);
-		}, exportHandlers, exportArgs("ownKeys"));
-		
-		exportFunction(args["defineProperty"] || function(oTarget, sKey, oDesc){
-			if (oDesc && !(sKey in obj)){
-				Object.defineProperty(obj, sKey, oDesc);
-			}
-			return obj;
-		}, exportHandlers, exportArgs("defineProperty"));
-		
-		exportFunction(function(oTarget, sKey){
-			return Object.getOwnPropertyDescriptor(obj, sKey);
-		}, exportHandlers, exportArgs("getOwnPropertyDescriptor"));
-		
-		exportFunction(args["construct"] || function(oTarget, argumentsList){
-			return obj.apply(obj, argumentsList);
-		}, exportHandlers, exportArgs("construct"));
-		
-		exportFunction(function(oTarget, sKey){
-			return obj.prototype;
-		}, exportHandlers, exportArgs("getPrototypeOf"));
-		
-		exportFunction(function(oTarget, thisArg, argumentsList){
-			return obj.apply(obj, argumentsList);
-		}, exportHandlers, exportArgs("apply"));
-		
-		try{
-			//unsafeWindow.jMod = new unsafeWindow.Proxy(unsafeWindow.__jMod, unsafeWindow.__jModExport);
-			
-			return new unsafeWindow.Proxy(exportFunction(function(){return obj.apply(obj, arguments);}, unsafeWindow, exportArgs()), exportHandlers);
-			
-			//unsafeWindow.jMod = new unsafeWindow.Proxy(exportFunction(jMod, unsafeWindow, exportArgs()), unsafeWindow.__jModExport);
-			//unsafeWindow.jMod = new unsafeWindow.Proxy(jMod, unsafeWindow.__jModExport);
-			//unsafeWindow.jMod = new unsafeWindow.Proxy(cloneInto({}, unsafeWindow, {cloneFunctions: false, wrapReflectors: false}), unsafeWindow.__jModExport);
-		}catch(e){
-			console.log('export error', e);
-			return undefined;
-		}
-	};
 	var jMod = factory.call(
 			this,
 			(window&&"undefined"!==typeof window.performance?window.performance.now():0.0),
@@ -305,29 +209,21 @@
 			undefined
 		);
 	var addToGlobalScope = jMod.Config.addToGlobalScope;
-	if(this.jMod) {
+	if(this.jMod){
 		this._jMod = this.jMod;
-		if(addToGlobalScope && unsafeWindow && unsafeWindow.jMod && unsafeWindow !== this) {
+		if(addToGlobalScope && unsafeWindow && unsafeWindow.jMod && unsafeWindow !== this){
 			unsafeWindow._jMod = unsafeWindow.jMod;
 		}
 	}
 	this.jMod = jMod;
-	if(addToGlobalScope) {
+	if(addToGlobalScope){
 		try{
-			if(jMod.isFirefox && jMod.isSandbox && typeof unsafeWindow.Proxy !== "undefined" && typeof cloneInto !== "undefined" && typeof exportFunction !== "undefined") {
-				console.log('Export jMod');
-				unsafeWindow.jMod = exportProxy(jMod);
-				if(window !== unsafeWindow) {
-					window.jMod = jMod;
-				}
-			} else {
-				if(unsafeWindow !== this){
-					unsafeWindow.jMod = jMod;
-				}
+			if(unsafeWindow !== this){
+				unsafeWindow.jMod = jMod;
 			}
 		} catch(e) {
 			try{
-				if(window !== this) {
+				if(window !== this){
 					window.jMod = jMod;
 				}
 			}catch(x){
@@ -342,13 +238,11 @@
  this,
  "undefined"!==typeof jQuery?jQuery:undefined,
  (
-	"undefined"!==typeof unsafeWindow && Object.prototype.toString.call(unsafeWindow).replace(/^\[object |\]$/g,'').toLowerCase() === "window" ? unsafeWindow :
-	"undefined"!==typeof this.unsafeWindow && Object.prototype.toString.call(this.unsafeWindow).replace(/^\[object |\]$/g,'').toLowerCase() === "window" ? this.unsafeWindow :
+	"undefined"!==typeof unsafeWindow && unsafeWindow.top && Object.prototype.toString.call(unsafeWindow).replace(/^\[object |\]$/g,'').toLowerCase() === "window" ? unsafeWindow :
 	"undefined"!==typeof window && window.top && Object.prototype.toString.call(window).replace(/^\[object |\]$/g,'').toLowerCase() === "window" ? window : this
  ),
- this.window || window,
+ window,
  function(initStart, $, console, window, unsafeWindow, _undefined, undefined){
-	var _global = this;
 	/**
 	 * Calls jMod._call with the given arguments
 	 * @global
@@ -360,8 +254,7 @@
 	 * // Get the current value of script.username
 	 * jMod('get', 'script.username')
 	 */
-	var jMod = function(){return jMod._call.apply(jMod, arguments);};
-	
+	function jMod(){return jMod._call.apply(jMod, arguments);};
 	jMod.InitializeStartTime = initStart;
 	jMod.InitializeEndTime = -1;
 	
@@ -374,7 +267,7 @@
 		jModReady = -1,
 		_css = "@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n"
 		+"@import url(http://code.jmod.info/fonts/sansation.css);\n",
-		defaultjModCSSURL = false ? "@import url(//test2.myuserjs.org/API/0.0.20/jMod.css);\n" : "@import url(http://code.jmod.info/0.0.20/jMod.css);\n",
+		defaultjModCSSURL = false ? "@import url(//test2.myuserjs.org/API/0.0.19/jMod.css);\n" : "@import url(http://code.jmod.info/0.0.19/jMod.css);\n",
 		CurrentRunningScript = {
 			id: 'jMod',
 			config: {},
@@ -395,7 +288,7 @@
 		};
 		try{CurrentRunningScript.el = unsafeWindow.document&&unsafeWindow.document.currentScript?unsafeWindow.document.currentScript:undefined;}catch(e){}
 		
-	function DefineLockedProp(name, value, target, en){
+	var DefineLockedProp = function(name, value, target, en){
 		var opts = {
 			configurable: false,
 			enumerable: en===false?en:true
@@ -408,9 +301,7 @@
 		}
 		Object.defineProperty(target || jMod, name, opts);
 	}
-	
-	DefineLockedProp('displayName', 'jMod', null, false); // Fix minify rename'
-	DefineLockedProp('typeOfName', 'jMod', null, false); // Fix minify rename'
+
 	
 	DefineLockedProp('ScriptElement', function(){return (CurrentRunningScript.el ? CurrentRunningScript : undefined);});
 	
@@ -420,7 +311,7 @@
 	 * @memberOf! jMod
 	 * @type {string}
 	 */
-	DefineLockedProp('version', '0.0.20');
+	DefineLockedProp('version', '0.0.19');
 	
 	/**
 	 * Date of build
@@ -428,7 +319,7 @@
 	 * @memberOf! jMod
 	 * @type {string}
 	 */
-	DefineLockedProp('build_time', '1494089011000');
+	DefineLockedProp('build_time', '1424180974000');
 	
 	/**
 	 * Current build type (beta|release)
@@ -484,27 +375,6 @@
 	});
 	
 	DefineLockedProp('jQuery', function(){return (jMod.jQueryAvailable ? $ : undefined);});
-	
-	Object.defineProperties(jMod, {
-		'isSandbox': {
-			value: (function(){return Object.prototype.toString.call(this).replace(/^\[object |\]$/g,'').toLowerCase() === "sandbox";})(),
-			enumerable: true,
-			writable: false,
-			configurable: false
-		},
-		'isFirefox': {
-			get: function(){
-				return (typeof navigator != _undefined ? navigator : (window.navigator || unsafeWindow.navigator)).userAgent.toLowerCase().indexOf('firefox') > -1;
-			},
-			enumerable: false
-		},
-		'isChrome': {
-			get: function(){
-				return (typeof navigator != _undefined ? navigator : (window.navigator || unsafeWindow.navigator)).userAgent.toLowerCase().indexOf('chrome') > -1;
-			},
-			enumerable: false
-		}
-	});
 	
 	/***********************************
 	 ** Performance
@@ -599,289 +469,12 @@ var performance = new function(){
 	jMod.AddCSS = function(input){
 		addStyle(_css + (input || ''));
 		_css = '';
-	};
+	}
 	
 
 	/***********************************
 	 ** Functions/Classes/Prototypes
 	 **********************************/
-+(function(){
-	function Watcher(obj, property, handler){
-		if(!(Watcher.browserSupportsWatch && typeof obj.watch === "function") || !Watcher.browserSupportsObserve){
-			throw new jModError('Browser does not support watch or observe');
-		}
-		
-		if(obj.__watcher){
-			obj.__watcher.add(property, handler);
-			return obj.__watcher;
-		}
-		
-		var _this = this;
-		_this.target = obj;
-		_this.properties = {};
-		if(property && handler) {
-			_this.defaultHandler = handler;
-			_this.properties[property] = handler;
-		}
-		_this.enabled = true;
-		obj.__watcher = this;
-		
-		if(Watcher.browserSupportsWatch && typeof obj.watch === "function") {
-			if(property && handler) obj.watch(property, handler);
-		} else if(Watcher.browserSupportsObserve) {
-			
-			Object.observe(obj, function(changes) {
-				var i = 0, errs = [];
-				
-				for( ; i < changes.length; i++){
-					var change = changes[i],
-						changeObj = change.object,
-						changeName = change.name,
-						changeOldValue = change.oldValue,
-						changeType = change.type,
-						changeWatcher = change.__watcher || _this || this;
-					if (
-						!changeWatcher
-						|| !changeWatcher.enabled
-						|| changeName === "__watcher"
-						//|| ["__watcher"].indexOf(changeName) !== -1
-						|| !changeWatcher.properties[changeName]
-					) return;
-					try {
-						(changeWatcher.properties[changeName] || changeWatcher.defaultHandler).call(changeObj, changeName, changeOldValue, changeObj[changeName]);
-					} catch(e) {
-						changeWatcher.enabled = false;
-						switch(type){
-							case "update":
-								changeObj[changeName] = changeOldValue;
-								break;
-							case "add":
-								delete changeObj[changeName];
-								break;
-							case "delete":
-								changeObj[changeName] = changeOldValue;
-								break;
-						}
-						changeWatcher.enabled = true;
-						errs.push(e);
-					}
-				}
-				if(errs.length > 0) {
-					throw errs;
-				}
-			});
-			
-		}
-		
-		return _this;
-	}
-	
-	Watcher.displayName = "Watcher";
-	Watcher.browserSupportsWatch = Object.prototype.watch ? true : false;
-	Watcher.browserSupportsObserve = Object.observe ? true : false;
-	
-	Watcher.prototype = {
-		add: function(property, handler){
-			if(property && (handler || this.defaultHandler)){
-				if(!this.defaultHandler && handler)
-					this.defaultHandler = handler;
-				this.properties[property] = handler || null;
-				if(Watcher.browserSupportsWatch && typeof obj.watch === "function") {
-					obj.watch(property, handler || this.defaultHandler);
-				}
-			}
-			return this;
-		},
-		unwatch: function(property){
-			this.enabled = false;
-			
-			if(property){
-				if(this.properties[property])
-					delete this.properties[property];
-				
-				if(Watcher.browserSupportsWatch) {
-					this.target.unwatch(property);
-				}// else if(Watcher.browserSupportsObserve) {
-					//if(this.properties && this.properties[property]){
-						//delete this.properties[property];
-					//}
-				//}
-			} else {
-				for(var prop in this.properties){
-					if(prop){
-						this.unwatch(prop);
-					}
-				}
-			}
-			this.enabled = true;
-			return this;
-		}
-	};
-	
-	jMod.Watcher = Watcher;
-})();
-
-/*
-+(function(){
-	var browserSupportsWatch = Object.prototype.watch ? true : false;
-	var browserSupportsObserve = Object.observe ? true : false;
-	jMod.watcher = function(obj, property, handler){
-		if(browserSupportsWatch && typeof obj.watch === "function") {
-			if(!obj.__watchPropertiesHandler) {
-				if(!handler) {
-					throw new jModError('No handler provided');
-				}
-				Object.defineProperty(obj, '__watchPropertiesHandler', {
-					value: handler,
-					enumerable: false,
-					configurable: false,
-					writable: true
-				});
-			}
-			obj.watch(property, handler || obj.__watchPropertiesHandler);
-		} else if(browserSupportsObserve) {
-			if(obj.__watchProperties) {
-				if(obj.__watchProperties[property]) {
-					if(handler) {
-						obj.__watchProperties[property] = handler;
-					}
-				} else {
-					obj.__watchProperties[property] = handler || null;
-				}
-			} else {
-				if(!handler) {
-					throw new jModError('No handler provided');
-				}
-				Object.defineProperties(obj, {
-					'__watchProperties': {
-						value: {},
-						enumerable: false,
-						configurable: false,
-						writable: true
-					},
-					
-					'__watchPropertiesEnabled': {
-							value: true,
-							enumerable: false,
-							configurable: false,
-							writable: true
-					},
-					
-					'__watchPropertiesHandler': {
-						value: handler,
-						enumerable: false,
-						configurable: false,
-						writable: true
-					}
-				});
-				
-				obj.__watchProperties[property] = handler;
-			
-				Object.observe(obj, function(changes) {
-					var i = 0, errs = [];
-					
-					for( ; i < changes.length; i++){
-						var change = changes[i],
-							changeObj = change.object,
-							changeName = change.name,
-							changeOldValue = change.oldValue,
-							changeType change.type;
-						if (
-							!changeObj.__watchPropertiesEnabled
-							|| ["__watchProperties", "__watchPropertiesEnabled", "__watchPropertiesHandler"].indexOf(changeName) !== -1
-							|| !changeObj.__watchProperties[changeName]
-						) return;
-						try {
-							(changeObj.__watchProperties[changeName] || changeObj.__watchPropertiesHandler).call(changeObj, changeName, changeOldValue, changeObj[changeName]);
-						} catch(e) {
-							changeObj.__watchPropertiesEnabled = false;
-							switch(type){
-								case "update":
-									changeObj[changeName] = changeOldValue;
-									break;
-								case "add":
-									delete changeObj[changeName];
-									break;
-								case "delete":
-									changeObj[changeName] = changeOldValue;
-									break;
-							}
-							changeObj.__watchPropertiesEnabled = true;
-							errs.push(e);
-						}
-					}
-					if(errs.length > 0) {
-						throw errs;
-					}
-				});
-			}
-
-		} else {
-			throw new jModError('Browser does not support watch or observe');
-		}
-	};
-	
-	jMod.unwatch = function(obj, property){
-		if(browserSupportsWatch) {
-			obj.unwatch(property);
-		} else if(browserSupportsObserve) {
-			if(obj.__watchProperties && obj.__watchProperties[property]){
-				
-				obj.__watchPropertiesEnabled = false;
-
-				delete obj.__watchProperties[property];
-				
-				obj.__watchPropertiesEnabled = true;
-			}
-		} else {
-			throw new jModError('Browser does not support watch or observe');
-		}
-	};
-})();
-*/
-/*
-if (!Object.prototype.watch) {
-	Object.defineProperty(Object.prototype, "watch", {
-		enumerable: false,
-		configurable: true,
-		writable: false,
-		value: function (prop, handler) {
-			var oldval = this[prop],
-				newval = oldval,
-				getter = function() {
-					return newval;
-				},
-				setter = function(val) {
-					oldval = newval;
-					return newval = handler.call(this, prop, oldval, val);
-				};
-			
-			if (delete this[prop]) { // can't watch constants
-				Object.defineProperty(this, prop, {
-					get: getter,
-					set: setter,
-					enumerable: true,
-					configurable: true
-				});
-			}
-		}
-	});
-}
-
-if (!Object.prototype.unwatch) {
-	Object.defineProperty(Object.prototype, "unwatch", {
-		enumerable: false,
-		configurable: true,
-		writable: false,
-		value: function (prop) {
-			var val = this[prop];
-			delete this[prop]; // remove accessors
-			this[prop] = val;
-		}
-	});
-}
-*/
-
 function getFirstValidKey(obj, arr, filter){
 	var hasFilter = (typeof filter === "function" ? true : false);
 	var args = arr;
@@ -974,33 +567,6 @@ var props = {
 	SearchForKeyI: {value: Object_SearchForKeyCaseInsensitive, enumerable: false},
 	setKeyValueI: {value: Object_setKeyValueCaseInsensitive, enumerable: false}
 };
-function cloneErrorObject(eObj, scope){
-	scope = scope || unsafeWindow;
-	var r,
-		errRef = "Error", // Default error type is a generic "Error" object
-		scopeRef = scope.Error && typeof scope.Error === "function" ? scope : unsafeWindow; // Check input scope for "Error" class. Otherwise, use unsafeWindow.
-	if(!scopeRef) return;
-	
-	// Check if the input error has a name and if that name has a constructor in scopeRef.
-	if(eObj.name && eObj.name != "Error" && typeof scopeRef[eObj.name] == "function"){
-		errRef = eObj.name;
-	}
-	
-	// Create the object and copy its properties.
-	r = new scopeRef[errRef](eObj.message || null, eObj.fileName || null, eObj.lineNumber || null);
-	r.name = eObj.name + "";
-	r.stack = (eObj.stack || "") + "";
-	r.message = eObj.message + "";
-	r.fileName = typeof eObj.fileName != _undefined ? (eObj.fileName + "") : null;
-	r.lineNumber = typeof eObj.lineNumber != _undefined ? parseInt(eObj.lineNumber) : null;
-	r.columnNumber = typeof eObj.columnNumber != _undefined ? parseInt(eObj.columnNumber) : null;
-	
-	// Completely overwrite the toString function.
-	delete r.toString;
-	r.toString = function(){ return this.name + ': ' + this.message }.bind(r);
-	return r;
-};
-
 function mCloneInto(obj, scope, args, debug, depth){
 	if(typeof cloneInto !== _undefined){
 		depth = depth || 0;
@@ -1012,97 +578,121 @@ function mCloneInto(obj, scope, args, debug, depth){
 				console.log('mCloneInto error', e);
 			}
 		}
-		//
+		
 		// If it fails, copy it piece-by-piece excluding any properties that fail to copy cleanly.
-		//
-		
-		
-		var x, output,
-			objType = typeof obj;
+		var i, x, objType, keys = [], tmp;
+		objType = typeof obj;
 		try{
-			// Some objects must be cloned specially
 			if(objType == "object"){
-				if(obj instanceof Error){
-					objType = "error";
-				} else if(obj.constructor === (new Array).constructor){
+				if(obj.constructor === (new Array).constructor)
 					objType = "array";
-				} else if(obj === null){
-					objType = "null";
-				}
+				else if(obj === null)
+					objTypr = "null";
 			}
 		}catch(e){}
 		
-		var objFn = function(o) {
-			var type = typeof o;
-			
-			// Copy strings, numbers, booleans, nulls and undefined objects normally
-			if(type == "string" || type == "number" || type == "boolean" || type == _undefined || o === null){
-				return o;
-			} else if(o instanceof Error) {
-				return cloneErrorObject(o, scope);
-			} else if(type == "object") {
-				if(depth < 3) {
-					try{
-						return mCloneInto(o, scope, args, debug, depth + 1);
-					}catch(e){}
-				}
-				try {
-					return cloneInto(o, scope, args);
-				} catch(e) {}
-				
-			} else if(type == "function" && args.cloneFunctions) {
-
-				try {
-					return cloneInto(o, scope, args);
-				} catch(e) {}
-			}
-		};
-		
-		
 		if(objType == "undefined" || objType == "null"){
 			return obj;
-		} else if(objType == "error") {
-			try{
-				output = cloneErrorObject(obj, scope);
-			}catch(e){}
-		} else if(objType == "array") {
-			output = cloneInto([], scope, args);
+		} else if(objType == "array"){
+			tmp = cloneInto([], scope, args);
+			//tmp = [];
+		} else {
+			tmp = cloneInto({}, scope, args);
+			//tmp = {};
+		}
+		
+		//for(i in obj){
+		var objFn = function(i){
+			var type = typeof obj[i], r;
+			
+			// Copy strings, numbers, and booleans normally
+			if(type == "string" || type == "number" || type == "boolean"){
+				r = obj[i];
+			// Copy objects by doing a "shallow" copy of its properties
+			} else if(obj[i] instanceof Error){
+				var errRef = "Error", scopeRef = (scope.Error && typeof scope.Error === "function" ? scope : unsafeWindow);
+				if(!scopeRef) return;
+				
+				if(obj[i].name != "Error" && typeof scopeRef[obj[i].name] == "function"){
+					errRef = obj[i].name;
+				}
+				r = new scopeRef[errRef](obj[i].message || null, obj[i].fileName || null, obj[i].lineNumber || null);
+				r.name = obj[i].name;
+				r.stack = obj[i].stack;
+				r.message = obj[i].message;
+				r.fileName = obj[i].fileName;
+				r.lineNumber = obj[i].lineNumber;
+				r.columnNumber = obj[i].columnNumber;
+				delete r.toString;
+				r.toString = function () { return this.name + ': ' + this.message }.bind(r);
+				
+			} else if(type == "object"){
+				if(depth < 3){
+					try{
+						r = mCloneInto(obj[i], scope, args, debug, depth + 1);
+					}catch(e){
+						try{
+							r = cloneInto(obj[i], scope, args);
+						}catch(e2){}
+					}
+				} else {
+				
+					try{
+						r = cloneInto(obj[i], scope, args);
+					}catch(e){}
+				}
+			} else if(type == "function" && args.cloneFunctions){
+				try{
+					r = cloneInto(obj[i], scope, args);
+				}catch(e){}
+			}
+			
+			return r;
+		};
+		
+		if(objType == "array"){
 			for(x = 0; x < obj.length; x++){
 				var tmpValue;
 				try{
-					tmpValue = objFn(obj[x]);
-				}catch(e){}
-				try{
-					output.push(tmpValue);
+					tmpValue = objFn(x);
 				}catch(e){
-					output.push(undefined);
+				
+				}
+				try{
+					tmp.push(tmpValue);
+				}catch(e){
+					tmp.push(undefined);
 				}
 			}
-		//} else if(objType == "function") {
-			// to Do:
-			// Create a new function (call it newFn) using the "Function"
-			// constructor in the desired scope or the unsafeWindow.
-			// Then export original function (obj) as newFn's constructor.
-			// Copy all other properties normally the same as a normal object
-			//
-			// However, this mExportFunction should still be used instead of
-			// directly cloning it.
-			//
-			// Does not depend on "args.cloneFunctions"
-			// Only properties of 
 		} else {
-			output = cloneInto({}, scope, args);
+			//keys = Object.getOwnPropertyNames(obj);
 			for(x in obj){
-				if(x != "constructor" && Object.prototype.hasOwnProperty.call(obj, x)) {
+				if(x != "constructor" && Object.prototype.hasOwnProperty.call(obj, x)){
 					var tmpValue;
 					try{
-						tmpValue = objFn(obj[x]);
-					}catch(e){}
-					output[x] = tmpValue;
+						tmpValue = objFn(x);
+					}catch(e){
+					
+					}
+					tmp[x] = objFn(x);
 				}
 			}
 		}
-		return output;
+		//return tmp;
+		return tmp;
+		try{
+			return cloneInto(tmp, scope, args);
+		}catch(e){}
+		
+		return tmp;
+		/*
+		try{
+			return cloneInto(tmp, scope, args);
+		}catch(e){
+			//return tmp;
+			return obj;
+		}
+		*/
 	} else {
 		// Manually clone object
 		// ToDo
@@ -1441,7 +1031,10 @@ var jModError = (function(){
 					this.stack = err.stack;
 				}
 			}
+			
 		}
+		
+		
 		
 		if(this.stack && !data.fileName){
 			var tmp = jMod.parseStack(this.stack);
@@ -1539,9 +1132,6 @@ try{
 	// Object Prototypes
 
 	
-	// Object Prototypes
-
-	
 	if (!String.prototype.trim) {
 		(function() {
 			Object.defineProperty(String.prototype, 'trim', {
@@ -1617,12 +1207,6 @@ var RealTypeOf = jMod.RealTypeOf = function(_obj){
 			}
 			if (obj.constructor === (new RegExp).constructor) return "regex";
 			return Object.prototype.toString.call(obj).replace(/^\[object |\]$/g,'').toLowerCase();
-		}
-	}catch(e){}
-	try{
-		if(typeof(obj) === "function"){
-			if(obj.typeOfName && typeof obj.typeOfName === "string") return obj.typeOfName;
-			if(obj.displayName && typeof obj.displayName === "string") return obj.displayName;
 		}
 	}catch(e){}
 	return typeof(obj);
@@ -3998,7 +3582,6 @@ var LogFormatCSS = new (function(){
 			this.updateWC(getWC());
 		},
 		
-		/*
 		// For commands you can't call .apply on (like when an error object is involved)
 		ScopedConsoleCommand: function(command, value){
 			var i = 0, ptr, cmd, args = arguments,
@@ -4091,7 +3674,7 @@ var LogFormatCSS = new (function(){
 			}
 			return false;
 		},
-		*/
+		
 		ConsoleCommand: function(command, value){
 			try{
 				var i = 0, key, order = ['WebConsole', 'Firebug'],
@@ -7948,7 +7531,7 @@ Notification.Types = {
 			if(totalCount > 0){
 				var tHeight = totalCount * 25;
 				var smallNotificationsContainer = Notification('getElement', 'notificationsSmallWrapper');
-				var smNotes = jMod.$$('div[data-jmod-small-notification]', smallNotificationsContainer);
+				var smNotes = smallNotificationsContainer.querySelectorAll('div[data-jmod-small-notification]');
 				for(var i = 0; i < smNotes.length; i++){
 					tHeight += parseInt(smNotes[i].offsetHeight);
 				}
@@ -8949,7 +8532,7 @@ const fadeAnimationLength = 150;
  * @returns {Element} DOM Element
  */
 Modal.getModal = function(number){
-	var modal = jMod.$('div[data-jmod-modal="'+number+'"]');
+	var modal = document.querySelector('div[data-jmod-modal="'+number+'"]');
 	if(modal)
 		return modal;
 	if(typeof Modal.Modals[number] !== _undefined)
@@ -12126,13 +11709,12 @@ setInterval(checkTimer, 25);
 			jMod.InitializeEndTime = performance.now;
 		}, 0);
 	}
-	if(jMod.debug){
-		jModLogTime('jMod Initialize Time Elapsed');
-		console.log('unsafeWindow', unsafeWindow);
-		console.log('window', window);
-		console.log('global', Object.prototype.toString.call(this).replace(/^\[object |\]$/g,'').toLowerCase(), this);
-	}
-/*
+	if(jMod.debug) jModLogTime('jMod Initialize Time Elapsed');
+	
+	console.log('unsafeWindow', unsafeWindow);
+	console.log('window', window);
+	console.log('global', this);
+	
 try{
 	var x = fofofo(a);
 	//throw new jModError('Er test');
@@ -12141,7 +11723,6 @@ try{
 	var foo = new jModError(e);
 	foo.log('Error Title', 'Error body');
 }
-*/
 
 	return jMod;
 });

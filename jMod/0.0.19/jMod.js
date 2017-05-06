@@ -5,7 +5,7 @@
 // @homepage         http://myuserjs.org/
 // @license          GNU GPL version 3; http://www.gnu.org/licenses/gpl-3.0.txt
 // @exclude          *
-// @version          0.0.20
+// @version          0.0.19
 // @grant            unsafeWindow
 // @grant            GM_info
 // @grant            GM_log
@@ -24,83 +24,6 @@
 // @run-at           document-start
 // ==/UserScript==
 +function($, unsafeWindow, window, factory) {
-    function exportArgs(name, cb, coa) {
-        var length = arguments.length;
-        var t = {
-            allowCallbacks: length > 1 ? true == cb : true,
-            allowCrossOriginArguments: length > 2 ? true == coa : true
-        };
-        if (length > 0 && name) t.defineAs = name;
-        return t;
-    }
-    var validDeepExports = [ "Element" ];
-    function exportProxy(obj, args) {
-        args = args || {};
-        var exportHandlers = cloneInto({}, unsafeWindow, {
-            cloneFunctions: true,
-            wrapReflectors: true
-        });
-        exportFunction(args["get"] || function(oTarget, sKey) {
-            if ("undefined" !== typeof obj[sKey] || sKey in obj) {
-                try {
-                    if (obj === jMod && validDeepExports.indexOf(sKey) > -1) return exportProxy(obj[sKey]);
-                } catch (e) {}
-                if ("object" === typeof obj[sKey] || "function" === typeof obj[sKey]) try {
-                    return cloneInto(obj[sKey], unsafeWindow, {
-                        cloneFunctions: true,
-                        wrapReflectors: true
-                    });
-                } catch (e) {}
-                return obj[sKey];
-            } else return;
-        }, exportHandlers, exportArgs("get"));
-        exportFunction(args["set"] || function(oTarget, sKey, vValue) {
-            try {
-                obj[sKey] = vValue;
-            } catch (e) {
-                return false;
-            }
-            return true;
-        }, exportHandlers, exportArgs("set"));
-        exportFunction(args["has"] || function(oTarget, sKey) {
-            return sKey in obj;
-        }, exportHandlers, exportArgs("has"));
-        exportFunction(args["enumerate"] || function(oTarget, sKey) {
-            try {
-                return obj.keys()[Symbol.iterator]();
-            } catch (e) {}
-            try {
-                return obj.keys();
-            } catch (e) {}
-        }, exportHandlers, exportArgs("enumerate"));
-        exportFunction(args["ownKeys"] || function(oTarget, sKey) {
-            return Object.getOwnPropertyNames(obj);
-        }, exportHandlers, exportArgs("ownKeys"));
-        exportFunction(args["defineProperty"] || function(oTarget, sKey, oDesc) {
-            if (oDesc && !(sKey in obj)) Object.defineProperty(obj, sKey, oDesc);
-            return obj;
-        }, exportHandlers, exportArgs("defineProperty"));
-        exportFunction(function(oTarget, sKey) {
-            return Object.getOwnPropertyDescriptor(obj, sKey);
-        }, exportHandlers, exportArgs("getOwnPropertyDescriptor"));
-        exportFunction(args["construct"] || function(oTarget, argumentsList) {
-            return obj.apply(obj, argumentsList);
-        }, exportHandlers, exportArgs("construct"));
-        exportFunction(function(oTarget, sKey) {
-            return obj.prototype;
-        }, exportHandlers, exportArgs("getPrototypeOf"));
-        exportFunction(function(oTarget, thisArg, argumentsList) {
-            return obj.apply(obj, argumentsList);
-        }, exportHandlers, exportArgs("apply"));
-        try {
-            return new unsafeWindow.Proxy(exportFunction(function() {
-                return obj.apply(obj, arguments);
-            }, unsafeWindow, exportArgs()), exportHandlers);
-        } catch (e) {
-            console.log("export error", e);
-            return;
-        }
-    }
     var jMod = factory.call(this, window && "undefined" !== typeof window.performance ? window.performance.now() : 0, $, console, window, unsafeWindow, "undefined", void 0);
     var addToGlobalScope = jMod.Config.addToGlobalScope;
     if (this.jMod) {
@@ -109,11 +32,7 @@
     }
     this.jMod = jMod;
     if (addToGlobalScope) try {
-        if (jMod.isFirefox && jMod.isSandbox && "undefined" !== typeof unsafeWindow.Proxy && "undefined" !== typeof cloneInto && "undefined" !== typeof exportFunction) {
-            console.log("Export jMod");
-            unsafeWindow.jMod = exportProxy(jMod);
-            if (window !== unsafeWindow) window.jMod = jMod;
-        } else if (unsafeWindow !== this) unsafeWindow.jMod = jMod;
+        if (unsafeWindow !== this) unsafeWindow.jMod = jMod;
     } catch (e) {
         try {
             if (window !== this) window.jMod = jMod;
@@ -122,15 +41,14 @@
         }
     }
     if (jMod.debug) jMod.log.groupEnd("jMod Initialize");
-}.call(this, "undefined" !== typeof jQuery ? jQuery : void 0, "undefined" !== typeof unsafeWindow && "window" === Object.prototype.toString.call(unsafeWindow).replace(/^\[object |\]$/g, "").toLowerCase() ? unsafeWindow : "undefined" !== typeof this.unsafeWindow && "window" === Object.prototype.toString.call(this.unsafeWindow).replace(/^\[object |\]$/g, "").toLowerCase() ? this.unsafeWindow : "undefined" !== typeof window && window.top && "window" === Object.prototype.toString.call(window).replace(/^\[object |\]$/g, "").toLowerCase() ? window : this, this.window || window, function(initStart, $, console, window, unsafeWindow, _undefined, undefined) {
-    var _global = this;
-    var jMod = function() {
+}.call(this, "undefined" !== typeof jQuery ? jQuery : void 0, "undefined" !== typeof unsafeWindow && unsafeWindow.top && "window" === Object.prototype.toString.call(unsafeWindow).replace(/^\[object |\]$/g, "").toLowerCase() ? unsafeWindow : "undefined" !== typeof window && window.top && "window" === Object.prototype.toString.call(window).replace(/^\[object |\]$/g, "").toLowerCase() ? window : this, window, function(initStart, $, console, window, unsafeWindow, _undefined, undefined) {
+    function jMod() {
         return jMod._call.apply(jMod, arguments);
-    };
+    }
     jMod.InitializeStartTime = initStart;
     jMod.InitializeEndTime = -1;
     const fontBaseURL = "http://code.jmod.info/fonts";
-    var Slice = Array.prototype.slice, _jQueryAvailable = _undefined != typeof $ ? true : false, jModReady = -1, _css = "@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n" + "@import url(http://code.jmod.info/fonts/sansation.css);\n", defaultjModCSSURL = false ? "@import url(//test2.myuserjs.org/API/0.0.20/jMod.css);\n" : "@import url(http://code.jmod.info/0.0.20/jMod.css);\n", CurrentRunningScript = {
+    var Slice = Array.prototype.slice, _jQueryAvailable = _undefined != typeof $ ? true : false, jModReady = -1, _css = "@import url(//fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700);\n" + "@import url(http://code.jmod.info/fonts/sansation.css);\n", defaultjModCSSURL = false ? "@import url(//test2.myuserjs.org/API/0.0.19/jMod.css);\n" : "@import url(http://code.jmod.info/0.0.19/jMod.css);\n", CurrentRunningScript = {
         id: "jMod",
         config: {},
         el: undefined
@@ -143,7 +61,7 @@
     try {
         CurrentRunningScript.el = unsafeWindow.document && unsafeWindow.document.currentScript ? unsafeWindow.document.currentScript : undefined;
     } catch (e) {}
-    function DefineLockedProp(name, value, target, en) {
+    var DefineLockedProp = function(name, value, target, en) {
         var opts = {
             configurable: false,
             enumerable: false === en ? en : true
@@ -153,14 +71,12 @@
             opts.writable = false;
         }
         Object.defineProperty(target || jMod, name, opts);
-    }
-    DefineLockedProp("displayName", "jMod", null, false);
-    DefineLockedProp("typeOfName", "jMod", null, false);
+    };
     DefineLockedProp("ScriptElement", function() {
         return CurrentRunningScript.el ? CurrentRunningScript : undefined;
     });
-    DefineLockedProp("version", "0.0.20");
-    DefineLockedProp("build_time", "1494089011000");
+    DefineLockedProp("version", "0.0.19");
+    DefineLockedProp("build_time", "1424180974000");
     DefineLockedProp("build_type", "release");
     DefineLockedProp("_debug", false);
     Object.defineProperty(jMod, "debug", {
@@ -193,28 +109,6 @@
     });
     DefineLockedProp("jQuery", function() {
         return jMod.jQueryAvailable ? $ : undefined;
-    });
-    Object.defineProperties(jMod, {
-        isSandbox: {
-            value: function() {
-                return "sandbox" === Object.prototype.toString.call(this).replace(/^\[object |\]$/g, "").toLowerCase();
-            }(),
-            enumerable: true,
-            writable: false,
-            configurable: false
-        },
-        isFirefox: {
-            get: function() {
-                return (typeof navigator != _undefined ? navigator : window.navigator || unsafeWindow.navigator).userAgent.toLowerCase().indexOf("firefox") > -1;
-            },
-            enumerable: false
-        },
-        isChrome: {
-            get: function() {
-                return (typeof navigator != _undefined ? navigator : window.navigator || unsafeWindow.navigator).userAgent.toLowerCase().indexOf("chrome") > -1;
-            },
-            enumerable: false
-        }
     });
     var performance = new function() {
         var _performance;
@@ -287,77 +181,6 @@
         addStyle(_css + (input || ""));
         _css = "";
     };
-    +function() {
-        function Watcher(obj, property, handler) {
-            if (!(Watcher.browserSupportsWatch && "function" === typeof obj.watch) || !Watcher.browserSupportsObserve) throw new jModError("Browser does not support watch or observe");
-            if (obj.__watcher) {
-                obj.__watcher.add(property, handler);
-                return obj.__watcher;
-            }
-            var _this = this;
-            _this.target = obj;
-            _this.properties = {};
-            if (property && handler) {
-                _this.defaultHandler = handler;
-                _this.properties[property] = handler;
-            }
-            _this.enabled = true;
-            obj.__watcher = this;
-            if (Watcher.browserSupportsWatch && "function" === typeof obj.watch) {
-                if (property && handler) obj.watch(property, handler);
-            } else if (Watcher.browserSupportsObserve) Object.observe(obj, function(changes) {
-                var i = 0, errs = [];
-                for (;i < changes.length; i++) {
-                    var change = changes[i], changeObj = change.object, changeName = change.name, changeOldValue = change.oldValue, changeType = change.type, changeWatcher = change.__watcher || _this || this;
-                    if (!changeWatcher || !changeWatcher.enabled || "__watcher" === changeName || !changeWatcher.properties[changeName]) return;
-                    try {
-                        (changeWatcher.properties[changeName] || changeWatcher.defaultHandler).call(changeObj, changeName, changeOldValue, changeObj[changeName]);
-                    } catch (e) {
-                        changeWatcher.enabled = false;
-                        switch (type) {
-                          case "update":
-                            changeObj[changeName] = changeOldValue;
-                            break;
-
-                          case "add":
-                            delete changeObj[changeName];
-                            break;
-
-                          case "delete":
-                            changeObj[changeName] = changeOldValue;
-                        }
-                        changeWatcher.enabled = true;
-                        errs.push(e);
-                    }
-                }
-                if (errs.length > 0) throw errs;
-            });
-            return _this;
-        }
-        Watcher.displayName = "Watcher";
-        Watcher.browserSupportsWatch = Object.prototype.watch ? true : false;
-        Watcher.browserSupportsObserve = Object.observe ? true : false;
-        Watcher.prototype = {
-            add: function(property, handler) {
-                if (property && (handler || this.defaultHandler)) {
-                    if (!this.defaultHandler && handler) this.defaultHandler = handler;
-                    this.properties[property] = handler || null;
-                    if (Watcher.browserSupportsWatch && "function" === typeof obj.watch) obj.watch(property, handler || this.defaultHandler);
-                }
-                return this;
-            },
-            unwatch: function(property) {
-                this.enabled = false;
-                if (property) {
-                    if (this.properties[property]) delete this.properties[property];
-                    if (Watcher.browserSupportsWatch) this.target.unwatch(property);
-                } else for (var prop in this.properties) if (prop) this.unwatch(prop);
-                this.enabled = true;
-                return this;
-            }
-        };
-        jMod.Watcher = Watcher;
-    }();
     function getFirstValidKey(obj, arr, filter) {
         var hasFilter = "function" === typeof filter ? true : false;
         var args = arr;
@@ -433,24 +256,6 @@
             enumerable: false
         }
     };
-    function cloneErrorObject(eObj, scope) {
-        scope = scope || unsafeWindow;
-        var r, errRef = "Error", scopeRef = scope.Error && "function" === typeof scope.Error ? scope : unsafeWindow;
-        if (!scopeRef) return;
-        if (eObj.name && "Error" != eObj.name && "function" == typeof scopeRef[eObj.name]) errRef = eObj.name;
-        r = new scopeRef[errRef](eObj.message || null, eObj.fileName || null, eObj.lineNumber || null);
-        r.name = eObj.name + "";
-        r.stack = (eObj.stack || "") + "";
-        r.message = eObj.message + "";
-        r.fileName = typeof eObj.fileName != _undefined ? eObj.fileName + "" : null;
-        r.lineNumber = typeof eObj.lineNumber != _undefined ? parseInt(eObj.lineNumber) : null;
-        r.columnNumber = typeof eObj.columnNumber != _undefined ? parseInt(eObj.columnNumber) : null;
-        delete r.toString;
-        r.toString = function() {
-            return this.name + ": " + this.message;
-        }.bind(r);
-        return r;
-    }
     function mCloneInto(obj, scope, args, debug, depth) {
         if (typeof cloneInto !== _undefined) {
             depth = depth || 0;
@@ -459,49 +264,64 @@
             } catch (e) {
                 if (debug) console.log("mCloneInto error", e);
             }
-            var x, output, objType = typeof obj;
+            var i, x, objType, keys = [], tmp;
+            objType = typeof obj;
             try {
-                if ("object" == objType) if (obj instanceof Error) objType = "error"; else if (obj.constructor === new Array().constructor) objType = "array"; else if (null === obj) objType = "null";
+                if ("object" == objType) if (obj.constructor === new Array().constructor) objType = "array"; else if (null === obj) objTypr = "null";
             } catch (e) {}
-            var objFn = function(o) {
-                var type = typeof o;
-                if ("string" == type || "number" == type || "boolean" == type || type == _undefined || null === o) return o; else if (o instanceof Error) return cloneErrorObject(o, scope); else if ("object" == type) {
-                    if (depth < 3) try {
-                        return mCloneInto(o, scope, args, debug, depth + 1);
-                    } catch (e) {}
+            if ("undefined" == objType || "null" == objType) return obj; else if ("array" == objType) tmp = cloneInto([], scope, args); else tmp = cloneInto({}, scope, args);
+            var objFn = function(i) {
+                var type = typeof obj[i], r;
+                if ("string" == type || "number" == type || "boolean" == type) r = obj[i]; else if (obj[i] instanceof Error) {
+                    var errRef = "Error", scopeRef = scope.Error && "function" === typeof scope.Error ? scope : unsafeWindow;
+                    if (!scopeRef) return;
+                    if ("Error" != obj[i].name && "function" == typeof scopeRef[obj[i].name]) errRef = obj[i].name;
+                    r = new scopeRef[errRef](obj[i].message || null, obj[i].fileName || null, obj[i].lineNumber || null);
+                    r.name = obj[i].name;
+                    r.stack = obj[i].stack;
+                    r.message = obj[i].message;
+                    r.fileName = obj[i].fileName;
+                    r.lineNumber = obj[i].lineNumber;
+                    r.columnNumber = obj[i].columnNumber;
+                    delete r.toString;
+                    r.toString = function() {
+                        return this.name + ": " + this.message;
+                    }.bind(r);
+                } else if ("object" == type) if (depth < 3) try {
+                    r = mCloneInto(obj[i], scope, args, debug, depth + 1);
+                } catch (e) {
                     try {
-                        return cloneInto(o, scope, args);
-                    } catch (e) {}
-                } else if ("function" == type && args.cloneFunctions) try {
-                    return cloneInto(o, scope, args);
+                        r = cloneInto(obj[i], scope, args);
+                    } catch (e2) {}
+                } else try {
+                    r = cloneInto(obj[i], scope, args);
+                } catch (e) {} else if ("function" == type && args.cloneFunctions) try {
+                    r = cloneInto(obj[i], scope, args);
                 } catch (e) {}
+                return r;
             };
-            if ("undefined" == objType || "null" == objType) return obj; else if ("error" == objType) try {
-                output = cloneErrorObject(obj, scope);
-            } catch (e) {} else if ("array" == objType) {
-                output = cloneInto([], scope, args);
-                for (x = 0; x < obj.length; x++) {
-                    var tmpValue;
-                    try {
-                        tmpValue = objFn(obj[x]);
-                    } catch (e) {}
-                    try {
-                        output.push(tmpValue);
-                    } catch (e) {
-                        output.push(undefined);
-                    }
+            if ("array" == objType) for (x = 0; x < obj.length; x++) {
+                var tmpValue;
+                try {
+                    tmpValue = objFn(x);
+                } catch (e) {}
+                try {
+                    tmp.push(tmpValue);
+                } catch (e) {
+                    tmp.push(undefined);
                 }
-            } else {
-                output = cloneInto({}, scope, args);
-                for (x in obj) if ("constructor" != x && Object.prototype.hasOwnProperty.call(obj, x)) {
-                    var tmpValue;
-                    try {
-                        tmpValue = objFn(obj[x]);
-                    } catch (e) {}
-                    output[x] = tmpValue;
-                }
+            } else for (x in obj) if ("constructor" != x && Object.prototype.hasOwnProperty.call(obj, x)) {
+                var tmpValue;
+                try {
+                    tmpValue = objFn(x);
+                } catch (e) {}
+                tmp[x] = objFn(x);
             }
-            return output;
+            return tmp;
+            try {
+                return cloneInto(tmp, scope, args);
+            } catch (e) {}
+            return tmp;
         } else ;
         return obj;
     }
@@ -772,12 +592,6 @@
                 }
                 if (obj.constructor === new RegExp().constructor) return "regex";
                 return Object.prototype.toString.call(obj).replace(/^\[object |\]$/g, "").toLowerCase();
-            }
-        } catch (e) {}
-        try {
-            if ("function" === typeof obj) {
-                if (obj.typeOfName && "string" === typeof obj.typeOfName) return obj.typeOfName;
-                if (obj.displayName && "string" === typeof obj.displayName) return obj.displayName;
             }
         } catch (e) {}
         return typeof obj;
@@ -1996,6 +1810,120 @@
                 this.updateFB(getFB());
                 this.updateC2(getC2());
                 this.updateWC(getWC());
+            },
+            ScopedConsoleCommand: function(command, value) {
+                var i = 0, ptr, cmd, args = arguments, order = [ "WebConsole", "Firebug" ], objs = {
+                    Firebug: this.fb,
+                    WebConsole: this.wc
+                };
+                if ([ "profile", "profileEnd", "error" ].indexOf(command) != -1 || !jConfig.API.log.WebConsole) order = [ "Firebug", "WebConsole" ];
+                for (;i < order.length; i++) {
+                    ptr = objs[order[i]];
+                    cmd = ptr[command];
+                    if (_undefined == typeof ptr || _undefined == typeof cmd) continue;
+                    try {
+                        if (ptr === this.fb) {
+                            console.log("is fb");
+                            if (!ptr._apply) {
+                                var _apply = function(command, arg) {
+                                    if (this && this.log && this[command]) try {
+                                        this[command].apply(this, arg);
+                                    } catch (ex) {
+                                        console.log("fb _apply err", ex);
+                                    } else console.log("no this", this, command);
+                                };
+                                if (unsafeWindow !== window) this.fb._apply = mExportFunction(_apply.bind(this.fb), unsafeWindow, {
+                                    allowCallbacks: true,
+                                    allowCrossOriginArguments: true
+                                }); else this.fb._apply = _apply.bind(this.fb);
+                            }
+                            var tmp, tmp2;
+                            try {
+                                tmp = Slice.call(arguments, 1);
+                            } catch (te) {
+                                console.log("tmp error", te);
+                                tmp = arguments;
+                            }
+                            try {
+                                tmp2 = mCloneInto(tmp, unsafeWindow, {
+                                    cloneFunctions: true,
+                                    wrapReflectors: true
+                                }, true);
+                            } catch (te) {
+                                console.log("tmp2 error", te);
+                                tmp2 = tmp;
+                            }
+                            try {
+                                console.log("_apply input", RealTypeOf(tmp2), tmp2);
+                                return this.fb._apply.call(this.fb, command, tmp2);
+                            } catch (te) {
+                                console.log("_apply error", te);
+                            }
+                        }
+                        switch (args.length) {
+                          case 1:
+                            return cmd.call(ptr);
+
+                          case 2:
+                            return cmd.call(ptr, args[1]);
+
+                          case 3:
+                            return cmd.call(ptr, args[1], args[2]);
+
+                          case 4:
+                            return cmd.call(ptr, args[1], args[2], args[3]);
+
+                          case 5:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4]);
+
+                          case 6:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5]);
+
+                          case 7:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6]);
+
+                          case 8:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
+
+                          case 9:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]);
+
+                          case 10:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9]);
+
+                          case 11:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10]);
+
+                          case 12:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11]);
+
+                          case 13:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12]);
+
+                          case 14:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13]);
+
+                          case 15:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14]);
+
+                          case 16:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15]);
+
+                          case 17:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16]);
+
+                          case 18:
+                            return cmd.call(ptr, args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15], args[16], args[17]);
+
+                          default:
+                            return false;
+                        }
+                        return true;
+                    } catch (e) {
+                        console.log("log error", e);
+                    }
+                }
+                return false;
             },
             ConsoleCommand: function(command, value) {
                 try {
@@ -3951,7 +3879,7 @@
                 if (totalCount > 0) {
                     var tHeight = 25 * totalCount;
                     var smallNotificationsContainer = Notification("getElement", "notificationsSmallWrapper");
-                    var smNotes = jMod.$$("div[data-jmod-small-notification]", smallNotificationsContainer);
+                    var smNotes = smallNotificationsContainer.querySelectorAll("div[data-jmod-small-notification]");
                     for (var i = 0; i < smNotes.length; i++) tHeight += parseInt(smNotes[i].offsetHeight);
                     tmpTop += tHeight;
                 }
@@ -4616,7 +4544,7 @@
     });
     const fadeAnimationLength = 150;
     Modal.getModal = function(number) {
-        var modal = jMod.$('div[data-jmod-modal="' + number + '"]');
+        var modal = document.querySelector('div[data-jmod-modal="' + number + '"]');
         if (modal) return modal;
         if (typeof Modal.Modals[number] !== _undefined) return Modal.Modals[number].element;
         return null;
@@ -6596,11 +6524,15 @@
     if (performance.available) setTimeout(function() {
         jMod.InitializeEndTime = performance.now;
     }, 0);
-    if (jMod.debug) {
-        jModLogTime("jMod Initialize Time Elapsed");
-        console.log("unsafeWindow", unsafeWindow);
-        console.log("window", window);
-        console.log("global", Object.prototype.toString.call(this).replace(/^\[object |\]$/g, "").toLowerCase(), this);
+    if (jMod.debug) jModLogTime("jMod Initialize Time Elapsed");
+    console.log("unsafeWindow", unsafeWindow);
+    console.log("window", window);
+    console.log("global", this);
+    try {
+        var x = fofofo(a);
+    } catch (e) {
+        var foo = new jModError(e);
+        foo.log("Error Title", "Error body");
     }
     return jMod;
 });
