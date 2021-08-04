@@ -129,8 +129,8 @@ jMod.Events.addListener('onReady', function(){
 ```
 
 <div align="center">
-	<a href="http://myuserjs.org/img/jMod/jMod_Events_Log.png">
-		<img width="80%" align="center" src="http://myuserjs.org/img/jMod/jMod_Events_Log.png" alt="jMod Event Log">
+	<a href="https://jmod.info/images/jMod_Events_Log.png">
+		<img width="80%" align="center" src="https://jmod.info/images/jMod_Events_Log.png" alt="jMod Event Log">
 	</a>
 	<div align="center">jMod Event Log</div>
 </div>
@@ -142,8 +142,8 @@ jMod.Events.addListener('onReady', function(){
 **[Tutorial](http://doc.myuserjs.org/tutorial-jMod-tutorial.html#settings_example)**
 
 <div align="center">
-	<a href="http://myuserjs.org/img/jMod/jMod_Settings_Example.png">
-		<img src="http://myuserjs.org/img/jMod/jMod_Settings_Example.png" alt="jMod Settings Example" width="80%" align="center">
+	<a href="https://jmod.info/images/jMod_Settings_Example.png">
+		<img src="https://jmod.info/images/jMod_Settings_Example.png" alt="jMod Settings Example" width="80%" align="center">
 	</a>
 	<div align="center">jMod Settings Example</div>
 </div>
@@ -153,8 +153,8 @@ jMod.Events.addListener('onReady', function(){
 ##Notifications
 
 <div align="center">
-	<a href="http://myuserjs.org/img/jMod/jMod_Notification_Example.png" name="notification_example_image">
-		<img src="http://myuserjs.org/img/jMod/jMod_Notification_Example.png" alt="jMod Notifications Example" width="50%" align="center">
+	<a href="https://jmod.info/images/jMod_Notification_Example.png" name="notification_example_image">
+		<img src="https://jmod.info/images/jMod_Notification_Example.png" alt="jMod Notifications Example" width="50%" align="center">
 	</a>
 	<div align="center">jMod Notifications Example</div>
 </div>
